@@ -145,6 +145,7 @@ vmCvar_t  g_adminSayFilter;
 vmCvar_t  g_adminNameProtect;
 vmCvar_t  g_adminTempBan;
 vmCvar_t  g_minLevelToJoinTeam;
+vmCvar_t  g_forceAutoSelect;
 
 vmCvar_t  g_privateMessages;
 vmCvar_t  g_decolourLogfiles;
@@ -308,6 +309,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_adminNameProtect, "g_adminNameProtect", "1", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminTempBan, "g_adminTempBan", "2m", CVAR_ARCHIVE, 0, qfalse  },
   { &g_minLevelToJoinTeam, "g_minLevelToJoinTeam", "0", CVAR_ARCHIVE, 0, qfalse  },
+  { &g_forceAutoSelect, "g_forceAutoSelect", "0", CVAR_ARCHIVE, 0, qtrue }, 
   
   { &g_privateMessages, "g_privateMessages", "1", CVAR_ARCHIVE, 0, qfalse  },
   { &g_decolourLogfiles, "g_decolourLogfiles", "0", CVAR_ARCHIVE, 0, qfalse  },

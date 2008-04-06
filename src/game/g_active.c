@@ -1849,6 +1849,7 @@ void SpectatorClientEndFrame( gentity_t *ent )
 {
   gclient_t *cl;
   int       clientNum, flags;
+  vec3_t   spawn_origin, spawn_angles;
 
   // if we are doing a chase cam or a remote view, grab the latest info
   if( ent->client->sess.spectatorState == SPECTATOR_FOLLOW )
@@ -1878,9 +1879,15 @@ void SpectatorClientEndFrame( gentity_t *ent )
  	  ent->client->ps.weapon = 0;
  	  ent->client->ps.pm_flags |= PMF_FOLLOW;
  	  ent->client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
- 	  VectorCopy( level.intermission_origin, ent->s.origin );
-          VectorCopy( level.intermission_origin, ent->client->ps.origin );
-          VectorCopy( level.intermission_angle, ent->client->ps.viewangles );
+
+	  if( cl->pers.teamSelection == PTE_ALIENS )
+	    G_SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );
+          else if( cl->pers.teamSelection == PTE_HUMANS )
+	    G_SelectHumanLockSpawnPoint( spawn_origin, spawn_angles );
+	  
+          G_SetOrigin( ent, spawn_origin );
+          VectorCopy( spawn_origin, ent->client->ps.origin );
+          G_SetClientViewAngle( ent, spawn_angles );
  	}
       }
     }

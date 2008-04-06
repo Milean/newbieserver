@@ -619,7 +619,13 @@ void G_LeaveTeam( gentity_t *self )
   else if( team == PTE_HUMANS )
     G_RemoveFromSpawnQueue( &level.humanSpawnQueue, self->client->ps.clientNum );
   else
+  {
+    if( self->client->sess.spectatorState == SPECTATOR_FOLLOW )
+    {
+      G_StopFollowing( self );
+    }
     return;
+  }
 
   // stop any following clients
   G_StopFromFollowing( self );
@@ -798,6 +804,12 @@ void Cmd_Team_f( gentity_t *ent )
   }
   else if( !Q_stricmp( s, "aliens" ) )
   {
+    if( g_forceAutoSelect.integer && !G_admin_permission(ent, ADMF_FORCETEAMCHANGE) )
+    {
+      trap_SendServerCommand( ent-g_entities, "print \"You can only join teams using autoselect\n\"" );
+      return;
+    }
+
     if( level.alienTeamLocked && !force )
     {
       trap_SendServerCommand( ent-g_entities,
@@ -822,6 +834,12 @@ void Cmd_Team_f( gentity_t *ent )
   }
   else if( !Q_stricmp( s, "humans" ) )
   {
+    if( g_forceAutoSelect.integer && !G_admin_permission(ent, ADMF_FORCETEAMCHANGE) )
+    {
+      trap_SendServerCommand( ent-g_entities, "print \"You can only join teams using autoselect\n\"" );
+      return;
+    }
+
     if( level.humanTeamLocked && !force )
     {
       trap_SendServerCommand( ent-g_entities,
@@ -3404,6 +3422,7 @@ void G_StopFollowing( gentity_t *ent )
   if( ent->client->pers.teamSelection == PTE_NONE )
   {
     ent->client->sess.spectatorState = SPECTATOR_FREE;
+    ent->client->ps.pm_type = PM_SPECTATOR;
   }
   else
   {
@@ -3569,7 +3588,7 @@ void Cmd_Follow_f( gentity_t *ent )
     }
 
     // can't follow another spectator
-    if( level.clients[ i ].sess.sessionTeam == TEAM_SPECTATOR )
+    if( level.clients[ i ].pers.teamSelection == PTE_NONE)
     {
       trap_SendServerCommand( ent - g_entities, "print \"follow: You cannot follow another spectator.\n\"" );
       return;

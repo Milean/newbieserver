@@ -4006,6 +4006,7 @@ qboolean G_StringReplaceCvars( char *input, char *output, int len );
 qboolean G_admin_info( gentity_t *ent, int skiparg )
 {
   fileHandle_t infoFile;
+  int length;
   char filename[ MAX_OSPATH ], message[ MAX_STRING_CHARS ]; 
   if( G_SayArgc() == 2 + skiparg )
     G_SayArgv( 1 + skiparg, filename, sizeof( filename ) );
@@ -4017,29 +4018,29 @@ qboolean G_admin_info( gentity_t *ent, int skiparg )
     return qfalse;
   }
   Com_sprintf( filename, sizeof( filename ), "info/info-%s.txt", filename );
-  if( !trap_FS_FOpenFile( filename, &infoFile, FS_READ ) || !infoFile )
+  length = trap_FS_FOpenFile( filename, &infoFile, FS_READ );
+  if( length <= 0 || !infoFile )
   {
-    ADMP( "^3!info: ^7no relevant info is available\n" );
+    trap_FS_FCloseFile( infoFile );
+    ADMP( "^3!info: ^7no relevant information is available\n" );
     return qfalse;
   }
   else
   {
     int i;
-    // trap_FS_Read doesn't seem to null-terminate properly
-    memset( message, 0, sizeof( message ) );
     trap_FS_Read( message, sizeof( message ), infoFile );
+    if( length < sizeof( message ) )
+      message[ length ] = '\0';
+    else
+      message[ sizeof( message ) - 1 ] = '\0';
     trap_FS_FCloseFile( infoFile );
 #define MAX_INFO_PARSE_LOOPS 100
-    for( i = 0; i < MAX_INFO_PARSE_LOOPS && 
-        G_StringReplaceCvars( message, message, sizeof( message ) ); i++ )
+    for( i = 0; i < MAX_INFO_PARSE_LOOPS &&
+        G_StringReplaceCvars( message, message, sizeof( message ) ); i++ );
     G_Unescape( message, message, sizeof( message ) );
     if( i == MAX_INFO_PARSE_LOOPS )
-      G_Printf( S_COLOR_YELLOW "WARNING: %s exceeds MAX_INFO_PARSE_LOOPS\n", 
-          filename );
-    if( message[ strlen( message ) - 1 ] != '\n' )
-      ADMP( va( "%s\n", message ) );
-    else
-      ADMP( message );
+      G_Printf( "^3WARNING: %s exceeds MAX_INFO_PARSE_LOOPS\n", filename );
+    ADMP( va( "%s\n", message ) );
     return qtrue;
   }
 }
@@ -4048,13 +4049,20 @@ void G_Unescape( char *input, char *output, int len )
 {
   // \n -> newline, \%c -> %c
   // output is terminated at output[len - 1]
+  // it's OK for input to equal output, because our position in input is always
+  // equal or greater than our position in output
+  // however, if output is later in the same string as input, a crash is pretty
+  // much inevitable
   int i, j;
   for( i = j = 0; input[i] && j + 1 < len; i++, j++ )
   {
     if( input[i] == '\\' )
     {
       if( !input[++i] )
-        break;
+      {
+        output[j] = '\0';
+        return;
+      }
       else if( input[i] == 'n' )
         output[j] = '\n';
       else
@@ -4075,14 +4083,16 @@ qboolean G_StringReplaceCvars( char *input, char *output, int len )
   // use our own internal buffer in case output == input
   outputBuffer = G_Alloc( len );
   len -= 1; // fit in a terminator
-  while( *input && outNum < len )
+  if( len < 0 )
+    return qfalse;
+  while( *input && outNum < len - 1 )
   {
-    if( *input == '\\' && input[1] )
-    {
-      outputBuffer[ outNum++ ] = *input++;
-      outputBuffer[ outNum++ ] = *input++;
-    }
-    else if( *input == '$' && input[1] )
+	if( *input == '\\' )
+	{
+	  outputBuffer[ outNum++ ] = *input++;
+	  outputBuffer[ outNum++ ] = *input;
+	}
+	else if( *input == '$' )
     {
       input++;
       if( *input == '{' ) 
@@ -4103,8 +4113,9 @@ qboolean G_StringReplaceCvars( char *input, char *output, int len )
     }
     else
     {
-      outputBuffer[ outNum++ ] = *input++;
+      outputBuffer[ outNum++ ] = *input;
     }
+    input++;
   }
   outputBuffer[ outNum ] = '\0';
   Q_strncpyz( output, outputBuffer, len );
