@@ -135,6 +135,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       ""
     },
     
+    {"listmaps", G_admin_listmaps, "j",
+      "display a list of available maps on the server",
+      "(^5map name^7)"
+    },
+    
     {"lock", G_admin_lock, "K",
       "lock a team to prevent anyone from joining it",
       "[^3a|h^7]"
@@ -143,6 +148,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
     {"map", G_admin_map, "M",
       "load a map (and optionally force layout)",
       "[^3mapname^7] (^5layout^7)"
+    },
+
+    {"maplog", G_admin_maplog, "U",
+      "show recently played maps",
+      ""
     },
 
     {"mute", G_admin_mute, "m",
@@ -2228,6 +2238,7 @@ qboolean G_admin_map( gentity_t *ent, int skiparg )
   AP( va( "print \"^3!map: ^7map '%s' started by %s^7 %s\n\"", map,
           ( ent ) ? ent->client->pers.netname : "console",
           ( layout[ 0 ] ) ? va( "(forcing layout '%s')", layout ) : "" ) );
+  G_admin_maplog_result( "M" );
   return qtrue;
 }
 
@@ -2271,8 +2282,183 @@ qboolean G_admin_devmap( gentity_t *ent, int skiparg )
   AP( va( "print \"^3!devmap: ^7map '%s' started by %s^7 with cheats %s\n\"", map,
           ( ent ) ? ent->client->pers.netname : "console",
           ( layout[ 0 ] ) ? va( "(forcing layout '%s')", layout ) : "" ) );
+  G_admin_maplog_result( "D" );
   return qtrue;
 }
+
+ void G_admin_maplog_update( void )
+ {
+   char map[ 64 ];
+   char maplog[ MAX_CVAR_VALUE_STRING ];
+   char *ptr;
+   int count = 0;
+ 
+   trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+ 
+   Q_strncpyz( maplog, g_adminMapLog.string, sizeof( maplog ) );
+   ptr = maplog;
+   while( *ptr && count < MAX_ADMIN_MAPLOG_LENGTH ) 
+   {
+     while( *ptr != ' ' && *ptr != '\0' ) ptr++;
+ 
+     count++;
+     if( count >= MAX_ADMIN_MAPLOG_LENGTH )
+     {
+       *ptr = '\0';
+     }
+ 
+     if( *ptr == ' ' ) ptr++;
+   }
+ 
+   trap_Cvar_Set( "g_adminMapLog", va( "%s%s%s",
+     map,
+     ( maplog[0] != '\0'  ) ? " " : "",
+     maplog ) );
+ }
+ 
+  void G_admin_maplog_result( char *flag )
+  {
+    char maplog[ MAX_CVAR_VALUE_STRING ];
+    int t;
+  
+    if( !flag )
+      return;
+  
+    if( g_adminMapLog.string[ 0 ] &&
+      g_adminMapLog.string[ 1 ] == ';' )
+    {
+      // only one result allowed
+      return;
+    }
+  
+    if ( level.surrenderTeam != PTE_NONE )
+    {
+      if( flag[ 0 ] == 'a' )
+      {
+        if( level.surrenderTeam == PTE_HUMANS )
+          flag = "A";
+      }
+      else if( flag[ 0 ] == 'h' )
+      {
+        if( level.surrenderTeam == PTE_ALIENS )
+          flag = "H";
+      }
+    }
+  
+    t = ( level.time - level.startTime ) / 1000;
+    Q_strncpyz( maplog, g_adminMapLog.string, sizeof( maplog ) );
+    trap_Cvar_Set( "g_adminMapLog", va( "%1s;%03d:%02d;%s",
+      flag,
+      t / 60, t % 60,
+      maplog ) );
+  }
+  
+ 
+ qboolean G_admin_maplog( gentity_t *ent, int skiparg )
+ {
+   char maplog[ MAX_CVAR_VALUE_STRING ];
+   char *ptr;
+   int count = 0;
+ 
+   Q_strncpyz( maplog, g_adminMapLog.string, sizeof( maplog ) );
+ 
+   ADMBP_begin( );
+   ptr = maplog;
+   while( *ptr != '\0' && count < MAX_ADMIN_MAPLOG_LENGTH + 1 )
+   {
+     char *end;
+     const char *result = NULL;
+     char *clock = NULL;
+     char *colon;
+ 
+     end = ptr;
+     while( *end != ' ' && *end != '\0' ) end++;
+     if( *end == ' ' )
+     {
+       *end = '\0';
+       end++;
+     }
+ 
+      if( ptr[ 0 ] && ptr[ 1 ] == ';' )
+      {
+        switch( ptr[ 0 ] )
+        {
+          case 't':
+            result = "^7tie";
+            break;
+          case 'a':
+            result = "^1Alien win";
+            break;
+          case 'A':
+            result = "^1Alien win ^7/ Humans admitted defeat";
+            break;
+          case 'h':
+            result = "^4Human win";
+            break;
+          case 'H':
+            result = "^4Human win ^7/ Aliens admitted defeat";
+            break;
+          case 'd':
+            result = "^5draw vote";
+            break;
+          case 'N':
+            result = "^6admin loaded next map";
+            break;
+          case 'r':
+            result = "^2restart vote";
+            break;
+          case 'R':
+            result = "^6admin restarted map";
+            break;
+          case 'm':
+            result = "^2map vote";
+            break;
+          case 'M':
+            result = "^6admin changed map";
+            break;
+          case 'D':
+            result = "^6admin loaded devmap";
+            break;
+          default:
+            result = "";
+            break;
+        }
+        ptr += 2;
+        colon = strchr( ptr, ';' );
+        if ( colon )
+        {
+          clock = ptr;
+          ptr = colon + 1;
+          *colon = '\0';
+  
+          // right justification with -6%s doesnt work..
+          if( clock[ 0 ] == '0' && clock[ 1 ] != ':' )
+          {
+            if( clock[ 1 ] == '0' && clock[ 2 ] != ':' )
+              clock[ 1 ] = ' ';
+            clock[ 0 ] = ' ';
+          }
+        }
+      }
+      else if( count == 0 )
+      {
+        result = "^3current map";
+        clock = "  -:--";
+      }
+  
+      ADMBP( va( "%s%20s %-6s %s^7\n",
+        ( count == 0 ) ? "^3" : "^7",
+        ptr,
+        ( clock ) ? clock : "",
+        ( result ) ? result : "" ) );
+ 
+     ptr = end;
+     count++;
+   }
+   ADMBP_end( );
+ 
+   return qtrue;
+ }
 
 qboolean G_admin_layoutsave( gentity_t *ent, int skiparg )
 {
@@ -2712,6 +2898,71 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
      }
   }
   ADMBP_end();
+  return qtrue;
+}
+
+#define MAX_LISTMAPS_MAPS 128
+
+static int SortMaps(const void *a, const void *b)
+{
+  return strcmp(*(char **)a, *(char **)b);
+}
+
+qboolean G_admin_listmaps( gentity_t *ent, int skiparg )
+{
+  char fileList[ 4096 ] = {""};
+  char *fileSort[ MAX_LISTMAPS_MAPS ];
+  char search[ 16 ] = {""};
+  int numFiles;
+  int i;
+  int fileLen = 0;
+  int  count = 0;
+  char *filePtr;
+  int rows;
+
+  if( G_SayArgc( ) > 1 + skiparg )
+  {
+    G_SayArgv( skiparg + 1, search, sizeof( search ) );
+  }
+
+  numFiles = trap_FS_GetFileList( "maps/", ".bsp",
+    fileList, sizeof( fileList ) );
+  filePtr = fileList;
+  for( i = 0; i < numFiles && count < MAX_LISTMAPS_MAPS; i++, filePtr += fileLen + 1 )
+  {
+    fileLen = strlen( filePtr );
+    if (fileLen < 5)
+      continue;
+
+    filePtr[ fileLen - 4 ] = '\0';
+
+    if( search[ 0 ] && !strstr( filePtr, search ) )
+      continue;
+
+    fileSort[ count ] = filePtr;
+    count++;
+  }
+
+  qsort(fileSort, count, sizeof(fileSort[ 0 ]), SortMaps);
+
+  rows = count / 3;
+  if ( rows * 3 < count ) rows++;
+
+  ADMBP_begin();
+  for( i = 0; i < rows; i++ )
+  {
+    ADMBP( va( "^7%20s %20s %20s\n",
+      fileSort[ i ],
+      ( rows + i < count ) ? fileSort[ rows + i ] : "",
+      ( rows * 2 + i < count ) ? fileSort[ rows * 2 + i ] : "" ) );
+  }
+  if ( search[ 0 ] )
+    ADMBP( va( "^3!listmaps: ^7found %d maps matching '%s^7'.\n", count, search ) );
+  else
+    ADMBP( va( "^3!listmaps: ^7listing %d maps.\n", count ) );
+
+  ADMBP_end();
+
   return qtrue;
 }
 
@@ -3269,6 +3520,7 @@ qboolean G_admin_nextmap( gentity_t *ent, int skiparg )
   trap_SetConfigstring( CS_WINNER, "Evacuation" );
   LogExit( va( "nextmap was run by %s",
     ( ent ) ? ent->client->pers.netname : "console" ) );
+  G_admin_maplog_result( "N" );
   return qtrue;
 }
 

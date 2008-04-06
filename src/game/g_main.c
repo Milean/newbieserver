@@ -144,6 +144,7 @@ vmCvar_t  g_adminParseSay;
 vmCvar_t  g_adminSayFilter;
 vmCvar_t  g_adminNameProtect;
 vmCvar_t  g_adminTempBan;
+vmCvar_t  g_adminMapLog;
 vmCvar_t  g_minLevelToJoinTeam;
 vmCvar_t  g_forceAutoSelect;
 
@@ -308,6 +309,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_adminSayFilter, "g_adminSayFilter", "0", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminNameProtect, "g_adminNameProtect", "1", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminTempBan, "g_adminTempBan", "2m", CVAR_ARCHIVE, 0, qfalse  },
+  { &g_adminMapLog, "g_adminMapLog", "", CVAR_ROM, 0, qfalse  },
   { &g_minLevelToJoinTeam, "g_minLevelToJoinTeam", "0", CVAR_ARCHIVE, 0, qfalse  },
   { &g_forceAutoSelect, "g_forceAutoSelect", "0", CVAR_ARCHIVE, 0, qtrue }, 
   
@@ -683,6 +685,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
     &level.clients[ 0 ].ps, sizeof( level.clients[ 0 ] ) );
 
   trap_SetConfigstring( CS_INTERMISSION, "0" );
+
+  // update maplog
+  G_admin_maplog_update( );
 
   // test to see if a custom buildable layout will be loaded
   G_LayoutSelect( );
@@ -2138,6 +2143,7 @@ void CheckExitRules( void )
       trap_SendServerCommand( -1, "print \"Timelimit hit\n\"" );
       trap_SetConfigstring( CS_WINNER, "Stalemate" );
       LogExit( "Timelimit hit." );
+      G_admin_maplog_result( "t" );
       return;
     }
     else if( level.time - level.startTime >= ( g_timelimit.integer - 5 ) * 60000 &&
@@ -2164,6 +2170,7 @@ void CheckExitRules( void )
     trap_SendServerCommand( -1, "print \"Humans win\n\"");
     trap_SetConfigstring( CS_WINNER, "Humans Win" );
     LogExit( "Humans win." );
+    G_admin_maplog_result( "h" );
   }
   else if( level.uncondAlienWin ||
            ( ( level.time > level.startTime + 1000 ) &&
@@ -2175,6 +2182,7 @@ void CheckExitRules( void )
     trap_SendServerCommand( -1, "print \"Aliens win\n\"");
     trap_SetConfigstring( CS_WINNER, "Aliens Win" );
     LogExit( "Aliens win." );
+    G_admin_maplog_result( "a" );
   }
 }
 
@@ -2202,6 +2210,15 @@ void CheckVote( void )
   if( level.voteExecuteTime && level.voteExecuteTime < level.time )
   {
     level.voteExecuteTime = 0;
+
+    if( !Q_stricmp( level.voteString, "map_restart" ) )
+    {
+      G_admin_maplog_result( "r" );
+    }
+    else if( !Q_stricmpn( level.voteString, "map", 3 ) )
+    {
+      G_admin_maplog_result( "m" );
+    }
 
     trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
     if( !Q_stricmp( level.voteString, "map_restart" ) ||

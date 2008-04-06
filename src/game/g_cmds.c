@@ -1432,6 +1432,15 @@ void Cmd_CallVote_f( gentity_t *ent )
   // if there is still a vote to be executed
   if( level.voteExecuteTime )
   {
+    if( !Q_stricmp( level.voteString, "map_restart" ) )
+    {
+      G_admin_maplog_result( "r" );
+    }
+    else if( !Q_stricmpn( level.voteString, "map", 3 ) )
+    {
+      G_admin_maplog_result( "m" );
+    }
+
     level.voteExecuteTime = 0;
     trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
   }

@@ -700,6 +700,7 @@ qboolean  ConsoleCommand( void )
     level.lastWin = PTE_NONE;
     trap_SetConfigstring( CS_WINNER, "Evacuation" );
     LogExit( "Evacuation." );
+    G_admin_maplog_result( "d" );
     return qtrue;
   }
   
