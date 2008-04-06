@@ -685,6 +685,13 @@ int Q_isalpha( int c )
 	return ( 0 );
 }
 
+int Q_isdigit( int c )
+{
+	if ((c >= '0' && c <= '9'))
+		return ( 1 );
+	return ( 0 );
+}
+
 char* Q_strrchr( const char* string, int c )
 {
 	char cc = c;

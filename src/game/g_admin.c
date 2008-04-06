@@ -405,9 +405,9 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
     }
   }
    
-  if( '0' <= name2[ 0 ]  && name2[ 0 ] <= '9' )
+  if( Q_isdigit( name2[ 0 ] ) || name2[ 0 ] == '-' )
   {
-    Q_strncpyz( err, "Names cannot begin with a number. Please choose another.", len );
+    Q_strncpyz( err, "Names cannot begin with a number or with a dash. Please choose another.", len );
     return qfalse;
   }
   
@@ -420,6 +420,14 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
       if( name2[ i + 1 ] == '/' || name2[ i + 1 ] == '*' )
       {
         Q_strncpyz( err, "Names cannot contain '//' or '/*'. Please choose another.", len );
+        return qfalse;
+      }
+    }
+    if( name2[ i ] == ' ' )
+    {
+      if( name2[ i + 1 ] == '-' )
+      {
+        Q_strncpyz( err, "Names cannot contain a - preceded by a space. Please choose another.", len );
         return qfalse;
       }
     }
