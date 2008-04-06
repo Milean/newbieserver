@@ -751,8 +751,9 @@ typedef struct
   pTeam_t           surrenderTeam;
   buildHistory_t    *buildHistory;
   int               lastBuildID;
-  int				lastTeamUnbalancedTime;
-  int				numTeamWarnings;  
+  int		     lastTeamUnbalancedTime;
+  int		     numTeamWarnings;  
+  int               lastMsgTime;
   
   statsCounters_level alienStatsCounters;
   statsCounters_level humanStatsCounters;
@@ -800,6 +801,7 @@ int       G_SayArgc( void );
 qboolean  G_SayArgv( int n, char *buffer, int bufferLength );
 char      *G_SayConcatArgs( int start );
 void      G_DecolorString( char *in, char *out );
+void      G_ParseEscapedString( char *buffer );
 void      G_LeaveTeam( gentity_t *self );
 void      G_ChangeTeam( gentity_t *ent, pTeam_t newTeam );
 void      G_SanitiseName( char *in, char *out );
@@ -1073,6 +1075,7 @@ void CheckVote( void );
 void CheckTeamVote( int teamnum );
 void LogExit( const char *string );
 int  G_TimeTilSuddenDeath( void );
+void CheckMsgTimer( void );
 qboolean G_Flood_Limited( gentity_t *ent );
 
 //
@@ -1345,6 +1348,9 @@ extern  vmCvar_t  g_devmapNoStructDmg;
 
 extern  vmCvar_t  g_voteMinTime;
 extern  vmCvar_t  g_mapvoteMaxTime;
+
+extern  vmCvar_t  g_msg;
+extern  vmCvar_t  g_msgTime;
 
 extern  vmCvar_t  g_buildLogMaxLength;
 

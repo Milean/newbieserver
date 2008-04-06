@@ -723,31 +723,13 @@ qboolean  ConsoleCommand( void )
     }
     else if( !Q_stricmp( cmd, "cp" ) )
     {
-      int i, j;
-      char buffer[MAX_STRING_CHARS];
-      Q_strncpyz( buffer, ConcatArgs( 1 ), sizeof( buffer ) );
-      for( i = j = 0; i < strlen( buffer ); i++, j++ )
-      {
-	if(!buffer[i]) break;
-	if(buffer[i] == '\\')
-	{
-	    if(buffer[i + 1] == '\\')
-		buffer[j] = buffer[++i];
-	    else if(buffer[i + 1] == 'n')
-	    {
-		buffer[j] = '\n';
-		i++;
-	    }
-	    else
-		buffer[j] = buffer[i];
-	}
-	else
-	    buffer[j] = buffer[i];
-      }
-      buffer[j] = 0;
-      trap_SendServerCommand( -1, va( "cp \"%s\"", buffer ) );
-      G_Printf( "cp: %s\n", ConcatArgs( 1 ) );
-      return qtrue;
+       char buffer[MAX_STRING_CHARS];
+       Q_strncpyz( buffer, ConcatArgs( 1 ), sizeof( buffer ) );
+       G_ParseEscapedString( buffer );
+       trap_SendServerCommand( -1, va( "cp \"%s\"", buffer ) );
+       trap_SendServerCommand( -1, va( "print \"CP: %s\n\"", buffer ) );
+        G_Printf( "cp: %s\n", ConcatArgs( 1 ) );
+        return qtrue;
     }
     else if( !Q_stricmp( cmd, "m" ) )
     {

@@ -79,6 +79,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "cancel a vote taking place",
       ""
     },
+    
+    {"cp", G_admin_cp, "Z",
+      "display a message to all users",
+      "[^3message^7]"
+    },
 
     {"denybuild", G_admin_denybuild, "d",
       "take away a player's ability to build",
@@ -2543,6 +2548,29 @@ qboolean G_admin_mute( gentity_t *ent, int skiparg )
             ( ent ) ? ent->client->pers.netname : "console" ) );
   }
   ClientUserinfoChanged( pids[ 0 ] );
+  return qtrue;
+}
+
+qboolean G_admin_cp( gentity_t *ent, int skiparg )
+{
+  char msg[ MAX_STRING_CHARS ];
+  int minargc;
+  char *s;
+
+  minargc = 2 + skiparg;
+
+  if( G_SayArgc() < minargc )
+  {
+    ADMP( "^3!cp: ^7usage: !cp [message]\n" );
+    return qfalse;
+  }
+
+  s = G_SayConcatArgs( 1 + skiparg );
+  Q_strncpyz( msg, s, sizeof( msg ) );
+  G_ParseEscapedString( msg );
+  trap_SendServerCommand( -1, va( "cp \"%s\"", msg ) );
+  trap_SendServerCommand( -1, va( "print \"CP: %s\n\"", msg ) );
+
   return qtrue;
 }
 

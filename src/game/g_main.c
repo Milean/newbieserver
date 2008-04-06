@@ -174,6 +174,9 @@ vmCvar_t  g_devmapNoStructDmg;
 vmCvar_t  g_voteMinTime;
 vmCvar_t  g_mapvoteMaxTime;
 
+vmCvar_t  g_msg;
+vmCvar_t  g_msgTime;
+
 static cvarTable_t   gameCvarTable[ ] =
 {
   // don't override the cheat state set by the system
@@ -326,6 +329,9 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_tag, "g_tag", "main", CVAR_INIT, 0, qfalse },
   
   { &g_dretchPunt, "g_dretchPunt", "1", CVAR_ARCHIVE, 0, qfalse  },
+  
+  { &g_msg, "g_msg", "", CVAR_ARCHIVE, 0, qfalse  },
+  { &g_msgTime, "g_msgTime", "0", CVAR_ARCHIVE, 0, qfalse  },
   
   { &g_rankings, "g_rankings", "0", 0, 0, qfalse },
   { &g_allowShare, "g_allowShare", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse},
@@ -2339,6 +2345,36 @@ void CheckTeamVote( int team )
   trap_SetConfigstring( CS_TEAMVOTE_TIME + cs_offset, "" );
 }
 
+/*
+==================
+CheckMsgTimer
+==================
+*/
+void CheckMsgTimer( void )
+{
+  if( !g_msgTime.integer )
+    return;
+
+  if( level.time - level.lastMsgTime < abs( g_msgTime.integer ) * 60000 )
+    return;
+
+  // negative settings only print once per map
+  if( ( level.lastMsgTime ) && g_msgTime.integer < 0 )
+    return;
+
+  level.lastMsgTime = level.time;
+
+  if( g_msg.string[0] )
+  {
+    char buffer[ MAX_STRING_CHARS ];
+
+    Q_strncpyz( buffer, g_msg.string, sizeof( buffer ) );
+    G_ParseEscapedString( buffer );
+    trap_SendServerCommand( -1, va( "cp \"%s\"", buffer ) );
+    trap_SendServerCommand( -1, va( "print \"%s\n\"", buffer ) );
+  }
+}
+
 
 /*
 ==================
@@ -2463,6 +2499,8 @@ void G_RunFrame( int levelTime )
    return;
   }
 
+  CheckMsgTimer( );
+  
   level.framenum++;
   level.previousTime = level.time;
   level.time = levelTime;

@@ -4396,6 +4396,36 @@ void G_DecolorString( char *in, char *out )
   *out = '\0';
 }
 
+void G_ParseEscapedString( char *buffer )
+{
+  int i = 0;
+  int j = 0;
+
+  while( buffer[i] )
+  {
+    if(!buffer[i]) break;
+
+    if(buffer[i] == '\\')
+    {
+      if(buffer[i + 1] == '\\')
+        buffer[j] = buffer[++i];
+      else if(buffer[i + 1] == 'n')
+      {
+        buffer[j] = '\n';
+        i++;
+      }
+      else
+        buffer[j] = buffer[i];
+    }
+    else
+      buffer[j] = buffer[i];
+
+    i++;
+    j++;
+  }
+  buffer[j] = 0;
+}
+
 void G_PrivateMessage( gentity_t *ent )
 {
   int pids[ MAX_CLIENTS ];
