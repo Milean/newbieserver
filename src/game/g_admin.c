@@ -3375,6 +3375,10 @@ qboolean G_admin_pause( gentity_t *ent, int skiparg )
 		trap_SendServerCommand( -1, "cp \"The game has been paused. Please wait.\"" );
 	}
 	else {
+
+        // Prevent accidental pause->unpause race conditions by two admins doing !pause at once
+        if( level.pausedTime < 1000 ) return qfalse;
+
 		AP( va( "print \"^3!pause: ^7%s^7 unpaused the game (Paused for %d msec) \n\"", ( ent ) ? ent->client->pers.netname : "console",level.pausedTime ) );
 		trap_SendServerCommand( -1, "cp \"The game has been unpaused!\"" );
 		level.paused = qfalse;
