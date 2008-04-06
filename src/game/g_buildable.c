@@ -3520,6 +3520,11 @@ static gentity_t *G_Build( gentity_t *builder, buildable_t buildable, vec3_t ori
     VectorCopy( built->s.angles2, new->angles2 );
     new->fate = BF_BUILT;
   }
+  
+   if( builder && builder->client )
+     built->bdnumb = new->ID;
+   else
+     built->bdnumb = -1;
 
   return built;
 }
@@ -4292,5 +4297,26 @@ void G_BaseSelfDestruct( pTeam_t team )
      return g_buildLogMaxLength.integer;
    }
    return i;
+ }
+ 
+ char *G_FindBuildLogName( int id )
+ {
+   buildHistory_t *ptr;
+ 
+   for( ptr = level.buildHistory; ptr && ptr->ID != id; ptr = ptr->next );
+   if( ptr )
+   {
+     if( ptr->ent )
+     {
+       if( ptr->ent->client )
+         return ptr->ent->client->pers.netname;
+     }
+     else if( ptr->name[ 0 ] )
+     {
+       return ptr->name;
+     }
+   }
+ 
+   return "<world>";
  }
  

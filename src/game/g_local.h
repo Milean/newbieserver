@@ -240,6 +240,8 @@ struct gentity_s
   int               suicideTime;                    // when the client will suicide
 
   int               lastDamageTime;
+  
+  int               bdnumb;		// buildlog entry ID
 };
 
 typedef enum
@@ -806,6 +808,7 @@ char      *G_statsString( statsCounters_t *sc, pTeam_t *pt );
 void      Cmd_Share_f( gentity_t *ent );
 void      Cmd_Donate_f( gentity_t *ent );
 void      Cmd_TeamVote_f( gentity_t *ent ); 
+void      Cmd_Builder_f( gentity_t *ent );
 
 //
 // g_physics.c
@@ -874,6 +877,7 @@ void              G_CommitRevertedBuildable( gentity_t *ent );
 qboolean          G_RevertCanFit( buildHistory_t *bh );
 int               G_LogBuild( buildHistory_t *new );
 int               G_CountBuildLog( void );
+char             *G_FindBuildLogName( int id );
 
 //
 // g_utils.c
