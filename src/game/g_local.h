@@ -1062,6 +1062,7 @@ void CalculateRanks( void );
 void FindIntermissionPoint( void );
 void G_RunThink( gentity_t *ent );
 void QDECL G_LogPrintf( const char *fmt, ... );
+void QDECL G_LogPrintfColoured( const char *fmt, ... );
 void QDECL G_LogOnlyPrintf( const char *fmt, ... );
 void QDECL G_AdminsPrintf( const char *fmt, ... );
 void QDECL G_LogOnlyPrintf( const char *fmt, ... );

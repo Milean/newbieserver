@@ -1206,12 +1206,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
 	if( targ->s.eType == ET_BUILDABLE && attacker->client &&
 			targ->biteam == attacker->client->pers.teamSelection )
 	{
-		if(mod == MOD_LEVEL4_CHARGE || mod == MOD_LEVEL3_POUNCE )
+		if(mod == MOD_LEVEL4_CHARGE || mod == MOD_LEVEL3_POUNCE ) 
+        {
 			if(g_friendlyFireMovementAttacks.value <= 0)
 			  return;
 			else if(g_friendlyFireMovementAttacks.value > 0 && g_friendlyFireMovementAttacks.value < 1)
 			  damage =(int)(0.5 + g_friendlyFireMovementAttacks.value * (float) damage);	
-		
+		}
 		if( g_friendlyBuildableFire.value <= 0 )
 		{
 		  return;

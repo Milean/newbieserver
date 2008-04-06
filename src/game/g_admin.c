@@ -3885,7 +3885,7 @@ qboolean G_admin_buildlog( gentity_t *ent, int skiparg )
   gentity_t *builder = NULL;
   int skip = 0, start = 0, lastID = -1, firstID = -1, i, len, matchlen = 0;
   pTeam_t team = PTE_NONE;
-  char startbuf[ 12 ], message[ MAX_STRING_CHARS ], *teamchar; 
+  char message[ MAX_STRING_CHARS ], *teamchar; 
   char *name, *action, *buildablename, markstring[ MAX_STRING_CHARS ]; 
   if( !g_buildLogMaxLength.integer )
   {

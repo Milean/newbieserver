@@ -4585,5 +4585,5 @@ void G_PrivateMessage( gentity_t *ent )
      }
    }
  }
- 
- 
+
+

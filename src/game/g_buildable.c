@@ -4286,7 +4286,7 @@ void G_BaseSelfDestruct( pTeam_t team )
        ptr = ptr->next;
      else
      {
-       while( mark = ptr->next )
+       while( ( mark = ptr->next ) )
        {
          ptr->next = ptr->next->marked;
              G_Free( mark );
