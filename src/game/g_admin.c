@@ -3480,6 +3480,15 @@ qboolean G_admin_register(gentity_t *ent, int skiparg ){
     return qfalse;
   }
 
+  if( g_newbieNumbering.integer
+    && g_newbieNamePrefix.string[ 0 ]
+    && !Q_stricmpn ( ent->client->pers.netname, g_newbieNamePrefix.string, strlen(g_newbieNamePrefix.string ) ) )
+  {
+    ADMP( va( "^3!register: ^7 You cannot register names that begin with '%s^7'.\n",
+      g_newbieNamePrefix.string ) );
+    return qfalse;
+  }
+
   trap_SendConsoleCommand( EXEC_APPEND,va( "!setlevel %d %d;",ent - g_entities, level) );
   ClientUserinfoChanged( ent - g_entities );
   
