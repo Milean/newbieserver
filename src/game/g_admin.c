@@ -105,14 +105,19 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "(^5command^7)"
     },
 
-  {"info", G_admin_info, "H",
-    "display the contents of server info files",
-    "(^5subject^7)"
-  },
+    {"info", G_admin_info, "H",
+      "display the contents of server info files",
+      "(^5subject^7)"
+    },
 
     {"kick", G_admin_kick, "k",
       "kick a player with an optional reason",
       "(^5reason^7)"
+    },
+    
+    {"L0", G_admin_L0, "l",
+      "Sets a level 1 to level 0",
+      "[^3name|slot#^7]"
     },
     
     {"L1", G_admin_L1, "l",
@@ -4558,6 +4563,39 @@ void G_admin_cleanup()
   }
 }
 
+qboolean G_admin_L0(gentity_t *ent, int skiparg ){
+  int pids[ MAX_CLIENTS ];
+  char name[ MAX_NAME_LENGTH ], *reason, err[ MAX_STRING_CHARS ];
+  int minargc;
+  gentity_t *vic;
+
+  minargc = 2 + skiparg;
+
+  if( G_SayArgc() < minargc )
+  {
+    ADMP( "^3!L0: ^7usage: !L0 [name]\n" );
+    return qfalse;
+  }
+  G_SayArgv( 1 + skiparg, name, sizeof( name ) );
+  reason = G_SayConcatArgs( 2 + skiparg );
+  if( G_ClientNumbersFromString( name, pids ) != 1 )
+  {
+    G_MatchOnePlayer( pids, err, sizeof( err ) );
+    ADMP( va( "^3!L0: ^7%s\n", err ) );
+    return qfalse;
+  }
+  if( G_admin_level(&g_entities[ pids[ 0 ] ] )!=1 )
+  {
+    ADMP( "^3!L0: ^7Sorry, but that person is not level 1. You must use !setlevel.\n" );
+    return qfalse;
+  }
+ 
+  vic = &g_entities[ pids[ 0 ] ];
+  trap_SendConsoleCommand( EXEC_APPEND,va( "!setlevel %d 0;", pids[ 0 ] ) );
+  ClientUserinfoChanged( pids[ 0 ] );
+  return qtrue;
+}
+
 qboolean G_admin_L1(gentity_t *ent, int skiparg ){
   int pids[ MAX_CLIENTS ];
   char name[ MAX_NAME_LENGTH ], *reason, err[ MAX_STRING_CHARS ];
@@ -4581,13 +4619,11 @@ qboolean G_admin_L1(gentity_t *ent, int skiparg ){
   }
   if( G_admin_level(&g_entities[ pids[ 0 ] ] )>0 )
   {
-    ADMP( "^3!L1: ^7sorry, but that person is already higher than"
-        " level 0.\n" );
+    ADMP( "^3!L1: ^7Sorry, but that person is already higher than level 0.\n" );
     return qfalse;
   }
  
   vic = &g_entities[ pids[ 0 ] ];
-  //AP(va( "!setlevel %s 1\n",vic->client->pers.netname));
   trap_SendConsoleCommand( EXEC_APPEND,va( "!setlevel %d 1;", pids[ 0 ] ) );
   ClientUserinfoChanged( pids[ 0 ] );
   return qtrue;
