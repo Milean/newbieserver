@@ -1927,7 +1927,7 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
   {
     minargc = 2 + skiparg;
   }
-  else if( G_admin_permission( ent, ADMF_CAN_PERM_BAN ) ||
+  else if( ( G_admin_permission( ent, ADMF_CAN_PERM_BAN ) || g_adminMaxBan.integer ) ||
             G_admin_permission( ent, ADMF_UNACCOUNTABLE ) )
   {
     minargc = 3 + skiparg;
@@ -1948,7 +1948,13 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
   seconds = G_admin_parse_time( secs );
   if( seconds <= 0 )
   {
-    if( G_admin_permission( ent, ADMF_CAN_PERM_BAN ) )
+    if( g_adminMaxBan.integer && !G_admin_permission( ent, ADMF_CAN_PERM_BAN ) )
+    {
+      ADMP( va( "^3!ban: ^7using your admin level's maximum ban length of %s\n",
+        g_adminMaxBan.string ) );
+      seconds = G_admin_parse_time( g_adminMaxBan.string );
+    }
+    else if( G_admin_permission( ent, ADMF_CAN_PERM_BAN ) )
     {
       seconds = 0;
     }
@@ -1962,6 +1968,15 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
   else
   {
     reason = G_SayConcatArgs( 3 + skiparg );
+
+    if( g_adminMaxBan.integer &&
+        seconds > G_admin_parse_time( g_adminMaxBan.string ) &&
+        !G_admin_permission( ent, ADMF_CAN_PERM_BAN ) )
+    {
+      seconds = G_admin_parse_time( g_adminMaxBan.string );
+      ADMP( va( "^3!ban: ^7ban length limited to %s for your admin level\n",
+        g_adminMaxBan.string ) );
+    }
   }
 
   for( i = 0; i < MAX_ADMIN_NAMELOGS && g_admin_namelog[ i ]; i++ )
@@ -2123,6 +2138,15 @@ qboolean G_admin_adjustban( gentity_t *ent, int skiparg )
 
   G_SayArgv( 2 + skiparg, secs, sizeof( secs ) );
   length = G_admin_parse_time( secs );
+  
+  if( g_adminMaxBan.integer && 
+      !G_admin_permission( ent, ADMF_CAN_PERM_BAN ) && 
+      ( length > G_admin_parse_time( g_adminMaxBan.string ) || length == 0 ) )
+  {
+     ADMP( va("^3!adjustban: ^7ban length is limited to %s for your admin level\n", g_adminMaxBan.string ) );
+     return qfalse;
+  }
+  
   if( length < 0 )
     reason = G_SayConcatArgs( 2 + skiparg );
   else
@@ -2133,7 +2157,7 @@ qboolean G_admin_adjustban( gentity_t *ent, int skiparg )
       expires = 0;
     else
     {
-      ADMP( "^3!ban: ^7ban time must be positive\n" );
+      ADMP( "^3!adjustban: ^7ban time must be positive\n" );
       return qfalse;
     }
 

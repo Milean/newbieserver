@@ -1325,6 +1325,7 @@ extern  vmCvar_t  g_adminParseSay;
 extern  vmCvar_t  g_adminSayFilter;
 extern  vmCvar_t  g_adminNameProtect;
 extern  vmCvar_t  g_adminTempBan;
+extern  vmCvar_t  g_adminMaxBan;
 extern  vmCvar_t  g_adminMapLog;
 extern  vmCvar_t  g_minLevelToJoinTeam;
 extern  vmCvar_t  g_forceAutoSelect;
