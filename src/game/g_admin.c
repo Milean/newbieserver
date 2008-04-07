@@ -1044,7 +1044,11 @@ void G_admin_duration( int secs, char *duration, int dursize )
 
 qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen )
 {
-  char *guid, *ip;
+  static char lastConnectIP[ 16 ] = {""};
+  static int lastConnectTime = 0;
+  char guid[ 33 ];
+  char ip[ 16 ];
+  char *value;
   int i;
   int t;
   char notice[51];
@@ -1052,36 +1056,53 @@ qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen )
   trap_Cvar_VariableStringBuffer( "g_banNotice", notice, sizeof( notice ) );
  
   *reason = '\0'; 
-  t = trap_RealTime( NULL );
+  
   if( !*userinfo )
     return qfalse;
-  ip = Info_ValueForKey( userinfo, "ip" );
+  
+  value = Info_ValueForKey( userinfo, "ip" );
+  Q_strncpyz( ip, value, sizeof( ip ) );
+  // strip port
+  value = strchr( ip, ':' );
+  if ( value )
+    *value = '\0';
+  
   if( !*ip )
     return qfalse;
-  guid = Info_ValueForKey( userinfo, "cl_guid" );
+  
+  value = Info_ValueForKey( userinfo, "cl_guid" );
+  Q_strncpyz( guid, value, sizeof( guid ) );
+
+  t = trap_RealTime( NULL );
   for( i = 0; i < MAX_ADMIN_BANS && g_admin_bans[ i ]; i++ )
   {
     // 0 is for perm ban
     if( g_admin_bans[ i ]->expires != 0 &&
          ( g_admin_bans[ i ]->expires - t ) < 1 )
       continue;
-    if( strstr( ip, g_admin_bans[ i ]->ip ) )
+    if( strstr( ip, g_admin_bans[ i ]->ip ) == ip )
     {
       char duration[ 32 ];
       G_admin_duration( ( g_admin_bans[ i ]->expires - t ),
         duration, sizeof( duration ) );
-      Com_sprintf(
-        reason,
-        rlen,
-        "Banned player %s (%s) tried to connnect (ban #%i by %s^7  expires %s reason: %s^7 )",
-        Info_ValueForKey( userinfo, "name" ),
-	g_admin_bans[ i ]->name,
-        i,
-        g_admin_bans[ i ]->banner,
-        duration,
-        g_admin_bans[ i ]->reason
-      );
-      // G_AdminsPrintf("%s\n",reason);
+
+      // flood protected
+      if( t - lastConnectTime >= 300 ||
+          Q_stricmp( lastConnectIP, ip ) )
+      {
+        lastConnectTime = t;
+        Q_strncpyz( lastConnectIP, ip, sizeof( lastConnectIP ) );
+
+        G_AdminsPrintf(
+          "Banned player %s^7 (%s^7) tried to connect (ban #%i by %s^7 expires %s reason: %s^7 )\n",
+          Info_ValueForKey( userinfo, "name" ),
+          g_admin_bans[ i ]->name,
+          i+1,
+          g_admin_bans[ i ]->banner,
+          duration,
+          g_admin_bans[ i ]->reason );
+      }
+	    
       Com_sprintf(
         reason,
         rlen,
