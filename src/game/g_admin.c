@@ -1042,6 +1042,9 @@ qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen )
   char *guid, *ip;
   int i;
   int t;
+  char notice[51];
+  
+  trap_Cvar_VariableStringBuffer( "g_banNotice", notice, sizeof( notice ) );
  
   *reason = '\0'; 
   t = trap_RealTime( NULL );
@@ -1077,10 +1080,11 @@ qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen )
       Com_sprintf(
         reason,
         rlen,
-        "You have been banned by %s^7 reason: %s^7 expires: %s",
+        "You have been banned by %s^7 reason: %s^7 expires: %s       %s",
         g_admin_bans[ i ]->banner,
         g_admin_bans[ i ]->reason,
-        duration
+        duration,
+	notice
       );
       G_LogPrintf("Banned player tried to connect from IP %s\n", ip);
       return qtrue;
@@ -1826,6 +1830,9 @@ qboolean G_admin_kick( gentity_t *ent, int skiparg )
   char name[ MAX_NAME_LENGTH ], *reason, err[ MAX_STRING_CHARS ];
   int minargc;
   gentity_t *vic;
+  char notice[51];
+  
+  trap_Cvar_VariableStringBuffer( "g_banNotice", notice, sizeof( notice ) );
 
   minargc = 3 + skiparg;
   if( G_admin_permission( ent, ADMF_UNACCOUNTABLE ) )
@@ -1860,9 +1867,9 @@ qboolean G_admin_kick( gentity_t *ent, int skiparg )
     admin_writeconfig();
 
  trap_SendServerCommand( pids[ 0 ],
-  va( "disconnect \"You have been kicked.\n%s^7\nreason:\n%s\"",
+  va( "disconnect \"You have been kicked.\n%s^7\nreason:\n%s\n%s\"",
     ( ent ) ? va( "admin:\n%s", ent->client->pers.netname ) : "",
-    ( *reason ) ? reason : "kicked by admin" ) );
+    ( *reason ) ? reason : "kicked by admin", notice ) );
   
   trap_DropClient( pids[ 0 ], va( "kicked%s^7, reason: %s",
     ( ent ) ? va( " by %s", ent->client->pers.netname ) : "",
@@ -1885,7 +1892,10 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
   char n2[ MAX_NAME_LENGTH ];
   char s2[ MAX_NAME_LENGTH ];
   char guid_stub[ 9 ];
-
+  char notice[51];
+  
+  trap_Cvar_VariableStringBuffer( "g_banNotice", notice, sizeof( notice ) );
+  
   if( G_admin_permission( ent, ADMF_CAN_PERM_BAN ) &&
        G_admin_permission( ent, ADMF_UNACCOUNTABLE ) )
   {
@@ -2049,10 +2059,10 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
   
   trap_SendServerCommand( g_admin_namelog[ logmatch ]->slot,
     va( "disconnect \"You have been banned.\n"
-      "admin:\n%s^7\nduration:\n%s\nreason:\n%s\"",
+      "admin:\n%s^7\nduration:\n%s\nreason:\n%s\n%s\"",
       ( ent ) ? ent->client->pers.netname : "console",
       duration,
-      ( *reason ) ? reason : "banned by admin" ) );
+      ( *reason ) ? reason : "banned by admin", notice ) );
 
   trap_DropClient(  g_admin_namelog[ logmatch ]->slot,
     va( "banned by %s^7, duration: %s, reason: %s",

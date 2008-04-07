@@ -154,6 +154,7 @@ vmCvar_t  g_minLevelToSpecMM1;
 vmCvar_t  g_publicSayadmins;
 vmCvar_t  g_myStats;
 vmCvar_t  g_antiSpawnBlock;
+vmCvar_t  g_banNotice;
 
 vmCvar_t  g_devmapKillerHP;
 
@@ -336,7 +337,8 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_rankings, "g_rankings", "0", 0, 0, qfalse },
   { &g_allowShare, "g_allowShare", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse},
   { &g_allowActions, "g_allowActions", "1", CVAR_ARCHIVE, 0, qfalse },
-  { &g_actionPrefix, "g_actionPrefix", "***", CVAR_ARCHIVE, 0, qfalse }
+  { &g_actionPrefix, "g_actionPrefix", "***", CVAR_ARCHIVE, 0, qfalse },
+  { &g_banNotice, "g_banNotice", "", CVAR_ARCHIVE, 0, qfalse  },
 };
 
 static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[ 0 ] );
