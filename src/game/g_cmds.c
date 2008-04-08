@@ -4614,6 +4614,10 @@ void G_PrivateMessage( gentity_t *ent )
         G_FindBuildLogName( traceEnt->bdnumb ) ) );
      }
    }
+   else
+   {
+      trap_SendServerCommand( ent-g_entities, "print \"^5/builder:^7 No structure found in your crosshair. Please face a structure and try again.\n\"" );
+   }
  }
 
 
