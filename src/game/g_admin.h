@@ -58,6 +58,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  * $ - sees all information in !listplayers 
  * # - permanent designated builder
  * ? - sees and can use adminchat
+ * & - uses admin stealth
  */
 #define ADMF_IMMUNITY '1'
 #define ADMF_NOCENSORFLOOD '2' /* TODO */
@@ -75,6 +76,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ADMF_SEESFULLLISTPLAYERS '$'
 #define ADMF_DBUILDER '#'
 #define ADMF_ADMINCHAT '?'
+#define ADMF_ADMINSTEALTH '&'
 
 #define MAX_ADMIN_LISTITEMS 20
 #define MAX_ADMIN_SHOWBANS 10
@@ -149,6 +151,8 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len );
 void G_admin_namelog_update( gclient_t *ent, qboolean disconnect );
 void G_admin_maplog_result( char *flag );
 int G_admin_level( gentity_t *ent );
+void G_admin_set_adminname( gentity_t *ent );
+char* G_admin_adminPrintName( gentity_t *ent );
 
 // ! command functions
 qboolean G_admin_time( gentity_t *ent, int skiparg );

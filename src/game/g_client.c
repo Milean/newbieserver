@@ -1330,6 +1330,8 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   // get and distribute relevent paramters
   ClientUserinfoChanged( clientNum );
   
+  G_admin_set_adminname( ent );
+  
   if( g_decolourLogfiles.integer )
   {
    char    decoloured[ MAX_STRING_CHARS ] = "";   
@@ -1348,8 +1350,13 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   }
   else
   {
-  G_LogPrintf( "ClientConnect: %i [%s] (%s) \"%s^7\"\n", clientNum,
-    client->pers.ip, client->pers.guid, client->pers.netname );
+    G_LogPrintf( "ClientConnect: %i [%s] (%s) \"%s^7\"\n", clientNum,
+      client->pers.ip, client->pers.guid, client->pers.netname );
+  }
+  
+  if( client->pers.adminLevel )
+  { 
+     G_LogPrintf( "ClientAuth: %i [%s] \"%s^7\" authenticated to admin level %i using GUID %s (^7%s)\n", clientNum, client->pers.ip, client->pers.netname, client->pers.adminLevel, client->pers.guid, client->pers.adminName );
   }
 
   // don't do the "xxx connected" messages if they were caried over from previous level

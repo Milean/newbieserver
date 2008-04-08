@@ -409,6 +409,7 @@ typedef struct
   qboolean            muted;
   qboolean            denyBuild;
   int                 adminLevel;
+  char                adminName[ MAX_NETNAME ];
   qboolean            designatedBuilder;
   qboolean            firstConnect;        // This is the first map since connect
   statsCounters_t statscounters;	
