@@ -3678,6 +3678,8 @@ qboolean G_admin_restart( gentity_t *ent, int skiparg )
   if(teampref[ 0 ])
     strcpy(teampref,va( "^7(with teams option: '%s^7')", teampref ));
   
+  G_admin_maplog_result( "R" );
+  
   AP( va( "print \"^3!restart: ^7map restarted by %s %s %s\n\"",
           ( ent ) ? ent->client->pers.netname : "console",
           ( layout[ 0 ] ) ? va( "^7(forcing layout '%s^7')", layout ) : "",
