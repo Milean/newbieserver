@@ -160,7 +160,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3mapname^7] (^5layout^7)"
     },
 
-    {"maplog", G_admin_maplog, "U",
+    {"maplog", G_admin_maplog, "o",
       "show recently played maps",
       ""
     },
