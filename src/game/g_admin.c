@@ -945,7 +945,7 @@ static void admin_log( gentity_t *admin, char *cmd, int skiparg )
   if ( !Q_stricmp( cmd, "attempted" ) )
   {
     Com_sprintf( string, sizeof( string ),
-                 "%s (%i) %s: %s",
+                 "%s^7 (%i) %s: %s",
                  ( admin ) ? admin->client->pers.netname : "console",
                  ( admin ) ? admin->s.clientNum : -1,
                  cmd,
