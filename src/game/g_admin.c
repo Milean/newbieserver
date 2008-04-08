@@ -4453,18 +4453,22 @@ qboolean G_admin_info( gentity_t *ent, int skiparg )
   else
   {
     int i;
+    char *cr;
     trap_FS_Read( message, sizeof( message ), infoFile );
     if( length < sizeof( message ) )
       message[ length ] = '\0';
     else
       message[ sizeof( message ) - 1 ] = '\0';
     trap_FS_FCloseFile( infoFile );
+    // strip carriage returns for windows platforms
+    while( ( cr = strchr( message, '\r' ) ) )
+      memmove( cr, cr + 1, strlen( cr + 1 ) + 1 );
 #define MAX_INFO_PARSE_LOOPS 100
     for( i = 0; i < MAX_INFO_PARSE_LOOPS &&
         G_StringReplaceCvars( message, message, sizeof( message ) ); i++ );
     G_Unescape( message, message, sizeof( message ) );
     if( i == MAX_INFO_PARSE_LOOPS )
-      G_Printf( "^3WARNING: %s exceeds MAX_INFO_PARSE_LOOPS\n", filename );
+      G_Printf( S_COLOR_YELLOW "WARNING: %s exceeds MAX_INFO_PARSE_LOOPS\n", filename );
     ADMP( va( "%s\n", message ) );
     return qtrue;
   }
@@ -4505,20 +4509,21 @@ qboolean G_StringReplaceCvars( char *input, char *output, int len )
   char cvarName[ 64 ], cvarValue[ MAX_CVAR_VALUE_STRING ];
   char *outputBuffer;
   qboolean doneAnything = qfalse;
+  if( len <= 0 )
+    return qfalse;
   // use our own internal buffer in case output == input
   outputBuffer = G_Alloc( len );
   len -= 1; // fit in a terminator
-  if( len < 0 )
-    return qfalse;
-  while( *input && outNum < len - 1 )
+  while( *input && outNum < len )
   {
-	if( *input == '\\' )
-	{
-	  outputBuffer[ outNum++ ] = *input++;
-	  outputBuffer[ outNum++ ] = *input;
-	}
-	else if( *input == '$' )
+    if( *input == '\\' && input[1] && outNum < len - 1 )
     {
+      outputBuffer[ outNum++ ] = *input++;
+      outputBuffer[ outNum++ ] = *input++;
+    }
+    else if( *input == '$' )
+    {
+      doneAnything = qtrue;
       input++;
       if( *input == '{' ) 
         input++;
@@ -4531,16 +4536,12 @@ qboolean G_StringReplaceCvars( char *input, char *output, int len )
       trap_Cvar_VariableStringBuffer( cvarName, cvarValue, sizeof( cvarValue ) );
       if( cvarValue[ 0 ] )
       {
-        doneAnything = qtrue;
         for( i = 0; cvarValue[ i ] && outNum < len; i++ )
           outputBuffer[ outNum++ ] = cvarValue[ i ];
       }
     }
     else
-    {
-      outputBuffer[ outNum++ ] = *input;
-    }
-    input++;
+      outputBuffer[ outNum++ ] = *input++;
   }
   outputBuffer[ outNum ] = '\0';
   Q_strncpyz( output, outputBuffer, len );
