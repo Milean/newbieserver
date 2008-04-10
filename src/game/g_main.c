@@ -132,6 +132,7 @@ vmCvar_t  g_shove;
 
 vmCvar_t  g_mapConfigs;
 vmCvar_t  g_chatTeamPrefix;
+vmCvar_t  g_actionPrefix;
 vmCvar_t  g_floodMaxDemerits;
 vmCvar_t  g_floodMinTime;
 
@@ -164,9 +165,6 @@ vmCvar_t  g_buildLogMaxLength;
 vmCvar_t  g_tag;
 
 vmCvar_t  g_dretchPunt;
-
-vmCvar_t  g_allowActions;
-vmCvar_t  g_actionPrefix;
 
 vmCvar_t  g_allowShare;
 
@@ -291,6 +289,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_disabledBuildables, "g_disabledBuildables", "", CVAR_ROM, 0, qfalse  },
 
   { &g_chatTeamPrefix, "g_chatTeamPrefix", "1", CVAR_ARCHIVE  },
+  { &g_actionPrefix, "g_actionPrefix", "* ", CVAR_ARCHIVE, 0, qfalse },
   { &g_floodMaxDemerits, "g_floodMaxDemerits", "5000", CVAR_ARCHIVE, 0, qfalse  },
   { &g_floodMinTime, "g_floodMinTime", "2000", CVAR_ARCHIVE, 0, qfalse  },
 
@@ -338,8 +337,6 @@ static cvarTable_t   gameCvarTable[ ] =
   
   { &g_rankings, "g_rankings", "0", 0, 0, qfalse },
   { &g_allowShare, "g_allowShare", "1", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse},
-  { &g_allowActions, "g_allowActions", "1", CVAR_ARCHIVE, 0, qfalse },
-  { &g_actionPrefix, "g_actionPrefix", "***", CVAR_ARCHIVE, 0, qfalse },
   { &g_banNotice, "g_banNotice", "", CVAR_ARCHIVE, 0, qfalse  },
 };
 

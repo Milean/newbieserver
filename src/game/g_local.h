@@ -1310,6 +1310,7 @@ extern  vmCvar_t  g_currentMapRotation;
 extern  vmCvar_t  g_currentMap;
 extern  vmCvar_t  g_initialMapRotation;
 extern  vmCvar_t  g_chatTeamPrefix;
+extern  vmCvar_t  g_actionPrefix;
 extern  vmCvar_t  g_floodMaxDemerits;
 extern  vmCvar_t  g_floodMinTime;
 
@@ -1342,9 +1343,6 @@ extern  vmCvar_t  g_myStats;
 extern  vmCvar_t  g_antiSpawnBlock;
 
 extern  vmCvar_t  g_dretchPunt;
-
-extern  vmCvar_t  g_allowActions;
-extern  vmCvar_t  g_actionPrefix;
 
 extern  vmCvar_t  g_devmapNoGod;
 extern  vmCvar_t  g_devmapNoStructDmg;

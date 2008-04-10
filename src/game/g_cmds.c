@@ -1257,7 +1257,7 @@ static void Cmd_Say_f( gentity_t *ent )
 
   if(!Q_stricmpn( args, "say /me ", 8 ) )
   {
-   if( g_allowActions.integer ) 
+   if( g_actionPrefix.string[0] ) 
    { 
     mode = SAY_ACTION;
     offset = 4;
@@ -1265,7 +1265,7 @@ static void Cmd_Say_f( gentity_t *ent )
   }
   else if(!Q_stricmpn( args, "say_team /me ", 13 ) )
   {
-   if( g_allowActions.integer ) 
+   if( g_actionPrefix.string[0] ) 
    { 
     mode = SAY_ACTION_T;
     offset = 4;
@@ -1273,14 +1273,14 @@ static void Cmd_Say_f( gentity_t *ent )
   }
   else if( !Q_stricmpn( args, "me ", 3 ) )
   {
-   if( g_allowActions.integer ) 
+   if( g_actionPrefix.string[0] ) 
    { 
     mode = SAY_ACTION;
    } else return;
   }
   else if( !Q_stricmpn( args, "me_team ", 8 ) )
   {
-   if( g_allowActions.integer ) 
+   if( g_actionPrefix.string[0] ) 
    { 
     mode = SAY_ACTION_T;
    } else return;
