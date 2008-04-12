@@ -3637,9 +3637,9 @@ qboolean G_admin_rename( gentity_t *ent, int skiparg )
         " level than you\n" );
     return qfalse;
   }
-  if( !G_admin_name_check( victim, newname, err, sizeof( err ) ) )
+  if( !G_admin_name_check( ent, newname, err, sizeof( err ) ) )
   {
-    ADMP( va( "^3!rename: ^7%s\n", err ) );
+    ADMP( va( "^3!rename: Invalid name: ^7%s\n", err ) );
     return qfalse;
   }
   level.clients[ pids[ 0 ] ].pers.nameChanges--;
