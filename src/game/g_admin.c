@@ -441,6 +441,11 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
         return qfalse;
       }
     }
+    if( name2[ i ] <' ' || name2[ i ] >'}' || name2[ i ]=='`') //disallow items outside isprint(), '`', and '~'
+    {
+        Q_strncpyz( err, "Names cannot contain characters that cannot be typed. Please choose another.", len );
+        return qfalse;
+    }
   }
   
   if( alphaCount == 0 ) 
