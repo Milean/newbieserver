@@ -4317,6 +4317,6 @@ void G_BaseSelfDestruct( pTeam_t team )
      }
    }
  
-   return "<world>";
+   return "<buildlog entry expired>";
  }
  

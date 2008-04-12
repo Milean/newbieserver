@@ -4603,7 +4603,7 @@ void G_PrivateMessage( gentity_t *ent )
       trap_SendServerCommand( ent-g_entities, va(
         "print \"^5/builder:^7 ^3Building:^7 %s ^3Built By:^7 %s^7 ^3Buildlog Number:^7 %s^7\n\"",
         BG_FindHumanNameForBuildable( traceEnt->s.modelindex ),
-        G_FindBuildLogName( traceEnt->bdnumb ),
+        (traceEnt->bdnumb != -1) ? G_FindBuildLogName( traceEnt->bdnumb ) : "<world>",
         (traceEnt->bdnumb != -1) ? bdnumbchr : "none" ) );
      }
      else
@@ -4611,7 +4611,7 @@ void G_PrivateMessage( gentity_t *ent )
       trap_SendServerCommand( ent-g_entities, va(
         "print \"^5/builder:^7 ^3Building:^7 %s ^3Built By:^7 %s^7\n\"",
 	BG_FindHumanNameForBuildable( traceEnt->s.modelindex ),     
-        G_FindBuildLogName( traceEnt->bdnumb ) ) );
+        (traceEnt->bdnumb != -1) ? G_FindBuildLogName( traceEnt->bdnumb ) : "<world>" ) );
      }
    }
    else
