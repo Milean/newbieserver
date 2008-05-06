@@ -4311,7 +4311,8 @@ int G_SayArgc()
         s++;
       c++;
     }
-    s++;
+    if( *s )
+      s++;
   }
   return c;
 }
@@ -4359,7 +4360,8 @@ qboolean G_SayArgv( int n, char *buffer, int bufferLength )
         s++;
       c++;
     }
-    s++;
+    if( *s )
+      s++;
   }
   return qfalse;
 }
@@ -4385,7 +4387,8 @@ char *G_SayConcatArgs(int start)
         s++;
       c++;
     }
-    s++;
+    if( *s )
+      s++;
   }
   return s;
 }
