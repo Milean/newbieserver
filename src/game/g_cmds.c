@@ -1383,6 +1383,14 @@ void Cmd_CallVote_f( gentity_t *ent )
     trap_SendServerCommand( ent-g_entities, "print \"Voting not allowed here\n\"" );
     return;
   }
+  
+  // Flood limit.  If they're talking too fast, determine that and return.
+  if( g_floodMinTime.integer )
+    if ( G_Flood_Limited( ent ) )
+    {
+      trap_SendServerCommand( ent-g_entities, "print \"Your /callvote attempt is flood-limited; wait before chatting again\n\"" );
+      return;
+    }
 
   if( g_voteMinTime.integer
     && ent->client->pers.firstConnect 
