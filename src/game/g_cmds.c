@@ -2123,7 +2123,9 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
       trap_SendServerCommand( i, va("print \"%s " S_COLOR_WHITE
             "called a team vote: %s^7 \n\"", ent->client->pers.netname, level.teamVoteDisplayString[ cs_offset ] ) );
     }
-    else if( ( !Q_stricmp( arg1, "kick" ) || !Q_stricmp( arg1, "denybuild" ) ) && G_admin_permission( &g_entities[ i ], ADMF_ADMINCHAT ) )
+    else if( G_admin_permission( &g_entities[ i ], ADMF_ADMINCHAT ) && 
+	       ( ( !Q_stricmp( arg1, "kick" ) || !Q_stricmp( arg1, "denybuild" ) ) || 
+                    level.clients[ i ].pers.teamSelection == PTE_NONE ) )
     {
       trap_SendServerCommand( i, va("print \"^6[Admins]^7 %s " S_COLOR_WHITE
             "called a team vote: %s^7 \n\"", ent->client->pers.netname, level.teamVoteDisplayString[ cs_offset ] ) );
