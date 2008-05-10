@@ -80,6 +80,7 @@ vmCvar_t  g_blood;
 vmCvar_t  g_podiumDist;
 vmCvar_t  g_podiumDrop;
 vmCvar_t  g_allowVote;
+vmCvar_t  g_requireVoteReasons;
 vmCvar_t  g_voteLimit;
 vmCvar_t  g_suddenDeathVotePercent;
 vmCvar_t  g_mapVotesPercent;
@@ -248,6 +249,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_podiumDrop, "g_podiumDrop", "70", 0, 0, qfalse },
 
   { &g_allowVote, "g_allowVote", "1", CVAR_ARCHIVE, 0, qfalse },
+  { &g_requireVoteReasons, "g_requireVoteReasons", "0", CVAR_ARCHIVE, 0, qfalse },
   { &g_voteLimit, "g_voteLimit", "5", CVAR_ARCHIVE, 0, qfalse },
   { &g_voteMinTime, "g_voteMinTime", "120", CVAR_ARCHIVE, 0, qfalse },
   { &g_mapvoteMaxTime, "g_mapvoteMaxTime", "240", CVAR_ARCHIVE, 0, qfalse },
@@ -2248,14 +2250,14 @@ void CheckVote( void )
     if( voteYesPercent> votePercentToPass || level.voteNo == 0 )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, "print \"Vote passed\n\"" );
+      trap_SendServerCommand( -1, va("print \"Vote passed (%d - %d)\n\"", level.voteYes, level.voteNo ) );
       G_LogPrintf( "Vote: Vote passed (%d-%d)\n", level.voteYes, level.voteNo );
       level.voteExecuteTime = level.time + 3000;
     }
     else
     {
       // same behavior as a timeout
-      trap_SendServerCommand( -1, "print \"Vote failed\n\"" );
+      trap_SendServerCommand( -1, va("print \"Vote failed (%d - %d)\n\"", level.voteYes, level.voteNo ) );
       G_LogPrintf( "Vote: Vote failed (%d - %d)\n", level.voteYes, level.voteNo );
     }
   }
@@ -2264,14 +2266,14 @@ void CheckVote( void )
     if( level.voteYes > (int)((double)level.numConnectedClients * ((double)votePercentToPass/100.0)) )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, "print \"Vote passed\n\"" );
+      trap_SendServerCommand( -1, va("print \"Vote passed (%d - %d)\n\"", level.voteYes, level.voteNo ) );
       G_LogPrintf( "Vote: Vote passed (%d - %d)\n", level.voteYes, level.voteNo );
       level.voteExecuteTime = level.time + 3000;
     }
     else if( level.voteNo > (int)((double)level.numConnectedClients * ((double)(100.0-votePercentToPass)/100.0)) )
     {
       // same behavior as a timeout
-      G_LogPrintf("Vote: Vote failed (%d - %d)\n", level.voteYes, level.voteNo );
+      trap_SendServerCommand( -1, va("print \"Vote failed (%d - %d)\n\"", level.voteYes, level.voteNo ) );
       G_LogOnlyPrintf("Vote failed\n");
     }
     else
@@ -2310,12 +2312,12 @@ void CheckTeamVote( int team )
     if( level.teamVoteYes[ cs_offset ] > level.teamVoteNo[ cs_offset ] && level.teamVoteYes[ cs_offset ] >= 2 )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, "print \"Team vote passed\n\"" );
+      trap_SendServerCommand( -1, va("print \"Team vote passed  (%d - %d)\n\"", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] ) );
       trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.teamVoteString[ cs_offset ] ) );
     }
     else
     {	    
-      trap_SendServerCommand( -1, "print \"Team vote failed\n\"" );
+      trap_SendServerCommand( -1, va("print \"Team vote failed  (%d - %d)\n\"", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] ) );
       G_LogPrintf( "Teamvote: Team vote failed (%d - %d)\n", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] );
     }
   }
@@ -2324,7 +2326,7 @@ void CheckTeamVote( int team )
     if( level.teamVoteYes[ cs_offset ] > level.numteamVotingClients[ cs_offset ] / 2 )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, "print \"Team vote passed\n\"" );
+      trap_SendServerCommand( -1, va("print \"Team vote passed  (%d - %d)\n\"", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] ) );
       G_LogPrintf( "Teamvote: Team vote passed (%d - %d)\n", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] );
       //
       trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.teamVoteString[ cs_offset ] ) );
@@ -2332,7 +2334,7 @@ void CheckTeamVote( int team )
     else if( level.teamVoteNo[ cs_offset ] > level.numteamVotingClients[ cs_offset ] / 2 )
     {
       // same behavior as a timeout
-      trap_SendServerCommand( -1, "print \"Team vote failed\n\"" );
+      trap_SendServerCommand( -1, va("print \"Team vote failed  (%d - %d)\n\"", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] ) );
       G_LogPrintf( "Teamvote: Team vote failed (%d - %d)\n", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] );
     }
     else

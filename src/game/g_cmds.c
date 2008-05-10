@@ -1372,10 +1372,15 @@ void Cmd_CallVote_f( gentity_t *ent )
   char  arg2[ MAX_STRING_TOKENS ];
   int   clientNum = -1;
   char  name[ MAX_NETNAME ];
+  char *arg1plus;
   char *arg2plus;
   char nullstring[] = "";
   char  message[ MAX_STRING_CHARS ];
-	
+  char targetname[ MAX_STRING_CHARS] = "";
+  char reason[ MAX_STRING_CHARS ] = "";
+  char *ptr = NULL;
+
+  arg1plus = G_SayConcatArgs( 1 );	
   arg2plus = G_SayConcatArgs( 2 );
 
   if( !g_allowVote.integer )
@@ -1454,6 +1459,25 @@ void Cmd_CallVote_f( gentity_t *ent )
   }
   
   level.votePercentToPass=50;
+  
+  ptr = strstr(arg1plus, " -");
+  if( ptr )
+  {
+    *ptr = '\0';
+    ptr+=2; 
+	    
+    if( *ptr == 'r' || *ptr=='R' )
+    {
+      while( *ptr != ' ' )
+        ptr++;
+      ptr++;
+      strcpy(reason, ptr);
+    }
+    else
+    {
+      trap_SendServerCommand( ent-g_entities, "print \"callvote: Warning: invalid argument specified \n\"" );
+    }
+  }
 
   // detect clientNum for partial name match votes
   if( !Q_stricmp( arg1, "kick" ) ||
@@ -1462,16 +1486,27 @@ void Cmd_CallVote_f( gentity_t *ent )
   {
     int clientNums[ MAX_CLIENTS ] = { -1 };
     int numMatches=0;
-    char err[ MAX_STRING_CHARS ];
-
-    if( !arg2[ 0 ] )
+    char err[ MAX_STRING_CHARS ] = "";
+    
+    strcpy(targetname, arg2plus);
+    ptr = strstr(targetname, " -");
+    if( ptr )
+      *ptr = '\0';
+    
+    if( g_requireVoteReasons.integer && !G_admin_permission( ent, ADMF_UNACCOUNTABLE ) && !Q_stricmp( arg1, "kick" ) && reason[ 0 ]=='\0' )
+    {
+       trap_SendServerCommand( ent-g_entities, "print \"callvote: You must specify a reason. Use /callvote kick [player] -r [reason] \n\"" );
+       return;
+    }
+    
+    if( !targetname[ 0 ] )
     {
       trap_SendServerCommand( ent-g_entities,
         "print \"callvote: no target\n\"" );
       return;
     }
 
-    numMatches = G_ClientNumbersFromString( arg2, clientNums );
+    numMatches = G_ClientNumbersFromString( targetname, clientNums );
     if( numMatches == 1 )
     {
       // there was only one partial name match
@@ -1480,7 +1515,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     else
     {
       // look for an exact name match (sets clientNum to -1 if it fails) 
-      clientNum = G_ClientNumberFromString( ent, arg2plus );
+      clientNum = G_ClientNumberFromString( ent, targetname );
     }
     
     if( clientNum==-1  && numMatches > 1 ) 
@@ -1502,8 +1537,15 @@ void Cmd_CallVote_f( gentity_t *ent )
         sizeof( name ) );
       Q_CleanStr( name );
       if ( G_admin_permission ( &g_entities[ clientNum ], ADMF_IMMUNITY ) )
-        Com_sprintf( message, sizeof( message ), "%s^7 attempted /callvote %s %s on immune admin %s^7",
-          ent->client->pers.netname, arg1, arg2, g_entities[ clientNum ].client->pers.netname );
+      {
+	char reasonprint[ MAX_STRING_CHARS ] = "";
+	      
+	if( reason[ 0 ] != '\0' )
+	  Com_sprintf(reasonprint, sizeof(reasonprint), "With reason: %s", reason);
+	      
+        Com_sprintf( message, sizeof( message ), "%s^7 attempted /callvote %s %s on immune admin %s^7 %s^7",
+          ent->client->pers.netname, arg1, targetname, g_entities[ clientNum ].client->pers.netname, reasonprint );
+      }
     }
     else
     {
@@ -1527,6 +1569,8 @@ void Cmd_CallVote_f( gentity_t *ent )
     Com_sprintf( level.voteString, sizeof( level.voteString ),
       "!ban %s \"%s\" vote kick", level.clients[ clientNum ].pers.ip,
       g_adminTempBan.string );
+    if ( reason[0]!='\0' )
+      Q_strcat( level.voteString, sizeof( level.voteDisplayString ), va( "(%s^7)", reason ) );
     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
       "Kick player \'%s\'", name );
   }
@@ -1614,9 +1658,14 @@ void Cmd_CallVote_f( gentity_t *ent )
   }
    else if( !Q_stricmp( arg1, "poll" ) )
     {
-    Com_sprintf( level.voteString, sizeof( level.voteString ), nullstring);
-    Com_sprintf( level.voteDisplayString,
-        sizeof( level.voteDisplayString ), "[Poll] \'%s\'", arg2plus );
+      if( arg2plus[ 0 ] == '\0' )
+      {
+        trap_SendServerCommand( ent-g_entities, "print \"callvote: You forgot to specify what people should vote on.\n\"" );
+        return;
+      }
+      Com_sprintf( level.voteString, sizeof( level.voteString ), nullstring);
+      Com_sprintf( level.voteDisplayString,
+          sizeof( level.voteDisplayString ), "[Poll] \'%s\'", arg2plus );
    }
    else if( !Q_stricmp( arg1, "sudden_death" ) ||
      !Q_stricmp( arg1, "suddendeath" ) )
@@ -1652,13 +1701,16 @@ void Cmd_CallVote_f( gentity_t *ent )
     Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " (Needs %d percent)", level.votePercentToPass ) );
   }
   
+  if ( reason[0]!='\0' )
+    Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " Reason: '%s^7'", reason ) );
+  
 
   trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE
          " called a vote: %s\n\"", ent->client->pers.netname, level.voteDisplayString ) );
   
   G_LogPrintf("Vote: %s^7 called a vote: %s^7\n", ent->client->pers.netname, level.voteDisplayString );
   
-  Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " Called by: %s^7", ent->client->pers.netname ) );
+  Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " Called by: '%s^7'", ent->client->pers.netname ) );
 
   ent->client->pers.voteCount++;
 
@@ -1759,9 +1811,13 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   char  name[ MAX_NETNAME ];
   char nullstring[] = "";
   char  message[ MAX_STRING_CHARS ];
-	
+  char targetname[ MAX_STRING_CHARS] = "";
+  char reason[ MAX_STRING_CHARS ] = "";
+  char *arg1plus;
   char *arg2plus;
+  char *ptr = NULL;	
 	
+  arg1plus = G_SayConcatArgs( 1 );	
   arg2plus = G_SayConcatArgs( 2 );
   
   team = ent->client->pers.teamSelection;
@@ -1820,6 +1876,25 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     return;
   }
   
+  ptr = strstr(arg1plus, " -");
+  if( ptr )
+  {
+    *ptr = '\0';
+    ptr+=2; 
+	    
+    if( *ptr == 'r' || *ptr=='R' )
+    {
+      while( *ptr != ' ' )
+        ptr++;
+      ptr++;
+      strcpy(reason, ptr);
+    }
+    else
+    {
+      trap_SendServerCommand( ent-g_entities, "print \"callteamvote: Warning: invalid argument specified \n\"" );
+    }
+  }
+  
   // detect clientNum for partial name match votes
   if( !Q_stricmp( arg1, "kick" ) ||
     !Q_stricmp( arg1, "denybuild" ) ||
@@ -1830,6 +1905,18 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     int clientNums[ MAX_CLIENTS ] = { -1 };
     int numMatches=0;
     char err[ MAX_STRING_CHARS ];
+    
+    strcpy(targetname, arg2plus);
+    ptr = strstr(targetname, " -");
+    if( ptr )
+      *ptr = '\0';
+    
+    if( g_requireVoteReasons.integer && !G_admin_permission( ent, ADMF_UNACCOUNTABLE ) && !Q_stricmp( arg1, "kick" ) && reason[ 0 ]=='\0' )
+    {
+       trap_SendServerCommand( ent-g_entities, "print \"callvote: You must specify a reason. Use /callteamvote kick [player] -r [reason] \n\"" );
+       return;
+    }
+    
 
     if( !arg2[ 0 ] )
     {
@@ -1838,7 +1925,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
       return;
     }
 
-    numMatches = G_ClientNumbersFromString( arg2, clientNums );
+    numMatches = G_ClientNumbersFromString( targetname, clientNums );
     if( numMatches == 1 )
     {
       // there was only one partial name match
@@ -1847,7 +1934,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     else
     {
       // look for an exact name match (sets clientNum to -1 if it fails) 
-      clientNum = G_ClientNumberFromString( ent, arg2plus );
+      clientNum = G_ClientNumberFromString( ent, targetname );
     }
     
     if( clientNum==-1  && numMatches > 1 ) 
@@ -1877,8 +1964,12 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
       Q_CleanStr( name );
       if( G_admin_permission( &g_entities[ clientNum ], ADMF_IMMUNITY ) )
       {
-        Com_sprintf( message, sizeof( message ), "%s^7 attempted /callteamvote %s %s on immune admin %s^7",
-          ent->client->pers.netname, arg1, arg2, g_entities[ clientNum ].client->pers.netname );
+	char reasonprint[ MAX_STRING_CHARS ] = "";
+	if( reason[ 0 ] != '\0' )
+	  Com_sprintf(reasonprint, sizeof(reasonprint), "With reason: %s", reason);
+	
+        Com_sprintf( message, sizeof( message ), "%s^7 attempted /callteamvote %s %s on immune admin %s^7 %s^7",
+          ent->client->pers.netname, arg1, arg2, g_entities[ clientNum ].client->pers.netname, reasonprint );
       }
     }
     else
@@ -1952,14 +2043,14 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     if( !g_designateVotes.integer )
     {
       trap_SendServerCommand( ent-g_entities,
-        "print \"callvote: Designate votes have been disabled.\n\"" );
+        "print \"callteamvote: Designate votes have been disabled.\n\"" );
       return;
     }
 	  
     if( level.clients[ clientNum ].pers.designatedBuilder )
     {
       trap_SendServerCommand( ent-g_entities,
-        "print \"callvote: player is already a designated builder\n\"" );
+        "print \"callteamvote: player is already a designated builder\n\"" );
       return;
     }
     Com_sprintf( level.teamVoteString[ cs_offset ],
@@ -1974,14 +2065,14 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     if( !g_designateVotes.integer )
     {
       trap_SendServerCommand( ent-g_entities,
-        "print \"callvote: Designate votes have been disabled.\n\"" );
+        "print \"callteamvote: Designate votes have been disabled.\n\"" );
       return;
     }
 	  
     if( !level.clients[ clientNum ].pers.designatedBuilder )
     {
       trap_SendServerCommand( ent-g_entities,
-        "print \"callvote: player is not currently a designated builder\n\"" );
+        "print \"callteamvote: player is not currently a designated builder\n\"" );
       return;
     }
     Com_sprintf( level.teamVoteString[ cs_offset ],
@@ -2000,6 +2091,11 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   }
    else if( !Q_stricmp( arg1, "poll" ) )
    {
+     if( arg2plus[ 0 ] == '\0' )
+     {
+       trap_SendServerCommand( ent-g_entities, "print \"callteamvote: You forgot to specify what people should vote on.\n\"" );
+       return;
+     }
      Com_sprintf( level.teamVoteString[ cs_offset ], sizeof( level.teamVoteString[ cs_offset ] ), nullstring );
      Com_sprintf( level.teamVoteDisplayString[ cs_offset ],
          sizeof( level.voteDisplayString ), "[Poll] \'%s\'", arg2plus );
@@ -2013,6 +2109,9 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     return;
   }
   ent->client->pers.voteCount++;
+  
+  if ( reason[0]!='\0' )
+    Q_strcat( level.teamVoteDisplayString[ cs_offset ], sizeof( level.teamVoteDisplayString[ cs_offset ] ), va( " Reason: '%s'^7", reason ) );
 
   for( i = 0 ; i < level.maxclients ; i++ )
   {
@@ -2035,6 +2134,8 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     G_LogPrintf("Teamvote: %s^7 called a teamvote (aliens): %s^7\n", ent->client->pers.netname, level.teamVoteDisplayString[ cs_offset ] );
   else if(team==PTE_HUMANS)
     G_LogPrintf("Teamvote: %s^7 called a teamvote (humans): %s^7\n", ent->client->pers.netname, level.teamVoteDisplayString[ cs_offset ] );
+  
+  Q_strcat( level.teamVoteDisplayString[ cs_offset ], sizeof( level.teamVoteDisplayString[ cs_offset ] ), va( " Called by: '%s^7'", ent->client->pers.netname ) );
 
   // start the voting, the caller autoamtically votes yes
   level.teamVoteTime[ cs_offset ] = level.time;
