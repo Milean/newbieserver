@@ -2676,7 +2676,6 @@ qboolean G_admin_mute( gentity_t *ent, int skiparg )
 
 qboolean G_admin_cp( gentity_t *ent, int skiparg )
 {
-  char msg[ MAX_STRING_CHARS ];
   int minargc;
   char *s;
 
@@ -2689,11 +2688,7 @@ qboolean G_admin_cp( gentity_t *ent, int skiparg )
   }
 
   s = G_SayConcatArgs( 1 + skiparg );
-  Q_strncpyz( msg, s, sizeof( msg ) );
-  G_ParseEscapedString( msg );
-  trap_SendServerCommand( -1, va( "cp \"%s\"", msg ) );
-  trap_SendServerCommand( -1, va( "print \"CP: %s\n\"", msg ) );
-
+  G_CP(ent);
   return qtrue;
 }
 

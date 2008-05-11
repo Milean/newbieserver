@@ -812,6 +812,8 @@ void      Cmd_Share_f( gentity_t *ent );
 void      Cmd_Donate_f( gentity_t *ent );
 void      Cmd_TeamVote_f( gentity_t *ent ); 
 void      Cmd_Builder_f( gentity_t *ent );
+void      G_WordWrap( char *buffer, int maxwidth );
+void      G_CP( gentity_t *ent );
 
 //
 // g_physics.c

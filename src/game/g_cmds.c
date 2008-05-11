@@ -4540,6 +4540,59 @@ void G_ParseEscapedString( char *buffer )
   buffer[j] = 0;
 }
 
+void G_WordWrap( char *buffer, int maxwidth )
+{
+  char out[ MAX_STRING_CHARS ];
+  int i = 0;
+  int j = 0;
+  int k;
+  int linecount = 0;
+	
+
+  while ( buffer[ j ]!='\0' )
+  {
+     if( linecount < maxwidth )
+     {
+       out[ i ] = buffer[ j ];
+       if( out[ i ] == '\n' ) 
+         linecount = 0;
+       else
+         linecount++;
+       
+       //If we're at a space and getting close to a line break, look ahead and make sure that there isn't already a \n or a closer space coming. If not, break here.
+       if( out[ i ] == ' ' && linecount >= (maxwidth - 10 ) ) 
+       {
+	  qboolean foundbreak = qfalse;
+	  for( k = i+1; k < maxwidth; k++ )
+	  {
+	     if( !buffer[ k ] )
+	       continue;
+	     if( buffer[ k ] == '\n' || buffer[ k ] == ' ' )
+	       foundbreak = qtrue;
+	  }
+	  if( !foundbreak )
+	  {
+             out [ i ] = '\n';
+             linecount = 0;
+	  }
+       }
+       
+       i++;
+       j++;
+     }
+     else
+     {
+       out[ i ] = '\n';
+       i++;
+       linecount = 0;
+     }
+  }
+  out[ i ] = '\0';
+
+
+  strcpy( buffer, out );
+}
+
 void G_PrivateMessage( gentity_t *ent )
 {
   int pids[ MAX_CLIENTS ];
@@ -4734,4 +4787,89 @@ void G_PrivateMessage( gentity_t *ent )
    }
  }
 
+void G_CP( gentity_t *ent )
+ { 
+   int i;
+   char buffer[MAX_STRING_CHARS];
+   char prefixes[MAX_STRING_CHARS] = "";
+   char wrappedtext[ MAX_STRING_CHARS ] = "";
+   char *ptr;
+   char *text;
+   qboolean sendAliens = qtrue;
+   qboolean sendHumans = qtrue;
+   qboolean sendSpecs = qtrue;
+   Q_strncpyz( buffer, ConcatArgs( 1 ), sizeof( buffer ) );
+   G_ParseEscapedString( buffer );
+	 
+   if( strstr( buffer, "!cp" ) )
+   {
+     ptr = buffer;
+     while( *ptr != '!' )
+       ptr++;
+     ptr+=4;
+     
+     Q_strncpyz( buffer, ptr, sizeof(buffer) );
+   }
+	    
+   text = buffer;
+	    
+   ptr = buffer;
+   while( *ptr == ' ' )
+     ptr++;
+   if( *ptr == '-' )
+   {
+      sendAliens = qfalse;
+      sendHumans = qfalse;
+      sendSpecs = qfalse;
+      Q_strcat( prefixes, sizeof( prefixes ), " " );
+      ptr++;
+	       
+      while( *ptr != ' ' )
+      {
+	if( *ptr == 'a' || *ptr == 'A' )
+	{
+           sendAliens = qtrue;
+	   Q_strcat( prefixes, sizeof( prefixes ), "[A]" );
+	}
+	if( *ptr == 'h' || *ptr == 'H' )
+	{
+           sendHumans = qtrue;
+	   Q_strcat( prefixes, sizeof( prefixes ), "[H]" );
+	}
+	if( *ptr == 's' || *ptr == 'S' )
+	{
+           sendSpecs = qtrue;
+	   Q_strcat( prefixes, sizeof( prefixes ), "[S]" );
+	}
+	ptr++;
+      }
+      text = ptr+1;
+	 
+  }
+  
+  strcpy( wrappedtext, text );
+  G_WordWrap( wrappedtext, 50 );
+	    
+  for( i = 0; i < level.maxclients; i++ )
+  {
+    if( level.clients[ i ].pers.connected == CON_DISCONNECTED )
+      continue;
+	 
+    if( ( !sendAliens && level.clients[ i ].pers.teamSelection == PTE_ALIENS ) ||
+         ( !sendHumans && level.clients[ i ].pers.teamSelection == PTE_HUMANS ) ||
+         ( !sendSpecs && level.clients[ i ].pers.teamSelection == PTE_NONE ) )
+    {
+      if( G_admin_permission( &g_entities[ i ], ADMF_ADMINCHAT ) )
+      {
+        trap_SendServerCommand( i, va("print \"^6[Admins]^7 CP to other team%s: %s \n\"", prefixes, text ) );
+      }
+      continue;
+    }
+	       
+      trap_SendServerCommand( i, va( "cp \"%s\"", wrappedtext ) );
+      trap_SendServerCommand( i, va( "print \"CP%s: %s\n\"", prefixes, text ) );
+    }
+	    
+     G_Printf( "cp: %s\n", ConcatArgs( 1 ) );
+ }
 

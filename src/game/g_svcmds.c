@@ -723,12 +723,7 @@ qboolean  ConsoleCommand( void )
     }
     else if( !Q_stricmp( cmd, "cp" ) )
     {
-       char buffer[MAX_STRING_CHARS];
-       Q_strncpyz( buffer, ConcatArgs( 1 ), sizeof( buffer ) );
-       G_ParseEscapedString( buffer );
-       trap_SendServerCommand( -1, va( "cp \"%s\"", buffer ) );
-       trap_SendServerCommand( -1, va( "print \"CP: %s\n\"", buffer ) );
-        G_Printf( "cp: %s\n", ConcatArgs( 1 ) );
+	G_CP( NULL );
         return qtrue;
     }
     else if( !Q_stricmp( cmd, "m" ) )
