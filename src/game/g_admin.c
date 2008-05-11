@@ -81,8 +81,8 @@ g_admin_cmd_t g_admin_cmds[ ] =
     },
     
     {"cp", G_admin_cp, "Z",
-      "display a message to all users",
-      "[^3message^7]"
+      "display a CP message to users, optionally specifying team(s) to send to",
+      "(-AHS) [^3message^7]"
     },
 
     {"denybuild", G_admin_denybuild, "d",
@@ -3308,6 +3308,7 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
 qboolean G_admin_help( gentity_t *ent, int skiparg )
 {
   int i;
+  char additional[ MAX_STRING_CHARS ] = "\nThe following non-standard /commands may also be available to you: \n^3/builder /say_area";
 
   if( G_SayArgc() < 2 + skiparg )
   {
@@ -3344,11 +3345,29 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
         j = 0;
       }
     }
+    
+    if( g_publicSayadmins.integer || G_admin_permission( ent, ADMF_ADMINCHAT ) )
+      strcat( additional, " /a /say_admins" );
+    if( g_privateMessages.integer )
+      strcat( additional, " /m" );
+    if( g_actionPrefix.string[0] )
+      strcat( additional, " /me /mt /me_team" );
+    if( g_myStats.integer )
+      strcat( additional, " /mystats" );
+    if( ent->client->pers.designatedBuilder )
+      strcat( additional, " /protect /resign" );
+    if( g_allowShare.integer )
+      strcat( additional, " /share /donate" );
+    
     if( count )
   ADMBP( "\n" );
     ADMBP( va( "^3!help: ^7%i available commands\n", count ) );
     ADMBP( "run !help [^3command^7] for help with a specific command.\n" );
+    ADMBP( va( "%s\n", additional ) );
     ADMBP_end();
+    
+    
+   
 
     return qtrue;
   }
