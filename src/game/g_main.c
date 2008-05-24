@@ -23,6 +23,9 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "g_local.h"
 
+#define QVM_NAME       "Lakitu7's QVM"
+#define QVM_VERSIONNUM      "5.2"
+
 level_locals_t  level;
 
 typedef struct
@@ -192,6 +195,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { NULL, "sv_mapname", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
   { NULL, "P", "", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
   { NULL, "ff", "0", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
+  { NULL, "qvm_version", QVM_NAME " " QVM_VERSIONNUM " (" __DATE__ ", " __TIME__ ")", CVAR_SERVERINFO | CVAR_ROM, 0, qfalse  },
 
   // latched vars
 
