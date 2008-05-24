@@ -141,24 +141,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   if( self->client->ps.pm_type == PM_DEAD )
     return;
   
-  if( attacker != self && attacker->client->ps.stats[ STAT_PTEAM ]  == self->client->ps.stats[ STAT_PTEAM ] ) 
-  {
-    attacker->client->pers.statscounters.teamkills++;
-    if( attacker->client->pers.teamSelection == PTE_ALIENS ) 
-    {
-      level.alienStatsCounters.teamkills++;
-    }
-    else if( attacker->client->pers.teamSelection == PTE_HUMANS )
-    {
-     level.humanStatsCounters.teamkills++;
-    }
-  }
 
   if( level.intermissiontime )
     return;
-
-  // stop any following clients
-  // r1: removed, annoying.
 
   self->client->ps.pm_type = PM_DEAD;
   self->suicideTime = 0;
@@ -172,6 +157,20 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       killerName = attacker->client->pers.netname;
       tk = ( attacker != self && attacker->client->ps.stats[ STAT_PTEAM ] 
         == self->client->ps.stats[ STAT_PTEAM ] );
+	    
+      if( attacker != self && attacker->client->ps.stats[ STAT_PTEAM ]  == self->client->ps.stats[ STAT_PTEAM ] ) 
+      {
+        attacker->client->pers.statscounters.teamkills++;
+        if( attacker->client->pers.teamSelection == PTE_ALIENS ) 
+        {
+          level.alienStatsCounters.teamkills++;
+        }
+        else if( attacker->client->pers.teamSelection == PTE_HUMANS )
+        {
+         level.humanStatsCounters.teamkills++;
+        }
+      }
+	    
     }
     else
       killerName = "<non-client>";
@@ -213,7 +212,7 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
     ent->s.otherEntityNum2 = killer;
     ent->r.svFlags = SVF_BROADCAST; // send to everyone
   }
-  else 
+  else if( attacker && attacker->client )
   {
     // tjw: obviously this is a hack and belongs in the client, but
     //      this works as a temporary fix.
@@ -882,8 +881,11 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
   }
   else
   {
-    attacker->client->pers.statscounters.hitslocational++;
-    level.alienStatsCounters.hitslocational++;
+    if( attacker && attacker->client )
+    {
+      attacker->client->pers.statscounters.hitslocational++;
+      level.alienStatsCounters.hitslocational++;
+    }
     for( i = 0; i < g_numDamageRegions[ class ]; i++ )
     {
       qboolean rotationBound;
@@ -909,7 +911,7 @@ static float G_CalcDamageModifier( vec3_t point, gentity_t *targ, gentity_t *att
         modifier *= g_damageRegions[ class ][ i ].modifier;
     }    
     
-    if(modifier == 2)
+    if( attacker && attacker->client && modifier == 2 )
     {
      attacker->client->pers.statscounters.headshots++;
      level.alienStatsCounters.headshots++;
@@ -1315,7 +1317,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   if( take )
   {
     //Increment some stats counters
-    if( attacker->client )
+    if( attacker && attacker->client )
     {
       if( targ->biteam == attacker->client->pers.teamSelection || OnSameTeam( targ, attacker ) ) 
       {
