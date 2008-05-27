@@ -3354,8 +3354,13 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
       strcat( additional, " /me /mt /me_team" );
     if( g_myStats.integer )
       strcat( additional, " /mystats" );
-    if( ent->client->pers.designatedBuilder )
-      strcat( additional, " /protect /resign" );
+    if( ent && ent->client )
+    {
+      if( ent->client->pers.designatedBuilder )
+      {
+        strcat( additional, " /protect /resign" );
+      }
+    }
     if( g_allowShare.integer )
       strcat( additional, " /share /donate" );
     

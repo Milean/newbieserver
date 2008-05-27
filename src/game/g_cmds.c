@@ -1014,7 +1014,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
       return;
     }
        
-  if (g_chatTeamPrefix.integer)
+  if (g_chatTeamPrefix.integer && ent && ent->client )
   {
     switch( ent->client->pers.teamSelection)
     {
