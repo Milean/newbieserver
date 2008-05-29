@@ -634,7 +634,7 @@ void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   VectorCopy( self->s.angles, new->angles );
   VectorCopy( self->s.origin2, new->origin2 );
   VectorCopy( self->s.angles2, new->angles2 );
-  new->fate = ( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS ) ? BF_TEAMKILLED : BF_DESTROYED;
+  new->fate = ( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS ) ? BF_TEAMKILLED : BF_DESTROYED;
   new->next = NULL;
   G_LogBuild( new );
   
@@ -938,7 +938,7 @@ void ABarricade_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker,
   VectorCopy( self->s.angles, new->angles );
   VectorCopy( self->s.origin2, new->origin2 );
   VectorCopy( self->s.angles2, new->angles2 );
-  new->fate = ( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS ) ? BF_TEAMKILLED : BF_DESTROYED;
+  new->fate = ( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS ) ? BF_TEAMKILLED : BF_DESTROYED;
   new->next = NULL;
   G_LogBuild( new );
     
@@ -1368,7 +1368,7 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   VectorCopy( self->s.angles, new->angles );
   VectorCopy( self->s.origin2, new->origin2 );
   VectorCopy( self->s.angles2, new->angles2 );
-  new->fate = ( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS ) ? BF_TEAMKILLED : BF_DESTROYED;
+  new->fate = ( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS ) ? BF_TEAMKILLED : BF_DESTROYED;
   new->next = NULL;
   G_LogBuild( new );
 	
@@ -2397,7 +2397,7 @@ void HSpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   VectorCopy( self->s.angles, new->angles );
   VectorCopy( self->s.origin2, new->origin2 );
   VectorCopy( self->s.angles2, new->angles2 );
-  new->fate = ( attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) ? BF_TEAMKILLED : BF_DESTROYED;
+  new->fate = ( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS ) ? BF_TEAMKILLED : BF_DESTROYED;
   new->next = NULL;
   G_LogBuild( new );
     
