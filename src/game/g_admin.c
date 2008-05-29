@@ -4034,7 +4034,6 @@ qboolean G_admin_designate( gentity_t *ent, int skiparg )
    AP( va( "print \"^3!warn: ^7%s^7 has been warned to cease and desist: %s by %s \n\"",
              vic->client->pers.netname, (*reason) ? reason : "his current activity",
              ( ent ) ? G_admin_adminPrintName( ent ) : "console" ) );//console announcement
-   ClientUserinfoChanged( pids[ 0 ] );
    return qtrue;
  }
  
@@ -4704,34 +4703,79 @@ void G_admin_cleanup()
 
 qboolean G_admin_L0(gentity_t *ent, int skiparg ){
   int pids[ MAX_CLIENTS ];
-  char name[ MAX_NAME_LENGTH ], *reason, err[ MAX_STRING_CHARS ];
-  int minargc;
+  char name[ MAX_NAME_LENGTH ] = {""};
+  char testname[ MAX_NAME_LENGTH ] = {""};
+  char err[ MAX_STRING_CHARS ];
+  qboolean numeric = qtrue;
+  int i;
+  int id = -1;
   gentity_t *vic;
 
-  minargc = 2 + skiparg;
+  if( G_SayArgc() < 2 + skiparg )
+  {
+    ADMP( "^3!L0: ^7usage: !L0 [name|slot#|admin#]\n" );
+    return qfalse;
+  }
+  G_SayArgv( 1 + skiparg, testname, sizeof( testname ) );
+  G_SanitiseName( testname, name );
+  for( i = 0; i < sizeof( name ) && name[ i ] ; i++ )
+  {
+    if( name[ i ] < '0' || name[ i ] > '9' )
+    {
+      numeric = qfalse;
+      break;
+    }
+  }
 
-  if( G_SayArgc() < minargc )
+  if( numeric )
   {
-    ADMP( "^3!L0: ^7usage: !L0 [name]\n" );
+    id = atoi( name );
+  }
+  else
+  {
+    if( G_ClientNumbersFromString( name, pids ) != 1 )
+    {
+      G_MatchOnePlayer( pids, err, sizeof( err ) );
+      ADMP( va( "^3!L0: ^7%s\n", err ) );
+      return qfalse;
+    }
+    id = pids[ 0 ];
+  }
+
+  if (id >= 0 && id < level.maxclients)
+  {
+    vic = &g_entities[ id ];
+    if( !vic || !(vic->client) || vic->client->pers.connected != CON_CONNECTED )
+    {
+      ADMP( "^3!L0:^7 no one connected by that slot number\n" );
+      return qfalse;
+    }
+
+    if( G_admin_level( vic ) != 1 )
+    {
+      ADMP( "^3!L0:^7 intended victim is not level 1\n" );
+      return qfalse;
+    }
+  }
+  else if (id >= MAX_CLIENTS && id < MAX_CLIENTS + MAX_ADMIN_ADMINS
+    && g_admin_admins[ id - MAX_CLIENTS ] )
+  {
+    if( g_admin_admins[ id - MAX_CLIENTS ]->level != 1 )
+    {
+      ADMP( "^3!L0:^7 intended victim is not level 1\n" );
+      return qfalse;
+    }
+  }
+  else
+  {
+    ADMP( "^3!L0:^7 no match.  use !listplayers or !listadmins to "
+      "find an appropriate number to use instead of name.\n" );
     return qfalse;
   }
-  G_SayArgv( 1 + skiparg, name, sizeof( name ) );
-  reason = G_SayConcatArgs( 2 + skiparg );
-  if( G_ClientNumbersFromString( name, pids ) != 1 )
-  {
-    G_MatchOnePlayer( pids, err, sizeof( err ) );
-    ADMP( va( "^3!L0: ^7%s\n", err ) );
-    return qfalse;
-  }
-  if( G_admin_level(&g_entities[ pids[ 0 ] ] )!=1 )
-  {
-    ADMP( "^3!L0: ^7Sorry, but that person is not level 1. You must use !setlevel.\n" );
-    return qfalse;
-  }
- 
-  vic = &g_entities[ pids[ 0 ] ];
-  trap_SendConsoleCommand( EXEC_APPEND,va( "!setlevel %d 0;", pids[ 0 ] ) );
+
+  trap_SendConsoleCommand( EXEC_APPEND, va( "!setlevel %d 0;", id ) );
   ClientUserinfoChanged( pids[ 0 ] );
+
   return qtrue;
 }
 
