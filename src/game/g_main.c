@@ -328,7 +328,7 @@ static cvarTable_t   gameCvarTable[ ] =
   
   { &g_privateMessages, "g_privateMessages", "1", CVAR_ARCHIVE, 0, qfalse  },
   { &g_decolourLogfiles, "g_decolourLogfiles", "0", CVAR_ARCHIVE, 0, qfalse  },
-  { &g_buildLogMaxLength, "g_buildLogMaxLength", "25", CVAR_ARCHIVE, 0, qfalse  },
+  { &g_buildLogMaxLength, "g_buildLogMaxLength", "50", CVAR_ARCHIVE, 0, qfalse  },
   { &g_myStats, "g_myStats", "1", CVAR_ARCHIVE, 0, qfalse  },
   { &g_publicSayadmins, "g_publicSayadmins", "1", CVAR_ARCHIVE, 0, qfalse  },    
   { &g_minLevelToSpecMM1, "g_minLevelToSpecMM1", "0", CVAR_ARCHIVE, 0, qfalse  },

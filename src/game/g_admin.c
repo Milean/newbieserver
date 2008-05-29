@@ -3308,7 +3308,7 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
 qboolean G_admin_help( gentity_t *ent, int skiparg )
 {
   int i;
-  char additional[ MAX_STRING_CHARS ] = "\nThe following non-standard /commands may also be available to you: \n^3/builder /say_area";
+  char additional[ MAX_STRING_CHARS ] = "\nThe following non-standard /commands may also be available to you: \n^3";
 
   if( G_SayArgc() < 2 + skiparg )
   {
@@ -3346,13 +3346,15 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
       }
     }
     
+    if( ent )
+      strcat( additional, " /builder /say_area" );
     if( g_publicSayadmins.integer || G_admin_permission( ent, ADMF_ADMINCHAT ) )
       strcat( additional, " /a /say_admins" );
     if( g_privateMessages.integer )
       strcat( additional, " /m" );
-    if( g_actionPrefix.string[0] )
+    if( ent && g_actionPrefix.string[0] )
       strcat( additional, " /me /mt /me_team" );
-    if( g_myStats.integer )
+    if( ent && g_myStats.integer )
       strcat( additional, " /mystats" );
     if( ent && ent->client )
     {
@@ -3361,7 +3363,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
         strcat( additional, " /protect /resign" );
       }
     }
-    if( g_allowShare.integer )
+    if( ent && g_allowShare.integer )
       strcat( additional, " /share /donate" );
     
     if( count )
