@@ -1107,7 +1107,7 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
 	break;
   }
   
-  if( mode!=SAY_TEAM && ent->client->pers.teamSelection == PTE_NONE && G_admin_level(ent)<g_minLevelToSpecMM1.integer )
+  if( mode!=SAY_TEAM && ent && ent->client && ent->client->pers.teamSelection == PTE_NONE && G_admin_level(ent)<g_minLevelToSpecMM1.integer )
   {
     trap_SendServerCommand( ent-g_entities,va( "print \"Sorry, but your admin level may only use teamchat while spectating.\n\"") ); 
     return;
