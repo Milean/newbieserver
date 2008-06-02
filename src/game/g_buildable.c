@@ -825,7 +825,7 @@ void AOvermind_Think( gentity_t *self )
       for( i = 0; i < level.numConnectedClients; i++ )
       {
         builder = &g_entities[ level.sortedClients[ i ] ];
-        if( builder->spawned &&
+        if( builder->health > 0 &&
           ( builder->client->pers.classSelection == PCL_ALIEN_BUILDER0 ||
             builder->client->pers.classSelection == PCL_ALIEN_BUILDER0_UPG ) )
         {
@@ -1459,7 +1459,7 @@ void ABooster_Touch( gentity_t *self, gentity_t *other, trace_t *trace )
   if( other->flags & FL_NOTARGET )
     return; // notarget cancels even beneficial effects?
 
-  if( !self->spawned )
+  if( !self->spawned || self->health <= 0 )
     return;
 
   if( !G_FindOvermind( self ) )
