@@ -1376,7 +1376,7 @@ void Cmd_CallVote_f( gentity_t *ent )
   char *arg2plus;
   char nullstring[] = "";
   char  message[ MAX_STRING_CHARS ];
-  char targetname[ MAX_STRING_CHARS] = "";
+  char targetname[ MAX_NAME_LENGTH] = "";
   char reason[ MAX_STRING_CHARS ] = "";
   char *ptr = NULL;
 
@@ -1488,7 +1488,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     int numMatches=0;
     char err[ MAX_STRING_CHARS ] = "";
     
-    strcpy(targetname, arg2plus);
+    Q_strncpyz(targetname, arg2plus, sizeof(targetname));
     ptr = strstr(targetname, " -");
     if( ptr )
       *ptr = '\0';
@@ -1811,7 +1811,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   char  name[ MAX_NETNAME ];
   char nullstring[] = "";
   char  message[ MAX_STRING_CHARS ];
-  char targetname[ MAX_STRING_CHARS] = "";
+  char targetname[ MAX_NAME_LENGTH] = "";
   char reason[ MAX_STRING_CHARS ] = "";
   char *arg1plus;
   char *arg2plus;
@@ -1906,7 +1906,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
     int numMatches=0;
     char err[ MAX_STRING_CHARS ];
     
-    strcpy(targetname, arg2plus);
+    Q_strncpyz(targetname, arg2plus, sizeof(targetname));
     ptr = strstr(targetname, " -");
     if( ptr )
       *ptr = '\0';
