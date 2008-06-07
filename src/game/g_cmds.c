@@ -34,8 +34,9 @@ void G_SanitiseName( char *in, char *out )
 {
   qboolean skip = qtrue;
   int spaces = 0;
+  int out_len = 0;
 
-  while( *in )
+  while( *in && out_len < MAX_NAME_LENGTH - 1 )
   {
     // strip leading white space
     if( *in == ' ' )
@@ -66,6 +67,7 @@ void G_SanitiseName( char *in, char *out )
     }
 
     *out++ = tolower( *in++ );
+    out_len++;
   }
   out -= spaces; 
   *out = 0;
