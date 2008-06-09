@@ -257,7 +257,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_voteLimit, "g_voteLimit", "5", CVAR_ARCHIVE, 0, qfalse },
   { &g_voteMinTime, "g_voteMinTime", "120", CVAR_ARCHIVE, 0, qfalse },
   { &g_mapvoteMaxTime, "g_mapvoteMaxTime", "240", CVAR_ARCHIVE, 0, qfalse },
-  { &g_suddenDeathVotePercent, "g_suddenDeathVotePercent", "75", CVAR_ARCHIVE, 0, qfalse },
+  { &g_suddenDeathVotePercent, "g_suddenDeathVotePercent", "74", CVAR_ARCHIVE, 0, qfalse },
   { &g_mapVotesPercent, "g_mapVotesPercent", "50", CVAR_ARCHIVE, 0, qfalse },
   { &g_designateVotes, "g_designateVotes", "0", CVAR_ARCHIVE, 0, qfalse },
   
@@ -2221,7 +2221,7 @@ CheckVote
 */
 void CheckVote( void )
 {
-  int votePercentToPass=level.votePercentToPass;
+  int votePassThreshold=level.votePassThreshold;
   int voteYesPercent;
 	
   if( level.voteExecuteTime && level.voteExecuteTime < level.time )
@@ -2255,7 +2255,7 @@ void CheckVote( void )
   
   if( level.time - level.voteTime >= VOTE_TIME || ( level.voteYes + level.voteNo == level.numConnectedClients ) )
   {
-    if( voteYesPercent> votePercentToPass || level.voteNo == 0 )
+    if( voteYesPercent> votePassThreshold || level.voteNo == 0 )
     {
       // execute the command, then remove the vote
       trap_SendServerCommand( -1, va("print \"Vote passed (%d - %d)\n\"", level.voteYes, level.voteNo ) );
@@ -2271,14 +2271,14 @@ void CheckVote( void )
   }
   else
   {
-    if( level.voteYes > (int)((double)level.numConnectedClients * ((double)votePercentToPass/100.0)) )
+    if( level.voteYes > (int)((double)level.numConnectedClients * ((double)votePassThreshold/100.0)) )
     {
       // execute the command, then remove the vote
       trap_SendServerCommand( -1, va("print \"Vote passed (%d - %d)\n\"", level.voteYes, level.voteNo ) );
       G_LogPrintf( "Vote: Vote passed (%d - %d)\n", level.voteYes, level.voteNo );
       level.voteExecuteTime = level.time + 3000;
     }
-    else if( level.voteNo > (int)((double)level.numConnectedClients * ((double)(100.0-votePercentToPass)/100.0)) )
+    else if( level.voteNo > (int)((double)level.numConnectedClients * ((double)(100.0-votePassThreshold)/100.0)) )
     {
       // same behavior as a timeout
       trap_SendServerCommand( -1, va("print \"Vote failed (%d - %d)\n\"", level.voteYes, level.voteNo ) );
@@ -2339,7 +2339,7 @@ void CheckTeamVote( int team )
       //
       trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.teamVoteString[ cs_offset ] ) );
     }
-    else if( level.teamVoteNo[ cs_offset ] > level.numteamVotingClients[ cs_offset ] / 2 )
+    else if( level.teamVoteNo[ cs_offset ] >= level.numteamVotingClients[ cs_offset ] / 2 )
     {
       // same behavior as a timeout
       trap_SendServerCommand( -1, va("print \"Team vote failed  (%d - %d)\n\"", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] ) );

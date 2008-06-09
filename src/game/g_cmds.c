@@ -1460,7 +1460,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
   }
   
-  level.votePercentToPass=50;
+  level.votePassThreshold=50;
   
   ptr = strstr(arg1plus, " -");
   if( ptr )
@@ -1625,7 +1625,7 @@ void Cmd_CallVote_f( gentity_t *ent )
     Com_sprintf( level.voteString, sizeof( level.voteString ), "%s", arg1 );
     Com_sprintf( level.voteDisplayString,
         sizeof( level.voteDisplayString ), "Restart current map" );
-    level.votePercentToPass = g_mapVotesPercent.integer;
+    level.votePassThreshold = g_mapVotesPercent.integer;
   }
   else if( !Q_stricmp( arg1, "map" ) )
   {
@@ -1649,14 +1649,14 @@ void Cmd_CallVote_f( gentity_t *ent )
     Com_sprintf( level.voteString, sizeof( level.voteString ), "%s %s", arg1, arg2 );
     Com_sprintf( level.voteDisplayString,
         sizeof( level.voteDisplayString ), "Change to map '%s'", arg2 );
-    level.votePercentToPass = g_mapVotesPercent.integer;
+    level.votePassThreshold = g_mapVotesPercent.integer;
   }
   else if( !Q_stricmp( arg1, "draw" ) )
   {
     Com_sprintf( level.voteString, sizeof( level.voteString ), "evacuation" );
     Com_sprintf( level.voteDisplayString, sizeof( level.voteDisplayString ),
         "End match in a draw" );
-    level.votePercentToPass = g_mapVotesPercent.integer;
+    level.votePassThreshold = g_mapVotesPercent.integer;
   }
    else if( !Q_stricmp( arg1, "poll" ) )
     {
@@ -1684,7 +1684,7 @@ void Cmd_CallVote_f( gentity_t *ent )
      }
     else 
      {
-     level.votePercentToPass = g_suddenDeathVotePercent.integer;	   
+     level.votePassThreshold = g_suddenDeathVotePercent.integer;	   
      Com_sprintf( level.voteString, sizeof( level.voteString ), "g_suddenDeath 1" );
      Com_sprintf( level.voteDisplayString,
          sizeof( level.voteDisplayString ), "Begin sudden death" );
@@ -1698,9 +1698,9 @@ void Cmd_CallVote_f( gentity_t *ent )
     return;
   }
   
-  if( level.votePercentToPass!=50 )
+  if( level.votePassThreshold!=50 )
   {
-    Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " (Needs %d percent)", level.votePercentToPass ) );
+    Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " (Needs > %d percent)", level.votePassThreshold ) );
   }
   
   if ( reason[0]!='\0' )
