@@ -2807,12 +2807,11 @@ static qboolean G_SufficientBPAvailable( buildableTeam_t team,
                                          buildable_t     buildable )
 {
   int       i;
-  int       numBuildables = level.numBuildablesForRemoval;
+  int       numBuildables = 0;
   int       pointsYielded = 0;
   gentity_t *ent;
   qboolean  unique = BG_FindUniqueTestForBuildable( buildable );
   int       remainingBP, remainingSpawns;
-  int       numBuildablesInTheWay = level.numBuildablesForRemoval;
 
   if( team == BIT_ALIENS )
   {
@@ -2876,29 +2875,23 @@ static qboolean G_SufficientBPAvailable( buildableTeam_t team,
   if( buildPoints > 0 && numBuildables == 0 )
     return qfalse;
 
-  // Sort everything that was added to the list, but leave what was already 
-  // there in the front (those buildings are blocking the new buildable)
-  qsort( level.markedBuildables + numBuildablesInTheWay,
-    numBuildables - numBuildablesInTheWay,
-    sizeof( level.markedBuildables[ 0 ] ), G_CompareBuildablesForRemoval );
+  // Sort the list
+  qsort( level.markedBuildables, numBuildables, sizeof( level.markedBuildables[ 0 ] ),
+         G_CompareBuildablesForRemoval );
 
-  // if any buildings are in the way of what we're building
-  // we must force them to be deconned regardless of bp, so this won't work
-  if( numBuildablesInTheWay == 0 )
+  // Do a pass looking for a buildable of the same type that we're
+  // building and mark it (and only it) for destruction if found
+  for( i = 0; i < numBuildables; i++ )
   {
-    // Do a pass looking for a buildable of the same type that we're
-    // building and mark it (and only it) for destruction if found
-    for( i = 0; i < numBuildables; i++ )
-    {
-      ent = level.markedBuildables[ i ];
+    ent = level.markedBuildables[ i ];
 
-      if( ent->s.modelindex == buildable )
-      {
-        // If we're removing what we're building this will always work
-        level.markedBuildables[ 0 ]   = ent;
-        level.numBuildablesForRemoval = 1;
-        return qtrue;
-      }
+    if( ent->s.modelindex == buildable )
+    {
+      // If we're removing what we're building this will always work
+      level.markedBuildables[ 0 ]   = ent;
+      level.numBuildablesForRemoval = 1;
+
+      return qtrue;
     }
   }
 
@@ -2908,11 +2901,6 @@ static qboolean G_SufficientBPAvailable( buildableTeam_t team,
   {
     ent = level.markedBuildables[ level.numBuildablesForRemoval ];
     pointsYielded += BG_FindBuildPointsForBuildable( ent->s.modelindex );
-  }
-
-  if( level.numBuildablesForRemoval < numBuildablesInTheWay )
-  {
-    level.numBuildablesForRemoval = numBuildablesInTheWay;
   }
 
   // Not enough points yielded
@@ -2938,9 +2926,7 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
 {
   vec3_t            angles;
   vec3_t            entity_origin, normal;
-  vec3_t            mins, maxs, mins1, maxs1;
-  int               num;
-  int               entitylist[ MAX_GENTITIES ];
+  vec3_t            mins, maxs;
   trace_t           tr1, tr2, tr3;
   int               i;
   itemBuildError_t  reason = IBE_NONE;
@@ -2954,11 +2940,9 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   BG_FindBBoxForBuildable( buildable, mins, maxs );
 
   BG_PositionBuildableRelativeToPlayer( ps, mins, maxs, trap_Trace, entity_origin, angles, &tr1 );
-  VectorAdd( entity_origin, mins, mins1 );
-  VectorAdd( entity_origin, maxs, maxs1 );
-  num = trap_EntitiesInBox( mins1, maxs1, entitylist, MAX_GENTITIES );
-  trap_Trace( &tr2, entity_origin, mins, maxs, entity_origin, ent->s.number, MASK_DEADSOLID );
-  trap_Trace( &tr3, ps->origin, NULL, NULL, entity_origin, ent->s.number, MASK_DEADSOLID );
+
+  trap_Trace( &tr2, entity_origin, mins, maxs, entity_origin, ent->s.number, MASK_PLAYERSOLID );
+  trap_Trace( &tr3, ps->origin, NULL, NULL, entity_origin, ent->s.number, MASK_PLAYERSOLID );
 
   VectorCopy( entity_origin, origin );
 
@@ -2980,55 +2964,6 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
   contents = trap_PointContents( entity_origin, -1 );
   buildPoints = BG_FindBuildPointsForBuildable( buildable );
 
-  //force buildings that are blocking the current building to be
-  //deconstructed before other marked buildings
-  level.numBuildablesForRemoval = 0;
-  for(i = 0; i < num; i++)
-  {
-    gentity_t *tent = &g_entities[ entitylist[ i ] ];
-    if( tent->s.eType == ET_PLAYER )
-    {
-      reason = IBE_NOROOM;
-      break;
-    }
-    else if( tent->biteam != ent->client->ps.stats[ STAT_PTEAM ] )
-    {
-      reason = IBE_NOROOM;
-    }
-    else if( tent->s.eType == ET_BUILDABLE && !tent->deconstruct )
-    {
-      reason = IBE_NOROOM;
-      break;
-    }
-    else
-    {
-      if( tent->s.modelindex == BA_H_SPAWN && level.numHumanSpawns <= 1 )
-      {
-        reason = IBE_NOROOM;
-        break;
-      }
-      else if( tent->s.modelindex == BA_A_SPAWN && level.numAlienSpawns <= 1 )
-      {
-        reason = IBE_NOROOM;
-        break;
-      }
-      else if( tent->s.modelindex == BA_H_REACTOR && buildable != BA_H_REACTOR )
-      {
-        reason = IBE_NOROOM;
-        break;
-      }
-      else if( tent->s.modelindex == BA_A_OVERMIND && buildable != BA_A_OVERMIND )
-      {
-        reason = IBE_NOROOM;
-        break;
-      }
-      level.markedBuildables[ level.numBuildablesForRemoval++ ] = tent;
-    }
-  }
-  if( reason != IBE_NONE )
-  {
-    level.numBuildablesForRemoval = 0;
-  }
   if( ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
   {
     //alien criteria
@@ -3096,16 +3031,6 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
           }
 
           break;
-        }
-        if( tempent->s.modelindex == BA_A_HOVEL &&
-            buildable == BA_A_HOVEL &&
-            tempent->active )
-        {
-          reason = IBE_HOVEL;
-        }
-        else if( tempent->s.modelindex == buildable )
-        {
-          level.markedBuildables[ level.numBuildablesForRemoval++ ] = tempent;	
         }
       }
     }
@@ -3182,8 +3107,6 @@ itemBuildError_t G_CanBuild( gentity_t *ent, buildable_t buildable, int distance
           reason = IBE_REACTOR;
           break;
         }
-        if( tempent->s.modelindex == buildable )
-          level.markedBuildables[ level.numBuildablesForRemoval++ ] = tempent;	
       }
     }
 

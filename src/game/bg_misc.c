@@ -5251,7 +5251,7 @@ void BG_PositionBuildableRelativeToPlayer( const playerState_t *ps,
   //so buildings drop to floor
   VectorMA( targetOrigin, -128, playerNormal, targetOrigin );
 
-  (*trace)( tr, entityOrigin, mins, maxs, targetOrigin, ps->clientNum, MASK_DEADSOLID );
+  (*trace)( tr, entityOrigin, mins, maxs, targetOrigin, ps->clientNum, MASK_PLAYERSOLID );
   VectorCopy( tr->endpos, entityOrigin );
   VectorMA( entityOrigin, 0.1f, playerNormal, outOrigin );
   vectoangles( forward, outAngles );
