@@ -1940,10 +1940,10 @@ void G_SendGameStat( pTeam_t team )
 
     entryLength = strlen( entry );
 
-    if( dataLength + entryLength > MAX_STRING_CHARS )
+    if( dataLength + entryLength >= BIG_INFO_STRING )
       break;
 
-    Q_strncpyz( data + dataLength, entry, BIG_INFO_STRING );
+    strcpy( data + dataLength, entry );
     dataLength += entryLength;
   }
 
