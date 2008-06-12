@@ -1830,6 +1830,7 @@ void SpectatorClientEndFrame( gentity_t *ent )
 {
   gclient_t *cl;
   int       clientNum, flags;
+  int       score, ping;
   vec3_t   spawn_origin, spawn_angles;
 
   // if we are doing a chase cam or a remote view, grab the latest info
@@ -1848,7 +1849,11 @@ void SpectatorClientEndFrame( gentity_t *ent )
 	{
           flags = ( cl->ps.eFlags & ~( EF_VOTED | EF_TEAMVOTED ) ) |
             ( ent->client->ps.eFlags & ( EF_VOTED | EF_TEAMVOTED ) );
+          score = ent->client->ps.persistant[ PERS_SCORE ];
+          ping = ent->client->ps.ping;
           ent->client->ps = cl->ps;
+          ent->client->ps.persistant[ PERS_SCORE ] = score;
+          ent->client->ps.ping = ping;
           ent->client->ps.eFlags = flags;
           ent->client->ps.pm_flags |= PMF_FOLLOW;
  	  ent->client->ps.pm_flags &= ~PMF_QUEUED;

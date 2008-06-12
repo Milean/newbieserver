@@ -4635,14 +4635,18 @@ qboolean G_StringReplaceCvars( char *input, char *output, int len )
 */
 void G_admin_print( gentity_t *ent, char *m )
 {
-
   if( ent )
     trap_SendServerCommand( ent - level.gentities, va( "print \"%s\"", m ) );
   else
   {
     char m2[ MAX_STRING_CHARS ];
-    G_DecolorString( m, m2 );
-    G_Printf( m2 );
+    if( !trap_Cvar_VariableIntegerValue( "com_ansiColor" ) )
+    {
+      G_DecolorString( m, m2 );
+      G_Printf( m2 );
+    }
+    else
+      G_Printf( m );
   }
 }
 
