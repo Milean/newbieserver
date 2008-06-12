@@ -29,6 +29,38 @@ static mapRotations_t mapRotations;
 
 /*
 ===============
+G_MapExists
+
+Check if a map exists
+===============
+*/
+static qboolean G_MapExists( char *name )
+{
+  return trap_FS_FOpenFile( va( "maps/%s.bsp", name ), NULL, FS_READ );
+}
+
+/*
+===============
+G_RotationExists
+
+Check if a rotation exists
+===============
+*/
+static qboolean G_RotationExists( char *name )
+{
+  int i;
+
+  for( i = 0; i < mapRotations.numRotations; i++ )
+  {
+    if( Q_strncmp( mapRotations.rotations[ i ].name, name, MAX_QPATH ) == 0 )
+      return qtrue;
+  }
+
+  return qfalse;
+}
+
+/*
+===============
 G_ParseCommandSection
 
 Parse a map rotation command section
@@ -268,7 +300,7 @@ Load the map rotations from a map rotation file
 static qboolean G_ParseMapRotationFile( const char *fileName )
 {
   char          *text_p;
-  int           i;
+  int           i, j, k;
   int           len;
   char          *token;
   char          text[ 20000 ];
@@ -329,7 +361,7 @@ static qboolean G_ParseMapRotationFile( const char *fileName )
           return qfalse;
         }
 
-        //start parsing particle systems again
+        //start parsing map rotations again
         mrNameSet = qfalse;
 
         if( mapRotations.numRotations == MAX_MAP_ROTATIONS )
@@ -359,6 +391,32 @@ static qboolean G_ParseMapRotationFile( const char *fileName )
     {
       G_Printf( S_COLOR_RED "ERROR: map rotation already named\n" );
       return qfalse;
+    }
+  }
+
+  for( i = 0; i < mapRotations.numRotations; i++ )
+  {
+    for( j = 0; j < mapRotations.rotations[ i ].numMaps; j++ )
+    {
+      if( !G_MapExists( mapRotations.rotations[ i ].maps[ j ].name ) )
+      {
+        G_Printf( S_COLOR_RED "ERROR: map \"%s\" doesn't exist\n",
+          mapRotations.rotations[ i ].maps[ j ].name );
+        return qfalse;
+      }
+
+      for( k = 0; k < mapRotations.rotations[ i ].maps[ j ].numConditions; k++ )
+      {
+        if( !G_MapExists( mapRotations.rotations[ i ].maps[ j ].conditions[ k ].dest ) &&
+            !G_RotationExists( mapRotations.rotations[ i ].maps[ j ].conditions[ k ].dest ) )
+        {
+          G_Printf( S_COLOR_RED "ERROR: conditional destination \"%s\" doesn't exist\n",
+            mapRotations.rotations[ i ].maps[ j ].conditions[ k ].dest );
+          return qfalse;
+        }
+
+      }
+
     }
   }
 
@@ -545,8 +603,6 @@ static mapConditionType_t G_ResolveConditionDestination( int *n, char *name )
     }
   }
 
-  //this should probably be prevented by a 2nd pass at compile time
-  //but i'm lazy (FIXME)
   return MCT_ERR;
 }
 
