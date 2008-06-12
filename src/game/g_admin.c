@@ -990,7 +990,7 @@ static int admin_listadmins( gentity_t *ent, int start, char *search, int minlev
     if( !strstr( name, search ) )
       continue;
 
-    for( j = 0; j <= 8; j++ )
+    for( j = 0; j < 8; j++ )
       guid_stub[ j ] = vic->client->pers.guid[ j + 24 ];
     guid_stub[ j ] = '\0';
   
@@ -1047,7 +1047,7 @@ static int admin_listadmins( gentity_t *ent, int start, char *search, int minlev
        if( dup )
          continue;
      }
-     for( j = 0; j <= 8; j++ )
+     for( j = 0; j < 8; j++ )
        guid_stub[ j ] = g_admin_admins[ i ]->guid[ j + 24 ];
      guid_stub[ j ] = '\0';
     
@@ -2091,7 +2091,7 @@ qboolean G_admin_ban( gentity_t *ent, int skiparg )
     ADMBP( "^3!ban: ^7multiple recent clients match name, use IP or slot#:\n" );
     for( i = 0; i < MAX_ADMIN_NAMELOGS && g_admin_namelog[ i ]; i++ )
     {
-      for( j = 0; j <= 8; j++ )
+      for( j = 0; j < 8; j++ )
         guid_stub[ j ] = g_admin_namelog[ i ]->guid[ j + 24 ];
       guid_stub[ j ] = '\0';
       for( j = 0; j < MAX_ADMIN_NAMELOG_NAMES
@@ -2939,7 +2939,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
       continue;
     }
 
-    for( j = 0; j <= 8; j++ )
+    for( j = 0; j < 8; j++ )
       guid_stub[ j ] = p->pers.guid[ j + 24 ];
     guid_stub[ j ] = '\0';
 
@@ -3809,7 +3809,7 @@ qboolean G_admin_namelog( gentity_t *ent, int skiparg )
         continue;
     }
     printed++;
-    for( j = 0; j <= 8; j++ )
+    for( j = 0; j < 8; j++ )
       guid_stub[ j ] = g_admin_namelog[ i ]->guid[ j + 24 ];
     guid_stub[ j ] = '\0';
     if( g_admin_namelog[ i ]->slot > -1 )
