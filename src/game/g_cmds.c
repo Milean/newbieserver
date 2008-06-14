@@ -629,6 +629,9 @@ void G_LeaveTeam( gentity_t *self )
     }
     return;
   }
+  
+  // Cancel pending suicides
+  self->suicideTime = 0;
 
   // stop any following clients
   G_StopFromFollowing( self );

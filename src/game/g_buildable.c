@@ -1307,6 +1307,9 @@ void AHovel_Use( gentity_t *self, gentity_t *other, gentity_t *activator )
       activator->client->ps.stats[ STAT_STATE ] |= SS_HOVELING;
       activator->client->hovel = self;
       self->builder = activator;
+      
+      // Cancel pending suicides
+      activator->suicideTime = 0;
 
       VectorCopy( self->s.pos.trBase, hovelOrigin );
       VectorMA( hovelOrigin, 128.0f, self->s.origin2, hovelOrigin );
