@@ -882,7 +882,7 @@ pain function for Alien Spawn
 */
 void ABarricade_Pain( gentity_t *self, gentity_t *attacker, int damage )
 {
-  if( rand( ) % 1 )
+  if( rand( ) % 2 )
     G_SetBuildableAnim( self, BANIM_PAIN1, qfalse );
   else
     G_SetBuildableAnim( self, BANIM_PAIN2, qfalse );
@@ -1221,9 +1221,6 @@ qboolean AHovel_Blocked( gentity_t *hovel, gentity_t *player, qboolean provideEx
 
   //compute a place up in the air to start the real trace
   trap_Trace( &tr, origin, mins, maxs, start, player->s.number, MASK_PLAYERSOLID );
-
-  if( tr.startsolid )
-    return qtrue;
 
   VectorMA( origin, ( HOVEL_TRACE_DEPTH * tr.fraction ) - 1.0f, normal, start );
   VectorMA( origin, -HOVEL_TRACE_DEPTH, normal, end );
