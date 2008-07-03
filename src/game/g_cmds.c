@@ -1617,7 +1617,7 @@ void Cmd_CallVote_f( gentity_t *ent )
   else if( !Q_stricmp( arg1, "map_restart" ) )
   {
     if( g_mapvoteMaxTime.integer 
-      && level.time >= g_mapvoteMaxTime.integer * 1000 
+      && (( level.time - level.startTime ) >= g_mapvoteMaxTime.integer * 1000 )
       && !G_admin_permission( ent, ADMF_NO_VOTE_LIMIT ) 
       && (level.numPlayingClients > 0 && level.numConnectedClients>1) )
     {
@@ -1634,7 +1634,7 @@ void Cmd_CallVote_f( gentity_t *ent )
   else if( !Q_stricmp( arg1, "map" ) )
   {
     if( g_mapvoteMaxTime.integer 
-      && level.time >= g_mapvoteMaxTime.integer * 1000 
+      && (( level.time - level.startTime ) >= g_mapvoteMaxTime.integer * 1000 )
       && !G_admin_permission( ent, ADMF_NO_VOTE_LIMIT ) 
       && (level.numPlayingClients > 0 && level.numConnectedClients>1) )
     {

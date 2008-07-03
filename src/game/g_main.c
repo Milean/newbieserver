@@ -1083,7 +1083,7 @@ void G_SpawnClients( pTeam_t team )
   vec3_t        spawn_origin, spawn_angles;
   spawnQueue_t  *sq = NULL;
   int           numSpawns = 0;
-  if( g_doWarmup.integer && g_warmupMode.integer == 2 &&
+  if( g_doWarmup.integer && ( g_warmupMode.integer==1 || g_warmupMode.integer == 2 ) &&
       level.time - level.startTime < g_warmup.integer * 1000 )
   {
     return;
