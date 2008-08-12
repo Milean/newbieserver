@@ -5489,7 +5489,7 @@ void BG_ParseCSVBuildableList( const char *string, buildable_t *buildables, int 
     while( *q == ' ' )
       q++;
 
-    buildables[ i ] = BG_FindClassNumForName( q );
+    buildables[ i ] = BG_FindBuildNumForName( q );
 
     if( buildables[ i ] == BA_NONE )
       Com_Printf( S_COLOR_YELLOW "WARNING: unknown buildable %s\n", q );
