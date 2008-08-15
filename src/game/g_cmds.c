@@ -1303,7 +1303,7 @@ static void Cmd_Say_f( gentity_t *ent )
       return;
     }
    if( !Q_stricmpn( args, "say /donate", 11 ) ||
-      !Q_stricmpn( args, "say_team /share", 16 ) )
+      !Q_stricmpn( args, "say_team /donate", 16 ) )
     {
       Cmd_Donate_f( ent );
       return;
