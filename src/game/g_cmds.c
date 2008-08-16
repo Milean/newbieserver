@@ -1843,7 +1843,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   char *arg1plus;
   char *arg2plus;
   char *ptr = NULL;	
-  int numVoters;
+  int numVoters = 0;
 	
   arg1plus = G_SayConcatArgs( 1 );	
   arg2plus = G_SayConcatArgs( 2 );
