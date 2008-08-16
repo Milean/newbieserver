@@ -3170,6 +3170,11 @@ qboolean G_admin_listrotation( gentity_t *ent, int skiparg )
     }
   }
 
+  if( g_nextMap.string[0] )
+  {
+    ADMP( va ("^5 Next map overriden by g_nextMap to: %s\n", g_nextMap.string ) );
+  }
+  
   return qtrue;
 }
 
