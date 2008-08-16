@@ -1843,6 +1843,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   char *arg1plus;
   char *arg2plus;
   char *ptr = NULL;	
+  int numVoters;
 	
   arg1plus = G_SayConcatArgs( 1 );	
   arg2plus = G_SayConcatArgs( 2 );
@@ -1851,6 +1852,11 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
   if( team == PTE_ALIENS )
     cs_offset = 1;
+
+  if(team==PTE_ALIENS)
+    numVoters = level.numAlienClients;
+  else if(team==PTE_HUMANS)
+    numVoters = level.numHumanClients;
 
   if( !g_allowVote.integer )
   {
@@ -2110,6 +2116,13 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
   }
   else if( !Q_stricmp( arg1, "admitdefeat" ) )
   {
+    if( numVoters <=1 )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        "print \"callteamvote: You cannot admitdefeat by yourself. Use /callvote draw.\n\"" );
+      return;
+    }
+
     Com_sprintf( level.teamVoteString[ cs_offset ],
       sizeof( level.teamVoteString[ cs_offset ] ), "admitdefeat %i", team );
     Com_sprintf( level.teamVoteDisplayString[ cs_offset ],
