@@ -1655,6 +1655,27 @@ void Cmd_CallVote_f( gentity_t *ent )
         sizeof( level.voteDisplayString ), "Change to map '%s'", arg2 );
     level.votePassThreshold = g_mapVotesPercent.integer;
   }
+  else if( !Q_stricmp( arg1, "nextmap" ) )
+  {
+    if( G_MapExists( g_nextMap.string ) )
+    {
+      trap_SendServerCommand( ent - g_entities, va( "print \"callvote: "
+        "the next map is already set to '%s^7'\n\"", g_nextMap.string ) );
+      return;
+    }
+
+    if( !trap_FS_FOpenFile( va( "maps/%s.bsp", arg2 ), NULL, FS_READ ) )
+    {
+      trap_SendServerCommand( ent - g_entities, va( "print \"callvote: "
+        "'maps/%s^7.bsp' could not be found on the server\n\"", arg2 ) );
+      return;
+    }
+    Com_sprintf( level.voteString, sizeof( level.voteString ),
+      "set g_nextMap %s", arg2 );
+    Com_sprintf( level.voteDisplayString,
+        sizeof( level.voteDisplayString ), "Set the next map to '%s^7'", arg2 );
+    level.votePassThreshold = g_mapVotesPercent.integer;
+  }
   else if( !Q_stricmp( arg1, "draw" ) )
   {
     Com_sprintf( level.voteString, sizeof( level.voteString ), "evacuation" );
@@ -1698,7 +1719,7 @@ void Cmd_CallVote_f( gentity_t *ent )
   {
     trap_SendServerCommand( ent-g_entities, "print \"Invalid vote string\n\"" );
     trap_SendServerCommand( ent-g_entities, "print \"Valid vote commands are: "
-      "map, map_restart, draw, kick, mute, unmute, poll, and sudden_death\n" );
+      "map, map_restart, draw, nextmap, kick, mute, unmute, poll, and sudden_death\n" );
     return;
   }
   

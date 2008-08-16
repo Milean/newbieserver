@@ -130,6 +130,7 @@ vmCvar_t  g_deconDead;
 vmCvar_t  g_debugMapRotation;
 vmCvar_t  g_currentMapRotation;
 vmCvar_t  g_currentMap;
+vmCvar_t  g_nextMap;
 vmCvar_t  g_initialMapRotation;
 
 vmCvar_t  g_shove;
@@ -305,6 +306,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_debugMapRotation, "g_debugMapRotation", "0", 0, 0, qfalse  },
   { &g_currentMapRotation, "g_currentMapRotation", "-1", 0, 0, qfalse  }, // -1 = NOT_ROTATING
   { &g_currentMap, "g_currentMap", "0", 0, 0, qfalse  },
+  { &g_nextMap, "g_nextMap", "", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qtrue  },
   { &g_initialMapRotation, "g_initialMapRotation", "", CVAR_ARCHIVE, 0, qfalse  },
   { &g_shove, "g_shove", "15", CVAR_ARCHIVE, 0, qfalse  },
   { &g_mapConfigs, "g_mapConfigs", "", CVAR_ARCHIVE, 0, qfalse  },
@@ -1712,10 +1714,14 @@ void ExitLevel( void )
     }
   }
 
-  if( G_MapRotationActive( ) )
+  if ( G_MapExists( g_nextMap.string ) )
+    trap_SendConsoleCommand( EXEC_APPEND, va("!map %s\n", g_nextMap.string ) );
+  else if( G_MapRotationActive( ) )
     G_AdvanceMapRotation( );
   else
     trap_SendConsoleCommand( EXEC_APPEND, "map_restart\n" );
+
+  trap_Cvar_Set( "g_nextMap", "" );
 
   level.restarted = qtrue;
   level.changemap = NULL;
