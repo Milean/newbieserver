@@ -86,6 +86,7 @@ vmCvar_t  g_allowVote;
 vmCvar_t  g_requireVoteReasons;
 vmCvar_t  g_voteLimit;
 vmCvar_t  g_suddenDeathVotePercent;
+vmCvar_t  g_suddenDeathVoteDelay;
 vmCvar_t  g_mapVotesPercent;
 vmCvar_t  g_designateVotes;
 vmCvar_t  g_teamAutoJoin;
@@ -259,6 +260,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_voteMinTime, "g_voteMinTime", "120", CVAR_ARCHIVE, 0, qfalse },
   { &g_mapvoteMaxTime, "g_mapvoteMaxTime", "240", CVAR_ARCHIVE, 0, qfalse },
   { &g_suddenDeathVotePercent, "g_suddenDeathVotePercent", "74", CVAR_ARCHIVE, 0, qfalse },
+  { &g_suddenDeathVoteDelay, "g_suddenDeathVoteDelay", "180", CVAR_ARCHIVE, 0, qfalse },
   { &g_mapVotesPercent, "g_mapVotesPercent", "50", CVAR_ARCHIVE, 0, qfalse },
   { &g_designateVotes, "g_designateVotes", "0", CVAR_ARCHIVE, 0, qfalse },
   
@@ -736,6 +738,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   trap_Cvar_Set( "g_alienKills", 0 );
   trap_Cvar_Set( "g_humanKills", 0 );
   trap_Cvar_Set( "g_suddenDeath", 0 );
+  level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
 
   G_Printf( "-----------------------------------\n" );
 
@@ -1163,11 +1166,10 @@ G_TimeTilSuddenDeath
 */
 int G_TimeTilSuddenDeath( void )
 {
-  if( !g_suddenDeathTime.integer )
-    return 1; // Always some time away
+  if( (!g_suddenDeathTime.integer && level.suddenDeathBeginTime==0 ) || level.suddenDeathBeginTime<0 )
+    return 999999999; // Always some time away
 
-  return ( g_suddenDeathTime.integer * 60000 ) -
-         ( level.time - level.startTime );
+  return ( ( level.suddenDeathBeginTime ) - ( level.time - level.startTime ) );
 }
 
 
@@ -1194,6 +1196,11 @@ void G_CalculateBuildPoints( void )
   if(!g_suddenDeath.integer && level.suddenDeath) {
 	  level.suddenDeath=qfalse;
 	  level.suddenDeathWarning=0;
+      level.suddenDeathBeginTime = -1;
+      if((level.time - level.startTime) < (g_suddenDeathTime.integer * 60000 ) )
+        level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
+      else
+        level.suddenDeathBeginTime = -1;
   }
 
     if(!level.suddenDeath){
@@ -1226,9 +1233,10 @@ void G_CalculateBuildPoints( void )
 		}
 		level.suddenDeathHBuildPoints = localHTP;
 		level.suddenDeathABuildPoints = localATP;
+        level.suddenDeathBeginTime = level.time;
 		level.suddenDeath=qtrue;
-		//trap_Cvar_Set( "g_suddenDeath", "1" );
-		g_suddenDeath.integer=1;
+		trap_Cvar_Set( "g_suddenDeath", "1" );
+        /*`g_suddenDeath.integer=1;`*/
 
 		level.suddenDeathWarning = TW_PASSED;
 	      }
@@ -1238,8 +1246,8 @@ void G_CalculateBuildPoints( void )
 	      if( G_TimeTilSuddenDeath( ) <= 60000 &&
 		  level.suddenDeathWarning < TW_IMMINENT )
 	      {
-		trap_SendServerCommand( -1, "cp \"Sudden Death in 1 minute!\"" );
-		level.suddenDeathWarning = TW_IMMINENT;
+		    trap_SendServerCommand( -1, va("cp \"Sudden Death in %d seconds!\"", (int)(G_TimeTilSuddenDeath() / 1000 ) ) );
+		    level.suddenDeathWarning = TW_IMMINENT;
 	      }
 	    }
     }
@@ -2268,7 +2276,20 @@ void CheckVote( void )
       G_admin_maplog_result( "m" );
     }
 
-    trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
+
+    if( !Q_stricmp( level.voteString, "suddendeath" ) )
+    {
+      level.suddenDeathBeginTime = level.time + ( 1000 * g_suddenDeathVoteDelay.integer ) - level.startTime;
+
+      level.voteString[0] = '\0';
+
+      if( g_suddenDeathVoteDelay.integer )
+        trap_SendServerCommand( -1, va("cp \"Sudden Death will begin in %d seconds\n\"", g_suddenDeathVoteDelay.integer  ) );
+    }
+
+    if( level.voteString[0] )
+      trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.voteString ) );
+
     if( !Q_stricmp( level.voteString, "map_restart" ) ||
         !Q_stricmpn( level.voteString, "map", 3 ) )
     {
@@ -2450,6 +2471,7 @@ void CheckCvars( void )
 {
   static int lastPasswordModCount   = -1;
   static int lastMarkDeconModCount  = -1;
+  static int lastSDTimeModCount = -1;
 
   if( g_password.modificationCount != lastPasswordModCount )
   {
@@ -2480,6 +2502,12 @@ void CheckCvars( void )
 
       ent->deconstruct = qfalse;
     }
+  }
+
+  if( g_suddenDeathTime.modificationCount != lastSDTimeModCount )
+  {
+    lastSDTimeModCount = g_suddenDeathTime.modificationCount;
+    level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
   }
 
   level.frameMsec = trap_Milliseconds( );

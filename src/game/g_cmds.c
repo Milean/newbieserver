@@ -1704,15 +1704,24 @@ void Cmd_CallVote_f( gentity_t *ent )
      } 	  
      else if( g_suddenDeath.integer ) 
      {
-      trap_SendServerCommand( ent - g_entities, va( "print \"callvote: ""Sudden Death has already begun\n\"") );
+      trap_SendServerCommand( ent - g_entities, va( "print \"callvote: Sudden Death has already begun\n\"") );
+      return;
+     }
+     else if( G_TimeTilSuddenDeath() <= g_suddenDeathVoteDelay.integer * 1000 )
+     {
+      trap_SendServerCommand( ent - g_entities, va( "print \"callvote: Sudden Death is already immenent\n\"") );
       return;
      }
     else 
      {
-     level.votePassThreshold = g_suddenDeathVotePercent.integer;	   
-     Com_sprintf( level.voteString, sizeof( level.voteString ), "g_suddenDeath 1" );
-     Com_sprintf( level.voteDisplayString,
-         sizeof( level.voteDisplayString ), "Begin sudden death" );
+       level.votePassThreshold = g_suddenDeathVotePercent.integer;	   
+       Com_sprintf( level.voteString, sizeof( level.voteString ), "suddendeath" );
+       Com_sprintf( level.voteDisplayString,
+           sizeof( level.voteDisplayString ), "Begin sudden death" );
+
+       if( g_suddenDeathVoteDelay.integer )
+         Q_strcat( level.voteDisplayString, sizeof( level.voteDisplayString ), va( " in %d seconds", g_suddenDeathVoteDelay.integer ) );
+
      }
    }
   else
