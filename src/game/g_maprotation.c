@@ -34,7 +34,7 @@ G_MapExists
 Check if a map exists
 ===============
 */
-static qboolean G_MapExists( char *name )
+qboolean G_MapExists( char *name )
 {
   return trap_FS_FOpenFile( va( "maps/%s.bsp", name ), NULL, FS_READ );
 }
@@ -529,7 +529,7 @@ G_GetCurrentMap
 Return the current map in some rotation
 ===============
 */
-static int G_GetCurrentMap( int rotation )
+int G_GetCurrentMap( int rotation )
 {
   int   *p = G_GetCurrentMapArray( );
 

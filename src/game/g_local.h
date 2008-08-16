@@ -1205,6 +1205,8 @@ qboolean  G_StartMapRotation( char *name, qboolean changeMap );
 void      G_StopMapRotation( void );
 qboolean  G_MapRotationActive( void );
 void      G_InitMapRotations( void );
+qboolean  G_MapExists( char *name );
+int       G_GetCurrentMap( int rotation );
 
 //
 // g_ptr.c

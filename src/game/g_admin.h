@@ -166,6 +166,7 @@ qboolean G_admin_listadmins( gentity_t *ent, int skiparg );
 qboolean G_admin_listlayouts( gentity_t *ent, int skiparg );
 qboolean G_admin_listplayers( gentity_t *ent, int skiparg );
 qboolean G_admin_listmaps( gentity_t *ent, int skiparg );
+qboolean G_admin_listrotation( gentity_t *ent, int skiparg );
 qboolean G_admin_map( gentity_t *ent, int skiparg );
 qboolean G_admin_devmap( gentity_t *ent, int skiparg );
 void G_admin_maplog_update( void );
