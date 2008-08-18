@@ -1216,8 +1216,8 @@ static void Cmd_Say_f( gentity_t *ent )
 {
   char    *p;
   char    *args;
-  int     offset = 0;
   int     mode = SAY_ALL;
+  int     skipargs = 0;
 
   args = G_SayConcatArgs( 0 );
   if( Q_stricmpn( args, "say_team ", 9 ) == 0 )
@@ -1243,7 +1243,7 @@ static void Cmd_Say_f( gentity_t *ent )
        !Q_stricmpn( args, "say_team /say_admins ", 21) )
    {
        mode = SAY_ADMINS;
-       offset=3;
+       skipargs=1;
    }
    
    if( mode == SAY_ADMINS)  
@@ -1266,7 +1266,7 @@ static void Cmd_Say_f( gentity_t *ent )
    if( g_actionPrefix.string[0] ) 
    { 
     mode = SAY_ACTION;
-    offset = 4;
+    skipargs=1;
    } else return;
   }
   else if(!Q_stricmpn( args, "say_team /me ", 13 ) )
@@ -1274,7 +1274,7 @@ static void Cmd_Say_f( gentity_t *ent )
    if( g_actionPrefix.string[0] ) 
    { 
     mode = SAY_ACTION_T;
-    offset = 4;
+    skipargs=1;
    } else return;
   }
   else if( !Q_stricmpn( args, "me ", 3 ) )
@@ -1314,10 +1314,8 @@ static void Cmd_Say_f( gentity_t *ent )
   if( trap_Argc( ) < 2 )
     return;
 
-  p = ConcatArgs( 1 );
+  p = G_SayConcatArgs( 1 + skipargs );
 
-  p += offset;
-  
   G_Say( ent, NULL, mode, p );
 }
 
