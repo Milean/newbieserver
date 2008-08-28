@@ -168,56 +168,45 @@ qboolean G_MatchOnePlayer( int *plist, char *err, int len )
 G_ClientNumbersFromString
 
 Sets plist to an array of integers that represent client numbers that have
-names that are a partial match for s. List is terminated by a -1.
+names that are a partial match for s.
 
-Returns number of matching clientids.
+Returns number of matching clientids up to MAX_CLIENTS.
 ==================
 */
-int G_ClientNumbersFromString( char *s, int *plist )
+int G_ClientNumbersFromString( char *s, int *plist)
 {
   gclient_t *p;
   int i, found = 0;
-  char n2[ MAX_NAME_LENGTH ] = {""}; 
-  char s2[ MAX_NAME_LENGTH ] = {""}; 
-  qboolean is_slot = qtrue;
-
-  *plist = -1;
+  char n2[ MAX_NAME_LENGTH ] = {""};
+  char s2[ MAX_NAME_LENGTH ] = {""};
+  int max = MAX_CLIENTS;
 
   // if a number is provided, it might be a slot #
-  for( i = 0; i < (int)strlen( s ); i++ )
+  for( i = 0; s[ i ] && isdigit( s[ i ] ); i++ );
+  if( !s[ i ] )
   {
-    if( s[i] < '0' || s[i] > '9' )
-    {
-      is_slot = qfalse;
-      break;
-    }
-  }
-
-  if( is_slot ) {
     i = atoi( s );
-    if( i >= 0 && i < level.maxclients ) {
+    if( i >= 0 && i < level.maxclients )
+    {
       p = &level.clients[ i ];
-      if( p->pers.connected == CON_CONNECTED ||
-        p->pers.connected == CON_CONNECTING ) 
+      if( p->pers.connected != CON_DISCONNECTED )
       {
-        *plist++ = i;
-        *plist = -1;
+        *plist = i;
         return 1;
       }
     }
     // we must assume that if only a number is provided, it is a clientNum
     return 0;
   }
-  
+
   // now look for name matches
   G_SanitiseName( s, s2 );
   if( strlen( s2 ) < 1 )
     return 0;
-  for( i = 0; i < level.maxclients; i++ )
+  for( i = 0; i < level.maxclients && found <= max; i++ )
   {
     p = &level.clients[ i ];
-    if(p->pers.connected != CON_CONNECTED
-      && p->pers.connected != CON_CONNECTING)
+    if( p->pers.connected == CON_DISCONNECTED )
     {
       continue;
     }
@@ -228,7 +217,6 @@ int G_ClientNumbersFromString( char *s, int *plist )
       found++;
     }
   }
-  *plist = -1;
   return found;
 }
 
