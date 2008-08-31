@@ -4564,7 +4564,6 @@ void G_WordWrap( char *buffer, int maxwidth )
        out[ i ] = Q_COLOR_ESCAPE;
        out[ i + 1 ] = '0' + currentcolor; 
        i+=2;
-       G_Printf( "setting color %d\n", currentcolor );
        continue;
      }
 
@@ -4578,7 +4577,6 @@ void G_WordWrap( char *buffer, int maxwidth )
        else if( Q_IsColorString( &buffer[j] ) )
        {
          currentcolor = buffer[j+1] - '0';
-         G_Printf( "currentcolor %d\n", currentcolor );
        }
        else
          linecount++;
