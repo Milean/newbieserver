@@ -4549,38 +4549,60 @@ void G_WordWrap( char *buffer, int maxwidth )
   int j = 0;
   int k;
   int linecount = 0;
+  int currentcolor = 7;
 	
 
   while ( buffer[ j ]!='\0' )
   {
+     if( i == ( MAX_STRING_CHARS - 1 ) )
+       break;
+
+     //If it's the start of a new line, copy over the color code,
+     //but not if we already did it, or if the text at the start of the next line is also a color code
+     if( linecount == 0 && i>2 && out[ i-2 ] != Q_COLOR_ESCAPE && out[ i-1 ] != Q_COLOR_ESCAPE )
+     {
+       out[ i ] = Q_COLOR_ESCAPE;
+       out[ i + 1 ] = '0' + currentcolor; 
+       i+=2;
+       G_Printf( "setting color %d\n", currentcolor );
+       continue;
+     }
+
      if( linecount < maxwidth )
      {
        out[ i ] = buffer[ j ];
        if( out[ i ] == '\n' ) 
+       {
          linecount = 0;
+       }
+       else if( Q_IsColorString( &buffer[j] ) )
+       {
+         currentcolor = buffer[j+1] - '0';
+         G_Printf( "currentcolor %d\n", currentcolor );
+       }
        else
          linecount++;
        
        //If we're at a space and getting close to a line break, look ahead and make sure that there isn't already a \n or a closer space coming. If not, break here.
-       if( out[ i ] == ' ' && linecount >= (maxwidth - 10 ) ) 
-       {
-	  qboolean foundbreak = qfalse;
-	  for( k = i+1; k < maxwidth; k++ )
-	  {
-	     if( !buffer[ k ] )
-	       continue;
-	     if( buffer[ k ] == '\n' || buffer[ k ] == ' ' )
-	       foundbreak = qtrue;
-	  }
-	  if( !foundbreak )
-	  {
-             out [ i ] = '\n';
-             linecount = 0;
-	  }
-       }
+      if( out[ i ] == ' ' && linecount >= (maxwidth - 10 ) ) 
+      {
+	    qboolean foundbreak = qfalse;
+	    for( k = i+1; k < maxwidth; k++ )
+	    {
+	      if( !buffer[ k ] )
+	        continue;
+	      if( buffer[ k ] == '\n' || buffer[ k ] == ' ' )
+	        foundbreak = qtrue;
+	    }
+	    if( !foundbreak )
+        {
+          out [ i ] = '\n';
+          linecount = 0;
+	    }
+      }
        
-       i++;
-       j++;
+      i++;
+      j++;
      }
      else
      {
