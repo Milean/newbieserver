@@ -1115,6 +1115,18 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
     return;
   }
   
+
+
+  // Ugly hax: if adminsayfilter is off, do the SAY first to prevent text from going out of order
+  if( !g_adminSayFilter.integer )
+  {
+    // send it to all the apropriate clients
+    for( j = 0; j < level.maxclients; j++ )
+    {
+      other = &g_entities[ j ];
+      G_SayTo( ent, other, mode, color, name, text, prefix );
+    }
+  }
    
    if( g_adminParseSay.integer && ( mode== SAY_ALL || mode == SAY_TEAM ) )
    {
@@ -1124,11 +1136,15 @@ void G_Say( gentity_t *ent, gentity_t *target, int mode, const char *chatText )
      }
    }
 
-  // send it to all the apropriate clients
-  for( j = 0; j < level.maxclients; j++ )
+  // if it's on, do it here, where it won't happen if it was an admin command
+  if( g_adminSayFilter.integer )
   {
-    other = &g_entities[ j ];
-    G_SayTo( ent, other, mode, color, name, text, prefix );
+    // send it to all the apropriate clients
+    for( j = 0; j < level.maxclients; j++ )
+    {
+      other = &g_entities[ j ];
+      G_SayTo( ent, other, mode, color, name, text, prefix );
+    }
   }
   
 
