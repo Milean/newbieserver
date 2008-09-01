@@ -3493,9 +3493,20 @@ char *G_statsString( statsCounters_t *sc, pTeam_t *pt )
   int percentNearBase=0;
   int percentJetpackWallwalk=0;
   int percentHeadshots=0;
+  double avgTimeAlive=0;
+  int avgTimeAliveMins = 0;
+  int avgTimeAliveSecs = 0;
 	
   if( sc->timealive )
    percentNearBase = (int)(100 *  (float) sc->timeinbase / ((float) (sc->timealive ) ) );
+
+  if( sc->timealive && sc->deaths )
+  {
+    avgTimeAlive = sc->timealive / sc->deaths;
+  }
+
+  avgTimeAliveMins = (int) (avgTimeAlive / 60.0f);
+  avgTimeAliveSecs = (int) (avgTimeAlive - (60.0f * avgTimeAliveMins));
   
 	
   if( *pt == PTE_ALIENS )
@@ -3506,7 +3517,7 @@ char *G_statsString( statsCounters_t *sc, pTeam_t *pt )
     if( sc->hitslocational )
       percentHeadshots = (int)(100 * (float) sc->headshots / ((float) (sc->hitslocational) ) );
     
-    s = va( "^3Kills:^7 %3i ^3StructKills:^7 %3i ^3Assists:^7 %3i^7 ^3Poisons:^7 %3i ^3Headshots:^7 %3i (%3i)\n^3Deaths:^7 %3i ^3Feeds:^7 %3i ^3Suicides:^7 %3i ^3Teamkills:^7 %3i\n^3Damage to:^7 ^3Enemies:^7 %5i ^3Structs:^7 %5i ^3Friendlies:^7 %3i \n^3Structs Built:^7 %3i ^3Time Near Base:^7 %3i ^3Time wallwalking:^7 %i\n",
+    s = va( "^3Kills:^7 %3i ^3StructKills:^7 %3i ^3Assists:^7 %3i^7 ^3Poisons:^7 %3i ^3Headshots:^7 %3i (%3i)\n^3Deaths:^7 %3i ^3Feeds:^7 %3i ^3Suicides:^7 %3i ^3TKs:^7 %3i ^3Avg Lifespan:^7 %4d:%02d\n^3Damage to:^7 ^3Enemies:^7 %5i ^3Structs:^7 %5i ^3Friendlies:^7 %3i \n^3Structs Built:^7 %3i ^3Time Near Base:^7 %3i ^3Time wallwalking:^7 %3i\n",
      sc->kills,
      sc->structskilled,
      sc->assists,
@@ -3517,6 +3528,8 @@ char *G_statsString( statsCounters_t *sc, pTeam_t *pt )
      sc->feeds,
      sc->suicides,
      sc->teamkills,
+     avgTimeAliveMins,
+     avgTimeAliveSecs,
      sc->dmgdone,
      sc->structdmgdone,
      sc->ffdmgdone,
@@ -3529,7 +3542,7 @@ char *G_statsString( statsCounters_t *sc, pTeam_t *pt )
   {
     if( sc->timealive )
      percentJetpackWallwalk = (int)(100 *  (float) sc->jetpackusewallwalkusetime / ((float) ( sc->timealive ) ) );
-    s = va( "^3Kills:^7 %3i ^3StructKills:^7 %3i ^3Assists:^7 %3i \n^3Deaths:^7 %3i ^3Feeds:^7 %3i ^3Suicides:^7 %3i ^3Teamkills:^7 %3i\n^3Damage to:^7 ^3Enemies:^7 %5i ^3Structs:^7 %5i ^3Friendlies:^7 %3i \n^3Structs Built:^7 %3i ^3Repairs:^7 %4i ^3Time Near Base:^7 %3i ^3Time Jetpacking:^7 %3i\n",
+    s = va( "^3Kills:^7 %3i ^3StructKills:^7 %3i ^3Assists:^7 %3i \n^3Deaths:^7 %3i ^3Feeds:^7 %3i ^3Suicides:^7 %3i ^3TKs:^7 %3i ^3Avg Lifespan:^7 %4d:%02d\n^3Damage to:^7 ^3Enemies:^7 %5i ^3Structs:^7 %5i ^3Friendlies:^7 %3i \n^3Structs Built:^7 %3i ^3Repairs:^7 %4i ^3Time Near Base:^7 %3i ^3Time Jetpacking:^7 %3i\n",
      sc->kills,
      sc->structskilled,
      sc->assists,
@@ -3537,6 +3550,8 @@ char *G_statsString( statsCounters_t *sc, pTeam_t *pt )
      sc->feeds,
      sc->suicides,
      sc->teamkills,
+     avgTimeAliveMins,
+     avgTimeAliveSecs,
      sc->dmgdone,
      sc->structdmgdone,
      sc->ffdmgdone,
