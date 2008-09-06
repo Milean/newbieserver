@@ -217,6 +217,7 @@ int G_ClientNumbersFromString( char *s, int *plist)
       found++;
     }
   }
+  *plist = -1;
   return found;
 }
 
