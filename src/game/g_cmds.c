@@ -196,6 +196,7 @@ int G_ClientNumbersFromString( char *s, int *plist)
       }
     }
     // we must assume that if only a number is provided, it is a clientNum
+    *plist = -1;
     return 0;
   }
 
