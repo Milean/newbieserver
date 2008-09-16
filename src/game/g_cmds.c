@@ -3628,6 +3628,10 @@ void G_StopFollowing( gentity_t *ent )
   ent->client->sess.spectatorClient = -1;
   ent->client->ps.pm_flags &= ~PMF_FOLLOW;
 
+  // Prevent spawning with bsuit in rare case
+  if( BG_InventoryContainsUpgrade( UP_BATTLESUIT, ent->client->ps.stats ) )
+    BG_RemoveUpgradeFromInventory( UP_BATTLESUIT, ent->client->ps.stats );
+
   ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBING;
   ent->client->ps.stats[ STAT_STATE ] &= ~SS_WALLCLIMBINGCEILING;
   ent->client->ps.eFlags &= ~EF_WALLCLIMB;
