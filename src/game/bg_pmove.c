@@ -2610,6 +2610,10 @@ static void PM_BeginWeaponChange( int weapon )
   if( pm->ps->weapon == WP_LUCIFER_CANNON )
     pm->ps->stats[ STAT_MISC ] = 0;
 
+
+  // force this here to prevent flamer effect from continuing, among other issues
+  pm->ps->generic1 = WPM_NOTFIRING;
+
   PM_AddEvent( EV_CHANGE_WEAPON );
   pm->ps->weaponstate = WEAPON_DROPPING;
   pm->ps->weaponTime += 200;

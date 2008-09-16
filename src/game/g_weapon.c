@@ -65,6 +65,10 @@ void G_ForceWeaponChange( gentity_t *ent, weapon_t weapon )
     else
       ent->client->ps.persistant[ PERS_NEWWEAPON ] = weapon;
    
+    // Lak: The following hack has been moved to PM_BeginWeaponChange, but I'm going to
+    // redundantly leave it here as well just in case there's a case I'm forgetting
+    // because I don't want to face the gameplay consequences such an error would have
+
     // force this here to prevent flamer effect from continuing 
     ent->client->ps.generic1 = WPM_NOTFIRING;
 
