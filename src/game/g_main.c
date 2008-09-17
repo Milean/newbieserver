@@ -1801,7 +1801,7 @@ void QDECL G_LogPrintf( const char *fmt, ... )
   char    string[ 1024 ], decoloured[ 1024 ];
   int     min, tens, sec;
 
-  sec = level.time / 1000;
+  sec = ( level.time - level.startTime ) / 1000;
 
   min = sec / 60;
   sec -= min * 60;
@@ -1844,7 +1844,7 @@ void QDECL G_LogPrintfColoured( const char *fmt, ... )
   char    string[ 1024 ];
   int     min, tens, sec;
 
-  sec = level.time / 1000;
+  sec = (level.time - level.startTime) / 1000;
 
   min = sec / 60;
   sec -= min * 60;
@@ -1879,7 +1879,7 @@ void QDECL G_LogOnlyPrintf( const char *fmt, ... )
   char    string[ 1024 ], decoloured[ 1024 ];
   int     min, tens, sec;
 
-  sec = level.time / 1000;
+  sec = (level.time - level.startTime) / 1000;
 
   min = sec / 60;
   sec -= min * 60;

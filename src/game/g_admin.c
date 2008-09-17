@@ -867,7 +867,7 @@ static void admin_log( gentity_t *admin, char *cmd, int skiparg )
     return ;
   }
 
-  sec = level.time / 1000;
+  sec = (level.time - level.startTime) / 1000;
   min = sec / 60;
   sec -= min * 60;
   tens = sec / 10;
