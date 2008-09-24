@@ -44,7 +44,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
       " or seconds if no units are specified",
       "[^3ban#^7] (^5time^7) (^5reason^7)"
     },
-
+		
     {"admintest", G_admin_admintest, "a",
       "display your current admin level",
       ""
@@ -248,6 +248,15 @@ g_admin_cmd_t g_admin_cmds[ ] =
 	""
     },
 
+    {"subnetban", G_admin_subnetban, "E",
+      "Add or change a subnet mask on a ban",
+      "[^3ban#^7] [^5CIDR mask^7]"
+      "\n ^3Example:^7 '!subnetban 10 16' changes ban #10 to be a ban on XXX.XXX.*.*"
+      "\n ^3Example:^7 '!subnetban 10 24' changes ban #10 to be a ban on XXX.XXX.XXX.*"
+      "\n ^3Example:^7 '!subnetban 10 32' changes ban #10 to be a regular (non-subnet) ban"
+      "\n ^1WARNING:^7 Use of this command may make your admin.dat incompatible with other game.qvms"
+    },
+
     {"time", G_admin_time, "C",
       "show the current local server time",
       ""},
@@ -288,19 +297,17 @@ g_admin_ban_t *g_admin_bans[ MAX_ADMIN_BANS ];
 g_admin_command_t *g_admin_commands[ MAX_ADMIN_COMMANDS ];
 g_admin_namelog_t *g_admin_namelog[ MAX_ADMIN_NAMELOGS ];
 
-qboolean G_admin_permission( gentity_t *ent, char flag )
+qboolean G_admin_permission_guid( char *guid, char flag )
 {
   int i;
   int l = 0;
   char *flags;
 
-  // console always wins
-  if( !ent )
-    return qtrue;
+  if(!guid) return qfalse; // since there is a different check for console, here we are just returning false.
 
   for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
   {
-    if( !Q_stricmp( ent->client->pers.guid, g_admin_admins[ i ]->guid ) )
+    if( !Q_stricmp( guid, g_admin_admins[ i ]->guid ) )
     {
       flags = g_admin_admins[ i ]->flags;
       while( *flags )
@@ -376,6 +383,15 @@ qboolean G_admin_permission( gentity_t *ent, char flag )
     }
   }
   return qfalse;
+}
+
+
+qboolean G_admin_permission( gentity_t *ent, char flag )
+{
+  if(!ent) return qtrue; //console always wins
+  if(!ent->client->pers.guid) return qfalse; //if we have no guid, and we are not console, we lose.
+
+  return G_admin_permission_guid(ent->client->pers.guid, flag);
 }
 
 qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
@@ -1115,8 +1131,10 @@ qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen )
   char ip[ 16 ];
   char *value;
   int i;
+  int userIP = 0, intIP = 0, IP[5], k, tempIP, mask, ipscanfcount;
   int t;
   char notice[51];
+  qboolean ignoreIP = qfalse;
   
   trap_Cvar_VariableStringBuffer( "g_banNotice", notice, sizeof( notice ) );
  
@@ -1137,48 +1155,80 @@ qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen )
   
   value = Info_ValueForKey( userinfo, "cl_guid" );
   Q_strncpyz( guid, value, sizeof( guid ) );
-
+  
   t = trap_RealTime( NULL );
+  sscanf(ip, "%i.%i.%i.%i", &IP[4], &IP[3], &IP[2], &IP[1]);
+  for(k = 4; k >= 1; k--)
+  {
+    if(!IP[k]) continue;
+    userIP |= IP[k] << 8*(k-1);
+  }
+  ignoreIP = G_admin_permission_guid( guid , 'W');
   for( i = 0; i < MAX_ADMIN_BANS && g_admin_bans[ i ]; i++ )
   {
     // 0 is for perm ban
     if( g_admin_bans[ i ]->expires != 0 &&
          ( g_admin_bans[ i ]->expires - t ) < 1 )
       continue;
-    if( strstr( ip, g_admin_bans[ i ]->ip ) == ip )
+    if( !ignoreIP )
     {
-      char duration[ 32 ];
-      G_admin_duration( ( g_admin_bans[ i ]->expires - t ),
-        duration, sizeof( duration ) );
+      tempIP = userIP;
+      intIP = 0;
+      mask = -1;
 
-      // flood protected
-      if( t - lastConnectTime >= 300 ||
-          Q_stricmp( lastConnectIP, ip ) )
+      ipscanfcount = sscanf(g_admin_bans[ i ]->ip, "%d.%d.%d.%d/%d", &IP[4], &IP[3], &IP[2], &IP[1], &IP[0]);
+
+      if(ipscanfcount==5) mask = IP[0]; 
+      else mask = -1;
+
+      for(k = 4; k >= 1; k--)
       {
-        lastConnectTime = t;
-        Q_strncpyz( lastConnectIP, ip, sizeof( lastConnectIP ) );
-
-        G_AdminsPrintf(
-          "Banned player %s^7 (%s^7) tried to connect (ban #%i by %s^7 expires %s reason: %s^7 )\n",
-          Info_ValueForKey( userinfo, "name" ),
-          g_admin_bans[ i ]->name,
-          i+1,
-          g_admin_bans[ i ]->banner,
-          duration,
-          g_admin_bans[ i ]->reason );
+        if(!IP[k]) continue;
+        intIP |= IP[k] << 8*(k-1);
       }
-	    
-      Com_sprintf(
-        reason,
-        rlen,
-        "You have been banned by %s^7 reason: %s^7 expires: %s       %s",
-        g_admin_bans[ i ]->banner,
-        g_admin_bans[ i ]->reason,
-        duration,
-	notice
-      );
-      G_LogPrintf("Banned player tried to connect from IP %s\n", ip);
-      return qtrue;
+
+      if(mask > 0 && mask <= 32) 
+      {
+        tempIP &= ~((1 << (32-mask)) - 1); // FIXME: can overflow
+        intIP &= ~((1 << (32-mask)) - 1);
+      }
+
+      if( intIP == tempIP || mask == 0 )
+      {
+        char duration[ 32 ];
+        G_admin_duration( ( g_admin_bans[ i ]->expires - t ),
+          duration, sizeof( duration ) );
+
+        // flood protected
+        if( t - lastConnectTime >= 300 ||
+            Q_stricmp( lastConnectIP, ip ) )
+        {
+          lastConnectTime = t;
+          Q_strncpyz( lastConnectIP, ip, sizeof( lastConnectIP ) );
+
+          G_AdminsPrintf(
+            "Banned player %s^7 (%s^7) tried to connect (ban #%i on %s by %s^7 expires %s reason: %s^7 )\n",
+            Info_ValueForKey( userinfo, "name" ),
+            g_admin_bans[ i ]->name,
+            i+1,
+            ip, 
+            g_admin_bans[ i ]->banner,
+            duration,
+            g_admin_bans[ i ]->reason );
+        }
+            
+        Com_sprintf(
+          reason,
+          rlen,
+          "You have been banned by %s^7 reason: %s^7 expires: %s       %s",
+          g_admin_bans[ i ]->banner,
+          g_admin_bans[ i ]->reason,
+          duration,
+          notice
+          );
+        G_LogPrintf("Banned player tried to connect from IP %s\n", ip);
+        return qtrue;
+      }
     }
     if( *guid && !Q_stricmp( g_admin_bans[ i ]->guid, guid ) )
     {
@@ -2244,6 +2294,119 @@ qboolean G_admin_adjustban( gentity_t *ent, int skiparg )
     admin_writeconfig();
   return qtrue;
 }
+
+
+qboolean G_admin_subnetban( gentity_t *ent, int skiparg )
+{
+  int bnum;
+  int mask;
+  int IPRlow = 0, IPRhigh = 0;
+  char cIPRlow[ 32 ], cIPRhigh[ 32 ];
+  char bs[ 5 ];
+  char strmask[ 5 ];
+  char exl[2];
+  int k, IP[5];
+  
+  if( G_SayArgc() < 3 + skiparg )
+  {
+    ADMP( "^3!subnetban: ^7usage: !subnetban [ban#] [mask]\n" );
+    return qfalse;
+  }
+  G_SayArgv( 1 + skiparg, bs, sizeof( bs ) );
+  bnum = atoi( bs );
+  if( bnum < 1 || bnum > MAX_ADMIN_BANS || !g_admin_bans[ bnum - 1] )
+  {
+    ADMP( "^3!subnetban: ^7invalid ban#\n" );
+    return qfalse;
+  }
+
+  G_SayArgv( 2 + skiparg, strmask, sizeof( strmask ) );
+  mask = atoi( strmask );
+  
+  if( mask >= 0 && mask <= 32)
+  {
+    G_SayArgv( 3 + skiparg, exl, sizeof( exl ) );
+    if( mask >= 0 && mask < 16 && strcmp(exl, "!") )
+    {
+      if( ent )
+      {
+        ADMP( "^3!subnetban: ^7Only console may ban such a large network. Regular admins may only ban >=16.\n" );
+        return qfalse;	
+      }
+
+      ADMP( "^3!subnetban: ^1WARNING:^7 you are about to ban a large network, use !subnetban [ban] [mask] ! to force^7\n" );
+      return qfalse;	
+    }
+    else
+    {
+      sscanf(g_admin_bans[ bnum - 1 ]->ip, "%d.%d.%d.%d/%d", &IP[4], &IP[3], &IP[2], &IP[1], &IP[0]);
+      for(k = 4; k >= 1; k--)
+      {
+        if(!IP[k]) 	IP[k] = 0;
+        IPRlow |= IP[k] << 8*(k-1);
+      }
+      IPRhigh = IPRlow;
+      if( mask == 32 )
+      {
+        Q_strncpyz( 
+          g_admin_bans[ bnum - 1 ]->ip, 
+          va("%i.%i.%i.%i", IP[4], IP[3], IP[2], IP[1]), 
+          sizeof( g_admin_bans[ bnum - 1 ]->ip ) 
+        );
+      }
+      else
+      {
+        Q_strncpyz( 
+          g_admin_bans[ bnum - 1 ]->ip, 
+          va("%i.%i.%i.%i/%i", IP[4], IP[3], IP[2], IP[1], mask ), 
+          sizeof( g_admin_bans[ bnum - 1 ]->ip )
+        );
+        IPRlow &= ~((1 << (32-mask)) - 1);
+        IPRhigh |= ((1 << (32-mask)) - 1);
+      }
+	}
+  }
+  else
+  {
+    ADMP( "^3!subnetban: ^7mask is out of range, please use 0-32 inclusive\n" );
+    return qfalse;
+  }
+  if( mask > 0 )
+  {
+    Q_strncpyz( 
+      cIPRlow, 
+      va("%i.%i.%i.%i", (IPRlow & (255 << 24)) >> 24, (IPRlow & (255 << 16)) >> 16, (IPRlow & (255 << 8)) >> 8, IPRlow & 255), 
+      sizeof( cIPRlow ) 
+    );
+    Q_strncpyz( 
+      cIPRhigh, 
+      va("%i.%i.%i.%i", (IPRhigh & (255 << 24)) >> 24, (IPRhigh & (255 << 16)) >> 16, (IPRhigh & (255 << 8)) >> 8, IPRhigh & 255), 
+      sizeof( cIPRhigh ) 
+    );
+  }
+  else
+  {
+    Q_strncpyz( cIPRlow, "0.0.0.0", sizeof( cIPRlow ) );
+    Q_strncpyz( cIPRhigh, "255.255.255.255", sizeof( cIPRhigh ) );
+    
+  }
+  
+  AP( va( "print \"^3!subnetban: ^7ban #%d for %s^7 has been updated by %s^7 "
+    "%s (%s - %s)\n\"",
+    bnum,
+    g_admin_bans[ bnum - 1 ]->name,
+    ( ent ) ? G_admin_adminPrintName( ent ) : "console",
+	g_admin_bans[ bnum - 1 ]->ip,
+	cIPRlow,
+	cIPRhigh) );
+  if( ent )
+    Q_strncpyz( g_admin_bans[ bnum - 1 ]->banner, ent->client->pers.netname,
+      sizeof( g_admin_bans[ bnum - 1 ]->banner ) );
+  if( g_admin.string[ 0 ] )
+    admin_writeconfig();
+  return qtrue;
+}
+
 
 qboolean G_admin_unban( gentity_t *ent, int skiparg )
 {
