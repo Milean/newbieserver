@@ -297,6 +297,8 @@ g_admin_ban_t *g_admin_bans[ MAX_ADMIN_BANS ];
 g_admin_command_t *g_admin_commands[ MAX_ADMIN_COMMANDS ];
 g_admin_namelog_t *g_admin_namelog[ MAX_ADMIN_NAMELOGS ];
 
+// This function should only be used directly when the client is connecting and thus has no GUID.
+// Else, use G_admin_permission() 
 qboolean G_admin_permission_guid( char *guid, char flag )
 {
   int i;
@@ -389,7 +391,6 @@ qboolean G_admin_permission_guid( char *guid, char flag )
 qboolean G_admin_permission( gentity_t *ent, char flag )
 {
   if(!ent) return qtrue; //console always wins
-  if(!ent->client->pers.guid[0]) return qfalse; //if we have no guid, and we are not console, we lose.
 
   return G_admin_permission_guid(ent->client->pers.guid, flag);
 }
