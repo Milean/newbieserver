@@ -381,13 +381,13 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
   pmove_t pm;
   gclient_t *client;
   qboolean attack1, attack3;
-  qboolean	doPmove = qtrue;
+  qboolean  doPmove = qtrue;
 
   client = ent->client;
 
   client->oldbuttons = client->buttons;
   client->buttons = ucmd->buttons;
-	
+
    attack1 = ( ( client->buttons & BUTTON_ATTACK ) &&
                !( client->oldbuttons & BUTTON_ATTACK ) );
    attack3 = ( ( client->buttons & BUTTON_USE_HOLDABLE ) &&
@@ -412,7 +412,7 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
   if (doPmove)
   {
     client->ps.speed = BG_FindSpeedForClass( client->ps.stats[ STAT_PCLASS ] );
-	  
+
      // in case the client entered the queue while following a teammate
      if( ( client->pers.teamSelection == PTE_ALIENS &&
            G_SearchSpawnQueue( &level.alienSpawnQueue, ent-g_entities ) ) ||
@@ -850,18 +850,18 @@ void ClientTimerActions( gentity_t *ent, int msec )
       level.alienStatsCounters.timealive++;
       if( G_BuildableRange( ent->client->ps.origin, 900, BA_A_OVERMIND ) )
       {
-	ent->client->pers.statscounters.timeinbase++;
-	level.alienStatsCounters.timeinbase++;
+        ent->client->pers.statscounters.timeinbase++;
+        level.alienStatsCounters.timeinbase++;
       }
       if( BG_ClassHasAbility( ent->client->ps.stats[ STAT_PCLASS ], SCA_WALLCLIMBER )  )
       {
-	ent->client->pers.statscounters.dretchbasytime++;
-	level.alienStatsCounters.dretchbasytime++;
-	if( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING  || ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING) 
-	{
-	  ent->client->pers.statscounters.jetpackusewallwalkusetime++;
-	  level.alienStatsCounters.jetpackusewallwalkusetime++;
-	}
+        ent->client->pers.statscounters.dretchbasytime++;
+        level.alienStatsCounters.dretchbasytime++;
+    if( ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBING  || ent->client->ps.stats[ STAT_STATE ] & SS_WALLCLIMBINGCEILING) 
+    {
+      ent->client->pers.statscounters.jetpackusewallwalkusetime++;
+      level.alienStatsCounters.jetpackusewallwalkusetime++;
+    }
       }
     }
     else if( ent->client->ps.stats[ STAT_HEALTH ] > 0 && ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
@@ -870,16 +870,16 @@ void ClientTimerActions( gentity_t *ent, int msec )
       level.humanStatsCounters.timealive++;
       if( G_BuildableRange( ent->client->ps.origin, 900, BA_H_REACTOR ) )
       {
-	ent->client->pers.statscounters.timeinbase++;
-	level.humanStatsCounters.timeinbase++;
+        ent->client->pers.statscounters.timeinbase++;
+        level.humanStatsCounters.timeinbase++;
       }
       if( BG_InventoryContainsUpgrade( UP_JETPACK, client->ps.stats ) )
       {
-	if( client->ps.pm_type == PM_JETPACK ) 
-	{
-	  ent->client->pers.statscounters.jetpackusewallwalkusetime++;
-	  level.humanStatsCounters.jetpackusewallwalkusetime++;
-	}
+    if( client->ps.pm_type == PM_JETPACK ) 
+    {
+      ent->client->pers.statscounters.jetpackusewallwalkusetime++;
+      level.humanStatsCounters.jetpackusewallwalkusetime++;
+    }
       }
     }
    
@@ -1844,9 +1844,9 @@ void SpectatorClientEndFrame( gentity_t *ent )
 
       if( cl->pers.connected == CON_CONNECTED )
       {
- 	      
- 	if( cl -> sess.spectatorState != SPECTATOR_FOLLOW ) 
-	{
+ 
+    if( cl -> sess.spectatorState != SPECTATOR_FOLLOW ) 
+    {
           flags = ( cl->ps.eFlags & ~( EF_VOTED | EF_TEAMVOTED ) ) |
             ( ent->client->ps.eFlags & ( EF_VOTED | EF_TEAMVOTED ) );
           score = ent->client->ps.persistant[ PERS_SCORE ];
@@ -1856,25 +1856,25 @@ void SpectatorClientEndFrame( gentity_t *ent )
           ent->client->ps.ping = ping;
           ent->client->ps.eFlags = flags;
           ent->client->ps.pm_flags |= PMF_FOLLOW;
- 	  ent->client->ps.pm_flags &= ~PMF_QUEUED;
- 	}
- 	else //we are stickyspec-spectating someone who is spectating someone else
- 	{
- 	  ent->client->ps.clientNum = (g_entities + clientNum)->s.number;
- 	  ent->client->ps.commandTime = cl->ps.commandTime;
- 	  ent->client->ps.weapon = 0;
- 	  ent->client->ps.pm_flags |= PMF_FOLLOW;
- 	  ent->client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
+          ent->client->ps.pm_flags &= ~PMF_QUEUED;
+    }
+    else //we are stickyspec-spectating someone who is spectating someone else
+    {
+      ent->client->ps.clientNum = (g_entities + clientNum)->s.number;
+      ent->client->ps.commandTime = cl->ps.commandTime;
+      ent->client->ps.weapon = 0;
+      ent->client->ps.pm_flags |= PMF_FOLLOW;
+      ent->client->ps.stats[ STAT_PCLASS ] = PCL_NONE;
 
-	  if( cl->pers.teamSelection == PTE_ALIENS )
-	    G_SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );
+      if( cl->pers.teamSelection == PTE_ALIENS )
+        G_SelectAlienLockSpawnPoint( spawn_origin, spawn_angles );
           else if( cl->pers.teamSelection == PTE_HUMANS )
-	    G_SelectHumanLockSpawnPoint( spawn_origin, spawn_angles );
-	  
+        G_SelectHumanLockSpawnPoint( spawn_origin, spawn_angles );
+
           G_SetOrigin( ent, spawn_origin );
           VectorCopy( spawn_origin, ent->client->ps.origin );
           G_SetClientViewAngle( ent, spawn_angles );
- 	}
+    }
       }
     }
   }

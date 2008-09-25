@@ -1035,9 +1035,9 @@ void ClientUserinfoChanged( int clientNum )
     if( g_newbieNumbering.integer )
     {
       if( !strcmp( newname, "UnnamedPlayer" ) )
-	Q_strncpyz( newname, G_NextNewbieName( ent ), sizeof( newname ) );
+        Q_strncpyz( newname, G_NextNewbieName( ent ), sizeof( newname ) );
       if( !strcmp( oldname, "UnnamedPlayer" ) )
-	Q_strncpyz( oldname, G_NextNewbieName( ent ), sizeof( oldname ) );
+        Q_strncpyz( oldname, G_NextNewbieName( ent ), sizeof( oldname ) );
     }
 
 
@@ -1107,17 +1107,17 @@ void ClientUserinfoChanged( int clientNum )
       {
         char    decoloured[ MAX_STRING_CHARS ] = "";   
         if( g_decolourLogfiles.integer == 1 )
-	{
-	  Com_sprintf( decoloured, sizeof(decoloured), " (\"%s^7\" -> \"%s^7\")", oldname, client->pers.netname );
-	  G_DecolorString( decoloured, decoloured );
+    {
+      Com_sprintf( decoloured, sizeof(decoloured), " (\"%s^7\" -> \"%s^7\")", oldname, client->pers.netname );
+      G_DecolorString( decoloured, decoloured );
           G_LogPrintfColoured( "ClientRename: %i [%s] (%s) \"%s^7\" -> \"%s^7\"%s\n", clientNum,
              client->pers.ip, client->pers.guid, oldname, client->pers.netname, decoloured );
-	}
-	else
-	{
+    }
+    else
+    {
           G_LogPrintf( "ClientRename: %i [%s] (%s) \"%s^7\" -> \"%s^7\"%s\n", clientNum,
              client->pers.ip, client->pers.guid, oldname, client->pers.netname, decoloured );
-	}
+    }
 
       }
       else
@@ -1435,15 +1435,15 @@ void ClientBegin( int clientNum )
 
   G_LogPrintf( "ClientBegin: %i\n", clientNum );
 
-    if( g_clientUpgradeNotice.integer )
+  if( g_clientUpgradeNotice.integer )
+  {
+    if( !Q_stricmp( ent->client->pers.guid, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" ) )
     {
-       if( !Q_stricmp( ent->client->pers.guid, "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX" ) )
-       {
-         trap_SendServerCommand( client->ps.clientNum, va( "print \"^1Your client is out of date. Updating your client will allow you to "
-	      "become an admin on servers and download maps much more quickly. Please replace your client executable with the one "
-	      "at ^2http://trem.tjw.org/backport/^1 and reconnect. \n\"" ) );
-       }
+      trap_SendServerCommand( client->ps.clientNum, va( "print \"^1Your client is out of date. Updating your client will allow you to "
+        "become an admin on servers and download maps much more quickly. Please replace your client executable with the one "
+        "at ^2http://trem.tjw.org/backport/^1 and reconnect. \n\"" ) );
     }
+  }
 
   // count current clients and rank for scoreboard
   CalculateRanks( );

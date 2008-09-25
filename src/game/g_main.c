@@ -1189,13 +1189,13 @@ void G_CalculateBuildPoints( void )
   gentity_t   *ent;
   int         localHTP = g_humanBuildPoints.integer,
               localATP = g_alienBuildPoints.integer;
-	
+
   //g_suddenDeath sets what state we want it to be.  level.suddenDeath says whether we've calculated BPs at the 'start' of SD or not
 
   //reset if SD was on, but now it's off
   if(!g_suddenDeath.integer && level.suddenDeath) {
-	  level.suddenDeath=qfalse;
-	  level.suddenDeathWarning=0;
+      level.suddenDeath=qfalse;
+      level.suddenDeathWarning=0;
       level.suddenDeathBeginTime = -1;
       if((level.time - level.startTime) < (g_suddenDeathTime.integer * 60000 ) )
         level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
@@ -1204,52 +1204,52 @@ void G_CalculateBuildPoints( void )
   }
 
     if(!level.suddenDeath){
-	    if(g_suddenDeath.integer || G_TimeTilSuddenDeath( ) <= 0 ) //Conditions to enter SD
-	    {
-	      //begin sudden death
-	      if( level.suddenDeathWarning < TW_PASSED )
-	      {
-		trap_SendServerCommand( -1, "cp \"Sudden Death!\"" );
-		G_LogPrintf("Beginning Sudden Death (Mode %d)\n",g_suddenDeathMode.integer);
-		localHTP = 0;
-		localATP = 0;
+        if(g_suddenDeath.integer || G_TimeTilSuddenDeath( ) <= 0 ) //Conditions to enter SD
+        {
+          //begin sudden death
+          if( level.suddenDeathWarning < TW_PASSED )
+          {
+        trap_SendServerCommand( -1, "cp \"Sudden Death!\"" );
+        G_LogPrintf("Beginning Sudden Death (Mode %d)\n",g_suddenDeathMode.integer);
+        localHTP = 0;
+        localATP = 0;
 
-		if( g_suddenDeathMode.integer == SDMODE_SELECTIVE ) {
-		  for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
-		  {
-		    if( ent->s.eType != ET_BUILDABLE )
-		      continue;
-	    
-		    if( BG_FindReplaceableTestForBuildable( ent->s.modelindex ) )
-		    {
-		      int t = BG_FindTeamForBuildable( ent->s.modelindex );
-	    
-		      if( t == BIT_HUMANS )
-			localHTP += BG_FindBuildPointsForBuildable( ent->s.modelindex );
-		      else if( t == BIT_ALIENS )
-			localATP += BG_FindBuildPointsForBuildable( ent->s.modelindex );
-		    }
-		  }
-		}
-		level.suddenDeathHBuildPoints = localHTP;
-		level.suddenDeathABuildPoints = localATP;
+        if( g_suddenDeathMode.integer == SDMODE_SELECTIVE ) {
+          for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
+          {
+            if( ent->s.eType != ET_BUILDABLE )
+              continue;
+        
+            if( BG_FindReplaceableTestForBuildable( ent->s.modelindex ) )
+            {
+              int t = BG_FindTeamForBuildable( ent->s.modelindex );
+        
+              if( t == BIT_HUMANS )
+            localHTP += BG_FindBuildPointsForBuildable( ent->s.modelindex );
+              else if( t == BIT_ALIENS )
+            localATP += BG_FindBuildPointsForBuildable( ent->s.modelindex );
+            }
+          }
+        }
+        level.suddenDeathHBuildPoints = localHTP;
+        level.suddenDeathABuildPoints = localATP;
         level.suddenDeathBeginTime = level.time;
-		level.suddenDeath=qtrue;
-		trap_Cvar_Set( "g_suddenDeath", "1" );
+        level.suddenDeath=qtrue;
+        trap_Cvar_Set( "g_suddenDeath", "1" );
         /*`g_suddenDeath.integer=1;`*/
 
-		level.suddenDeathWarning = TW_PASSED;
-	      }
-	    }  else {
-	   
-	      //warn about sudden death
-	      if( G_TimeTilSuddenDeath( ) <= 60000 &&
-		  level.suddenDeathWarning < TW_IMMINENT )
-	      {
-		    trap_SendServerCommand( -1, va("cp \"Sudden Death in %d seconds!\"", (int)(G_TimeTilSuddenDeath() / 1000 ) ) );
-		    level.suddenDeathWarning = TW_IMMINENT;
-	      }
-	    }
+        level.suddenDeathWarning = TW_PASSED;
+          }
+        }  else {
+       
+          //warn about sudden death
+          if( G_TimeTilSuddenDeath( ) <= 60000 &&
+          level.suddenDeathWarning < TW_IMMINENT )
+          {
+            trap_SendServerCommand( -1, va("cp \"Sudden Death in %d seconds!\"", (int)(G_TimeTilSuddenDeath() / 1000 ) ) );
+            level.suddenDeathWarning = TW_IMMINENT;
+          }
+        }
     }
   
   //set BP at each cycle
@@ -1767,14 +1767,14 @@ Print to all active admins, and the logfile with a time stamp if it is open, and
 void QDECL G_AdminsPrintf( const char *fmt, ... )
 {
   va_list argptr;
-  char    string[ 1024 ];	
+  char    string[ 1024 ];
   gentity_t   *tempent;
   int j;
-	
+
   va_start( argptr, fmt );
   vsprintf( string, fmt,argptr );
   va_end( argptr );
-	
+
   for( j = 0; j < level.maxclients; j++ )
   {
     tempent = &g_entities[ j ];
@@ -1785,7 +1785,7 @@ void QDECL G_AdminsPrintf( const char *fmt, ... )
   }
   
   G_LogPrintf("%s",string);
-	
+
 }
 
 /*
@@ -2262,7 +2262,7 @@ void CheckVote( void )
 {
   int votePassThreshold=level.votePassThreshold;
   int voteYesPercent;
-	
+
   if( level.voteExecuteTime && level.voteExecuteTime < level.time )
   {
     level.voteExecuteTime = 0;
@@ -2376,7 +2376,7 @@ void CheckTeamVote( int team )
       trap_SendConsoleCommand( EXEC_APPEND, va( "%s\n", level.teamVoteString[ cs_offset ] ) );
     }
     else
-    {	    
+    {
       trap_SendServerCommand( -1, va("print \"Team vote failed  (%d - %d)\n\"", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] ) );
       G_LogPrintf( "Teamvote: Team vote failed (%d - %d)\n", level.teamVoteYes[ cs_offset ], level.teamVoteNo[ cs_offset ] );
     }
@@ -2588,7 +2588,7 @@ void G_RunFrame( int levelTime )
    {
      level.clients[ i ].ps.commandTime = levelTime;
    }
-	
+
    return;
   }
 

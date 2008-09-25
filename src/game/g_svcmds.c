@@ -723,8 +723,8 @@ qboolean  ConsoleCommand( void )
     }
     else if( !Q_stricmp( cmd, "cp" ) )
     {
-	G_CP( NULL );
-        return qtrue;
+      G_CP( NULL );
+      return qtrue;
     }
     else if( !Q_stricmp( cmd, "m" ) )
     {

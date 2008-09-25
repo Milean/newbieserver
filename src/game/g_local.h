@@ -242,7 +242,7 @@ struct gentity_s
 
   int               lastDamageTime;
   
-  int               bdnumb;		// buildlog entry ID
+  int               bdnumb;     // buildlog entry ID
 };
 
 typedef enum
@@ -413,7 +413,7 @@ typedef struct
   char                adminName[ MAX_NETNAME ];
   qboolean            designatedBuilder;
   qboolean            firstConnect;        // This is the first map since connect
-  statsCounters_t statscounters;	
+  statsCounters_t statscounters;
 } clientPersistant_t;
 
 #define MAX_UNLAGGED_MARKERS 10
@@ -754,8 +754,8 @@ typedef struct
   pTeam_t           surrenderTeam;
   buildHistory_t    *buildHistory;
   int               lastBuildID;
-  int		     lastTeamUnbalancedTime;
-  int		     numTeamWarnings;  
+  int               lastTeamUnbalancedTime;
+  int               numTeamWarnings;  
   int               lastMsgTime;
   
   statsCounters_level alienStatsCounters;

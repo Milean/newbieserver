@@ -627,7 +627,7 @@ Called when an alien spawn dies
 ================
 */
 void ASpawn_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
-{	
+{
   buildHistory_t *new;
   new = G_Alloc( sizeof( buildHistory_t ) );
   new->ID = ( ++level.lastBuildID > 1000 ) ? ( level.lastBuildID = 1 ) : level.lastBuildID;
@@ -710,39 +710,39 @@ void ASpawn_Think( gentity_t *self )
           G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
           return;
         }
-	else if( g_antiSpawnBlock.integer && ent->client && 
-		 ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-	{
-	  //spawnblock protection
-	  if( self->spawnBlockTime && level.time - self->spawnBlockTime > 10000 )
-	  {
-	    //five seconds of countermeasures and we're still blocked
-	    //time for something more drastic
-	    G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_TRIGGER_HURT );
-	    self->spawnBlockTime += 2000;
-	    //inappropriate MOD but prints an apt obituary
-	  }
-	  else if( self->spawnBlockTime && level.time - self->spawnBlockTime > 5000 )
-	    //five seconds of blocked by client and...
-	  {
-	    //random direction
-	    vec3_t velocity;
-	    velocity[0] = crandom() * g_antiSpawnBlock.integer;
-	    velocity[1] = crandom() * g_antiSpawnBlock.integer;
-	    velocity[2] = g_antiSpawnBlock.integer;
+    else if( g_antiSpawnBlock.integer && ent->client && 
+         ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+    {
+      //spawnblock protection
+      if( self->spawnBlockTime && level.time - self->spawnBlockTime > 10000 )
+      {
+        //five seconds of countermeasures and we're still blocked
+        //time for something more drastic
+        G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_TRIGGER_HURT );
+        self->spawnBlockTime += 2000;
+        //inappropriate MOD but prints an apt obituary
+      }
+      else if( self->spawnBlockTime && level.time - self->spawnBlockTime > 5000 )
+        //five seconds of blocked by client and...
+      {
+        //random direction
+        vec3_t velocity;
+        velocity[0] = crandom() * g_antiSpawnBlock.integer;
+        velocity[1] = crandom() * g_antiSpawnBlock.integer;
+        velocity[2] = g_antiSpawnBlock.integer;
             
-	    VectorAdd( ent->client->ps.velocity, velocity, ent->client->ps.velocity );
-	    trap_SendServerCommand( ent-g_entities, "cp \"Don't spawn block!\"" );
-	  }
-	  else if( !self->spawnBlockTime )
-	    self->spawnBlockTime = level.time;
+        VectorAdd( ent->client->ps.velocity, velocity, ent->client->ps.velocity );
+        trap_SendServerCommand( ent-g_entities, "cp \"Don't spawn block!\"" );
+      }
+      else if( !self->spawnBlockTime )
+        self->spawnBlockTime = level.time;
         }
 
         if( ent->s.eType == ET_CORPSE )
           G_FreeEntity( ent ); //quietly remove
       }
       else
-	self->spawnBlockTime = 0;
+    self->spawnBlockTime = 0;
     }
   }
 
@@ -804,7 +804,7 @@ void AOvermind_Think( gentity_t *self )
       enemy = &g_entities[ entityList[ i ] ];
 
       if( enemy->flags & FL_NOTARGET ) 
-	continue;
+        continue;
 
       if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
       {
@@ -1086,7 +1086,7 @@ void AAcidTube_Think( gentity_t *self )
       enemy = &g_entities[ entityList[ i ] ];
 
       if( enemy->flags & FL_NOTARGET )
-	continue;
+        continue;
 
       if( !G_Visible( self, enemy ) )
         continue;
@@ -1157,7 +1157,7 @@ void AHive_Think( gentity_t *self )
       enemy = &g_entities[ entityList[ i ] ];
 
       if( enemy->flags & FL_NOTARGET )
-	continue;
+        continue;
 
       if( enemy->health <= 0 )
         continue;
@@ -1364,7 +1364,7 @@ Die for alien hovel
 */
 void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int damage, int mod )
 {
-  vec3_t  dir;	
+  vec3_t  dir;
 
   buildHistory_t *new;
   new = G_Alloc( sizeof( buildHistory_t ) );
@@ -1382,7 +1382,7 @@ void AHovel_Die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   new->fate = ( attacker && attacker->client && attacker->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS ) ? BF_TEAMKILLED : BF_DESTROYED;
   new->next = NULL;
   G_LogBuild( new );
-	
+
   VectorCopy( self->s.origin2, dir );
 
   //do a bit of radius damage
@@ -1765,7 +1765,7 @@ void HReactor_Think( gentity_t *self )
       enemy = &g_entities[ entityList[ i ] ];
 
       if( enemy->flags & FL_NOTARGET )
-	continue;
+        continue;
 
       if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
       {
@@ -1935,8 +1935,8 @@ void HMedistat_Think( gentity_t *self )
       {
         player = &g_entities[ entityList[ i ] ];
 
-	if( player->flags & FL_NOTARGET )
-	  continue; // notarget cancels even beneficial effects?
+    if( player->flags & FL_NOTARGET )
+      continue; // notarget cancels even beneficial effects?
 
         if( player->client && player->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
         {
@@ -2292,7 +2292,7 @@ void HTeslaGen_Think( gentity_t *self )
       enemy = &g_entities[ entityList[ i ] ];
 
       if( enemy->flags & FL_NOTARGET )
-	continue;
+        continue;
 
       if( enemy->client && enemy->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
           enemy->health > 0 &&
@@ -2487,32 +2487,32 @@ void HSpawn_Think( gentity_t *self )
           G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
           return;
         }
-	else if( g_antiSpawnBlock.integer && ent->client && 
-		 ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-	{
-	  //spawnblock protection
-	  if( self->spawnBlockTime && level.time - self->spawnBlockTime > 10000 )
-	  {
-	    //five seconds of countermeasures and we're still blocked
-	    //time for something more drastic
-	    G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_TRIGGER_HURT );
-	    self->spawnBlockTime += 2000;
-	    //inappropriate MOD but prints an apt obituary
-	  }
-	  else if( self->spawnBlockTime && level.time - self->spawnBlockTime > 5000 )
-	    //five seconds of blocked by client and...
-	  {
-	    //random direction
-	    vec3_t velocity;
-	    velocity[0] = crandom() * g_antiSpawnBlock.integer;
-	    velocity[1] = crandom() * g_antiSpawnBlock.integer;
-	    velocity[2] = g_antiSpawnBlock.integer;
+    else if( g_antiSpawnBlock.integer && ent->client && 
+         ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+    {
+      //spawnblock protection
+      if( self->spawnBlockTime && level.time - self->spawnBlockTime > 10000 )
+      {
+        //five seconds of countermeasures and we're still blocked
+        //time for something more drastic
+        G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_TRIGGER_HURT );
+        self->spawnBlockTime += 2000;
+        //inappropriate MOD but prints an apt obituary
+      }
+      else if( self->spawnBlockTime && level.time - self->spawnBlockTime > 5000 )
+        //five seconds of blocked by client and...
+      {
+        //random direction
+        vec3_t velocity;
+        velocity[0] = crandom() * g_antiSpawnBlock.integer;
+        velocity[1] = crandom() * g_antiSpawnBlock.integer;
+        velocity[2] = g_antiSpawnBlock.integer;
             
-	    VectorAdd( ent->client->ps.velocity, velocity, ent->client->ps.velocity );
-	    trap_SendServerCommand( ent-g_entities, "cp \"Don't spawn block!\"" );
-	  }
-	  else if( !self->spawnBlockTime )
-	    self->spawnBlockTime = level.time;
+        VectorAdd( ent->client->ps.velocity, velocity, ent->client->ps.velocity );
+        trap_SendServerCommand( ent-g_entities, "cp \"Don't spawn block!\"" );
+      }
+      else if( !self->spawnBlockTime )
+        self->spawnBlockTime = level.time;
         }
 
         if( ent->s.eType == ET_CORPSE )

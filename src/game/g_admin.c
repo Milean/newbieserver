@@ -44,7 +44,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
       " or seconds if no units are specified",
       "[^3ban#^7] (^5time^7) (^5reason^7)"
     },
-		
+    
     {"admintest", G_admin_admintest, "a",
       "display your current admin level",
       ""
@@ -245,7 +245,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
      //creating a new admin flag for this, so i stole it from !help
     {"specme", G_admin_putmespec, "h",
         "moves you to the spectators",
-	""
+    ""
     },
 
     {"subnetban", G_admin_subnetban, "E",
@@ -815,7 +815,7 @@ void G_admin_set_adminname( gentity_t *ent )
 char* G_admin_adminPrintName( gentity_t *ent )
 {
   char *out;
-	
+
   if( !ent->client->pers.adminLevel )
   {
     out = "";
@@ -829,9 +829,9 @@ char* G_admin_adminPrintName( gentity_t *ent )
   else
   {
      out = ent->client->pers.netname;
-  }	  
-	
-	
+  }  
+
+
   return out;
 }
 
@@ -933,7 +933,7 @@ static void admin_log( gentity_t *admin, char *cmd, int skiparg )
                  ( admin ) ? admin->client->pers.guid
                  : "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                  ( admin ) ? admin->client->pers.netname : "console",
-	         ( admin ) ? admin->client->pers.adminName : "console",
+                 ( admin ) ? admin->client->pers.adminName : "console",
                  flags,
                  cmd,
                  victim->client->pers.guid,
@@ -951,7 +951,7 @@ static void admin_log( gentity_t *admin, char *cmd, int skiparg )
                  ( admin ) ? admin->client->pers.guid
                  : "XXXXXXXXXXXXXXXXXXXXXXXXXXXXXXXX",
                  ( admin ) ? admin->client->pers.netname : "console",
-	         ( admin ) ? admin->client->pers.adminName : "console",
+                 ( admin ) ? admin->client->pers.adminName : "console",
                  flags,
                  cmd,
                  G_SayConcatArgs( 1 + skiparg ) );
@@ -1930,8 +1930,8 @@ static qboolean admin_create_ban( gentity_t *ent,
     {
       if( !Q_stricmp( g_admin_admins[ j ]->guid, ent->client->pers.guid ) )
       {
-          Q_strncpyz( b->banner, g_admin_admins[ j ]->name, sizeof( b->banner  ) );
-	  foundAdminTrueName=qtrue;
+        Q_strncpyz( b->banner, g_admin_admins[ j ]->name, sizeof( b->banner  ) );
+        foundAdminTrueName=qtrue;
         break;
       }
     }
@@ -2331,18 +2331,18 @@ qboolean G_admin_subnetban( gentity_t *ent, int skiparg )
       if( ent )
       {
         ADMP( "^3!subnetban: ^7Only console may ban such a large network. Regular admins may only ban >=16.\n" );
-        return qfalse;	
+        return qfalse;
       }
 
       ADMP( "^3!subnetban: ^1WARNING:^7 you are about to ban a large network, use !subnetban [ban] [mask] ! to force^7\n" );
-      return qfalse;	
+      return qfalse;
     }
     else
     {
       sscanf(g_admin_bans[ bnum - 1 ]->ip, "%d.%d.%d.%d/%d", &IP[4], &IP[3], &IP[2], &IP[1], &IP[0]);
       for(k = 4; k >= 1; k--)
       {
-        if(!IP[k]) 	IP[k] = 0;
+        if(!IP[k]) IP[k] = 0;
         IPRlow |= IP[k] << 8*(k-1);
       }
       IPRhigh = IPRlow;
@@ -2364,7 +2364,7 @@ qboolean G_admin_subnetban( gentity_t *ent, int skiparg )
         IPRlow &= ~((1 << (32-mask)) - 1);
         IPRhigh |= ((1 << (32-mask)) - 1);
       }
-	}
+    }
   }
   else
   {
@@ -2396,9 +2396,9 @@ qboolean G_admin_subnetban( gentity_t *ent, int skiparg )
     bnum,
     g_admin_bans[ bnum - 1 ]->name,
     ( ent ) ? G_admin_adminPrintName( ent ) : "console",
-	g_admin_bans[ bnum - 1 ]->ip,
-	cIPRlow,
-	cIPRhigh) );
+    g_admin_bans[ bnum - 1 ]->ip,
+    cIPRlow,
+    cIPRhigh) );
   if( ent )
     Q_strncpyz( g_admin_bans[ bnum - 1 ]->banner, ent->client->pers.netname,
       sizeof( g_admin_bans[ bnum - 1 ]->banner ) );
@@ -3189,7 +3189,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
                ( *lname ) ? lname2 : "", 
                guid_stub,
                muted,
-	       dbuilder,
+               dbuilder,
                denied,
                p->pers.netname,
                ( *n ) ? "(a.k.a. " : "",
@@ -3770,24 +3770,22 @@ qboolean G_admin_passvote( gentity_t *ent, int skiparg )
 
 qboolean G_admin_pause( gentity_t *ent, int skiparg )
 {
-	if(!level.paused) 
-	{
-		AP( va( "print \"^3!pause: ^7%s^7 paused the game.\n\"", ( ent ) ? G_admin_adminPrintName( ent ) : "console" ) );
-		level.paused = qtrue;
-		trap_SendServerCommand( -1, "cp \"The game has been paused. Please wait.\"" );
-	}
-	else {
+    if(!level.paused) 
+    {
+      AP( va( "print \"^3!pause: ^7%s^7 paused the game.\n\"", ( ent ) ? G_admin_adminPrintName( ent ) : "console" ) );
+      level.paused = qtrue;
+      trap_SendServerCommand( -1, "cp \"The game has been paused. Please wait.\"" );
+    }
+    else
+    {
+      // Prevent accidental pause->unpause race conditions by two admins doing !pause at once
+      if( level.pausedTime < 1000 ) return qfalse;
 
-        // Prevent accidental pause->unpause race conditions by two admins doing !pause at once
-        if( level.pausedTime < 1000 ) return qfalse;
-
-		AP( va( "print \"^3!pause: ^7%s^7 unpaused the game (Paused for %d msec) \n\"", ( ent ) ? G_admin_adminPrintName( ent ) : "console",level.pausedTime ) );
-		trap_SendServerCommand( -1, "cp \"The game has been unpaused!\"" );
-		level.paused = qfalse;
-		
-		
-		}
-	return qtrue;
+      AP( va( "print \"^3!pause: ^7%s^7 unpaused the game (Paused for %d msec) \n\"", ( ent ) ? G_admin_adminPrintName( ent ) : "console",level.pausedTime ) );
+      trap_SendServerCommand( -1, "cp \"The game has been unpaused!\"" );
+      level.paused = qfalse;
+    }
+    return qtrue;
 }
 
 qboolean G_admin_spec999( gentity_t *ent, int skiparg )
@@ -3819,9 +3817,9 @@ qboolean G_admin_register(gentity_t *ent, int skiparg ){
   int level = 0;
 
   if( !ent ) return qtrue;
-	
+
   level = G_admin_level(ent);
-	
+
   if( level == 0 )
    level = 1;
   
@@ -3895,9 +3893,9 @@ qboolean G_admin_rename( gentity_t *ent, int skiparg )
   ClientUserinfoChanged( pids[ 0 ] );
   if( strcmp( oldname, level.clients[ pids[ 0 ] ].pers.netname ) )
     AP( va( "print \"^3!rename: ^7%s^7 has been renamed to %s^7 by %s\n\"",
-	    oldname,
-	    level.clients[ pids[ 0 ] ].pers.netname,
-	    ( ent ) ? G_admin_adminPrintName( ent ) : "console" ) );
+        oldname,
+        level.clients[ pids[ 0 ] ].pers.netname,
+        ( ent ) ? G_admin_adminPrintName( ent ) : "console" ) );
   return qtrue;
 }
 
@@ -3970,8 +3968,8 @@ qboolean G_admin_restart( gentity_t *ent, int skiparg )
       if( cl->pers.teamSelection == PTE_ALIENS )
         cl->sess.restartTeam = PTE_HUMANS;
       else if(cl->pers.teamSelection == PTE_HUMANS )
-	cl->sess.restartTeam = PTE_ALIENS;
-    }  	  
+        cl->sess.restartTeam = PTE_ALIENS;
+    }    
   }
   
   if( !Q_stricmp( teampref, "switchteamslock" ) || !Q_stricmp( teampref, "keepteamslock" ) )
@@ -4266,8 +4264,8 @@ qboolean G_admin_putmespec( gentity_t *ent, int skiparg )
 {
   if( !ent )
   {
-	ADMP( "!specme: sorry, but console isn't allowed on the spectators team\n");
-	return qfalse;
+    ADMP( "!specme: sorry, but console isn't allowed on the spectators team\n");
+    return qfalse;
   }
   
   if(ent->client->pers.teamSelection == PTE_NONE)
@@ -4655,7 +4653,7 @@ qboolean G_admin_revert( gentity_t *ent, int skiparg )
       case BF_DECONNED:
         if( !action[ 0 ] ) action = "^3deconstruction^7";
       case BF_TEAMKILLED:
-	if( !action[ 0 ] ) action ="^1TEAMKILL^7";
+        if( !action[ 0 ] ) action ="^1TEAMKILL^7";
       case BF_DESTROYED:
         if( !action[ 0 ] ) action = "destruction";
         // if we're not overriding and the replacement can't fit, as before
