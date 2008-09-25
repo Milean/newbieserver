@@ -2581,179 +2581,179 @@ qboolean G_admin_devmap( gentity_t *ent, int skiparg )
   return qtrue;
 }
 
- void G_admin_maplog_update( void )
- {
-   char map[ 64 ];
-   char maplog[ MAX_CVAR_VALUE_STRING ];
-   char *ptr;
-   int count = 0;
- 
-   trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
- 
-   Q_strncpyz( maplog, g_adminMapLog.string, sizeof( maplog ) );
-   ptr = maplog;
-   while( *ptr && count < MAX_ADMIN_MAPLOG_LENGTH ) 
-   {
-     while( *ptr != ' ' && *ptr != '\0' ) ptr++;
- 
-     count++;
-     if( count >= MAX_ADMIN_MAPLOG_LENGTH )
-     {
-       *ptr = '\0';
-     }
- 
-     if( *ptr == ' ' ) ptr++;
-   }
- 
-   trap_Cvar_Set( "g_adminMapLog", va( "%s%s%s",
-     map,
-     ( maplog[0] != '\0'  ) ? " " : "",
-     maplog ) );
- }
- 
-  void G_admin_maplog_result( char *flag )
+void G_admin_maplog_update( void )
+{
+  char map[ 64 ];
+  char maplog[ MAX_CVAR_VALUE_STRING ];
+  char *ptr;
+  int count = 0;
+
+  trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
+
+  Q_strncpyz( maplog, g_adminMapLog.string, sizeof( maplog ) );
+  ptr = maplog;
+  while( *ptr && count < MAX_ADMIN_MAPLOG_LENGTH ) 
   {
-    char maplog[ MAX_CVAR_VALUE_STRING ];
-    int t;
-  
-    if( !flag )
-      return;
-  
-    if( g_adminMapLog.string[ 0 ] &&
-      g_adminMapLog.string[ 1 ] == ';' )
+    while( *ptr != ' ' && *ptr != '\0' ) ptr++;
+
+    count++;
+    if( count >= MAX_ADMIN_MAPLOG_LENGTH )
     {
-      // only one result allowed
-      return;
+      *ptr = '\0';
     }
-  
-    if ( level.surrenderTeam != PTE_NONE )
-    {
-      if( flag[ 0 ] == 'a' )
-      {
-        if( level.surrenderTeam == PTE_HUMANS )
-          flag = "A";
-      }
-      else if( flag[ 0 ] == 'h' )
-      {
-        if( level.surrenderTeam == PTE_ALIENS )
-          flag = "H";
-      }
-    }
-  
-    t = ( level.time - level.startTime ) / 1000;
-    Q_strncpyz( maplog, g_adminMapLog.string, sizeof( maplog ) );
-    trap_Cvar_Set( "g_adminMapLog", va( "%1s;%03d:%02d;%s",
-      flag,
-      t / 60, t % 60,
-      maplog ) );
+
+    if( *ptr == ' ' ) ptr++;
+  }
+
+  trap_Cvar_Set( "g_adminMapLog", va( "%s%s%s",
+    map,
+    ( maplog[0] != '\0'  ) ? " " : "",
+    maplog ) );
+}
+
+void G_admin_maplog_result( char *flag )
+{
+  char maplog[ MAX_CVAR_VALUE_STRING ];
+  int t;
+
+  if( !flag )
+    return;
+
+  if( g_adminMapLog.string[ 0 ] &&
+    g_adminMapLog.string[ 1 ] == ';' )
+  {
+    // only one result allowed
+    return;
   }
   
- 
- qboolean G_admin_maplog( gentity_t *ent, int skiparg )
- {
-   char maplog[ MAX_CVAR_VALUE_STRING ];
-   char *ptr;
-   int count = 0;
- 
-   Q_strncpyz( maplog, g_adminMapLog.string, sizeof( maplog ) );
- 
-   ADMBP_begin( );
-   ptr = maplog;
-   while( *ptr != '\0' && count < MAX_ADMIN_MAPLOG_LENGTH + 1 )
-   {
-     char *end;
-     const char *result = NULL;
-     char *clock = NULL;
-     char *colon;
- 
-     end = ptr;
-     while( *end != ' ' && *end != '\0' ) end++;
-     if( *end == ' ' )
+  if ( level.surrenderTeam != PTE_NONE )
+  {
+    if( flag[ 0 ] == 'a' )
+    {
+      if( level.surrenderTeam == PTE_HUMANS )
+        flag = "A";
+    }
+    else if( flag[ 0 ] == 'h' )
+    {
+      if( level.surrenderTeam == PTE_ALIENS )
+        flag = "H";
+    }
+  }
+
+  t = ( level.time - level.startTime ) / 1000;
+  Q_strncpyz( maplog, g_adminMapLog.string, sizeof( maplog ) );
+  trap_Cvar_Set( "g_adminMapLog", va( "%1s;%03d:%02d;%s",
+    flag,
+    t / 60, t % 60,
+    maplog ) );
+}
+
+
+qboolean G_admin_maplog( gentity_t *ent, int skiparg )
+{
+  char maplog[ MAX_CVAR_VALUE_STRING ];
+  char *ptr;
+  int count = 0;
+
+  Q_strncpyz( maplog, g_adminMapLog.string, sizeof( maplog ) );
+
+  ADMBP_begin( );
+  ptr = maplog;
+  while( *ptr != '\0' && count < MAX_ADMIN_MAPLOG_LENGTH + 1 )
+  {
+    char *end;
+    const char *result = NULL;
+    char *clock = NULL;
+    char *colon;
+
+    end = ptr;
+    while( *end != ' ' && *end != '\0' ) end++;
+    if( *end == ' ' )
+    {
+      *end = '\0';
+      end++;
+    }
+
+     if( ptr[ 0 ] && ptr[ 1 ] == ';' )
      {
-       *end = '\0';
-       end++;
+       switch( ptr[ 0 ] )
+       {
+         case 't':
+           result = "^7tie";
+           break;
+         case 'a':
+           result = "^1Alien win";
+           break;
+         case 'A':
+           result = "^1Alien win ^7/ Humans admitted defeat";
+           break;
+         case 'h':
+           result = "^4Human win";
+           break;
+         case 'H':
+           result = "^4Human win ^7/ Aliens admitted defeat";
+           break;
+         case 'd':
+           result = "^5draw vote";
+           break;
+         case 'N':
+           result = "^6admin loaded next map";
+           break;
+         case 'r':
+           result = "^2restart vote";
+           break;
+         case 'R':
+           result = "^6admin restarted map";
+           break;
+         case 'm':
+           result = "^2map vote";
+           break;
+         case 'M':
+           result = "^6admin changed map";
+           break;
+         case 'D':
+           result = "^6admin loaded devmap";
+           break;
+         default:
+           result = "";
+           break;
+       }
+       ptr += 2;
+       colon = strchr( ptr, ';' );
+       if ( colon )
+       {
+         clock = ptr;
+         ptr = colon + 1;
+         *colon = '\0';
+ 
+         // right justification with -6%s doesnt work..
+         if( clock[ 0 ] == '0' && clock[ 1 ] != ':' )
+         {
+           if( clock[ 1 ] == '0' && clock[ 2 ] != ':' )
+             clock[ 1 ] = ' ';
+           clock[ 0 ] = ' ';
+         }
+       }
+     }
+     else if( count == 0 )
+     {
+       result = "^3current map";
+       clock = "  -:--";
      }
  
-      if( ptr[ 0 ] && ptr[ 1 ] == ';' )
-      {
-        switch( ptr[ 0 ] )
-        {
-          case 't':
-            result = "^7tie";
-            break;
-          case 'a':
-            result = "^1Alien win";
-            break;
-          case 'A':
-            result = "^1Alien win ^7/ Humans admitted defeat";
-            break;
-          case 'h':
-            result = "^4Human win";
-            break;
-          case 'H':
-            result = "^4Human win ^7/ Aliens admitted defeat";
-            break;
-          case 'd':
-            result = "^5draw vote";
-            break;
-          case 'N':
-            result = "^6admin loaded next map";
-            break;
-          case 'r':
-            result = "^2restart vote";
-            break;
-          case 'R':
-            result = "^6admin restarted map";
-            break;
-          case 'm':
-            result = "^2map vote";
-            break;
-          case 'M':
-            result = "^6admin changed map";
-            break;
-          case 'D':
-            result = "^6admin loaded devmap";
-            break;
-          default:
-            result = "";
-            break;
-        }
-        ptr += 2;
-        colon = strchr( ptr, ';' );
-        if ( colon )
-        {
-          clock = ptr;
-          ptr = colon + 1;
-          *colon = '\0';
-  
-          // right justification with -6%s doesnt work..
-          if( clock[ 0 ] == '0' && clock[ 1 ] != ':' )
-          {
-            if( clock[ 1 ] == '0' && clock[ 2 ] != ':' )
-              clock[ 1 ] = ' ';
-            clock[ 0 ] = ' ';
-          }
-        }
-      }
-      else if( count == 0 )
-      {
-        result = "^3current map";
-        clock = "  -:--";
-      }
-  
-      ADMBP( va( "%s%20s %-6s %s^7\n",
-        ( count == 0 ) ? "^3" : "^7",
-        ptr,
-        ( clock ) ? clock : "",
-        ( result ) ? result : "" ) );
- 
-     ptr = end;
-     count++;
-   }
-   ADMBP_end( );
- 
-   return qtrue;
- }
+     ADMBP( va( "%s%20s %-6s %s^7\n",
+       ( count == 0 ) ? "^3" : "^7",
+       ptr,
+       ( clock ) ? clock : "",
+       ( result ) ? result : "" ) );
+
+    ptr = end;
+    count++;
+  }
+  ADMBP_end( );
+
+  return qtrue;
+}
 
 qboolean G_admin_layoutsave( gentity_t *ent, int skiparg )
 {
@@ -3178,7 +3178,6 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
 
     }
 
-     
      if( G_admin_permission(ent, ADMF_SEESFULLLISTPLAYERS ) ) {
  
       ADMBP( va( "%2i %s%s^7 %-2i %s^7 (*%s) ^1%1s%1s%1s^7 %s^7 %s%s^7%s\n",
@@ -3390,18 +3389,18 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
     }
 
     if (!numeric)
-      {
+    {
       G_SanitiseName( skip, name_match );
-      }
+    }
     else if( strchr( skip, '.' ) != NULL )
-      {
+    {
       ip_match = skip;
       ip_match_len = strlen(ip_match);
-      }
+    }
     else
-      {
+    {
       start = atoi( skip );
-      }
+    }
     // showbans 1 means start with ban 0
     if( start > 0 )
       start -= 1;
@@ -3419,9 +3418,9 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
 
     if (!numeric)
       {
-      G_SanitiseName( g_admin_bans[ i ]->name, n1 );
-      if (strstr( n1, name_match) )
-        match = qtrue;
+        G_SanitiseName( g_admin_bans[ i ]->name, n1 );
+        if (strstr( n1, name_match) )
+          match = qtrue;
       }
 
     if ( ( match ) || !ip_match
@@ -3549,7 +3548,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
       // show 6 commands per line
       if( j == 6 )
       {
-  ADMBP( "\n" );
+        ADMBP( "\n" );
         j = 0;
       }
     }
@@ -3563,7 +3562,7 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
       // show 6 commands per line
       if( j == 6 )
       {
-  ADMBP( "\n" );
+        ADMBP( "\n" );
         j = 0;
       }
     }
@@ -3589,15 +3588,12 @@ qboolean G_admin_help( gentity_t *ent, int skiparg )
       strcat( additional, " /share /donate" );
     
     if( count )
-  ADMBP( "\n" );
+      ADMBP( "\n" );
     ADMBP( va( "^3!help: ^7%i available commands\n", count ) );
     ADMBP( "run !help [^3command^7] for help with a specific command.\n" );
     ADMBP( va( "%s\n", additional ) );
     ADMBP_end();
     
-    
-   
-
     return qtrue;
   }
   else
@@ -4217,49 +4213,46 @@ qboolean G_admin_designate( gentity_t *ent, int skiparg )
 }
 
  //!Warn by Gate (Daniel Evans) 
- qboolean G_admin_warn( gentity_t *ent, int skiparg )
- {//mostly copy and paste with the proper lines altered from !mute and !kick
- 
- 
-   int pids[ MAX_CLIENTS ];
-   char name[ MAX_NAME_LENGTH ], *reason, err[ MAX_STRING_CHARS ];
-   int minargc;
-   gentity_t *vic;
- 
-   minargc = 3 + skiparg;
-   if( G_admin_permission( ent, ADMF_UNACCOUNTABLE ) )
-     minargc = 2 + skiparg;
- 
-   if( G_SayArgc() < minargc )
-   {
-     ADMP( "^3!warn: ^7usage: warn [name] [reason]\n" );
-     return qfalse;
-   }
-   G_SayArgv( 1 + skiparg, name, sizeof( name ) );
-   reason = G_SayConcatArgs( 2 + skiparg );
-   if( G_ClientNumbersFromString( name, pids ) != 1 )
-   {
-     G_MatchOnePlayer( pids, err, sizeof( err ) );
-     ADMP( va( "^3!warn: ^7%s\n", err ) );
-     return qfalse;
-   }
-   if( !admin_higher( ent, &g_entities[ pids[ 0 ] ] ) )
-   {
-     ADMP( "^3!warn: ^7sorry, but your intended victim has a higher admin"
-         " level than you.\n" );
-     return qfalse;
-   }
-  
-   vic = &g_entities[ pids[ 0 ] ];
-   //next line is the onscreen warning
-   CPx( pids[ 0 ],va("cp \"^1You have been warned by an administrator.\n ^3Cease immediately or face admin action!\n^1 %s%s\"",(*reason)? "REASON: " : "" ,(*reason)? reason : "") );
-   AP( va( "print \"^3!warn: ^7%s^7 has been warned to cease and desist: %s by %s \n\"",
-             vic->client->pers.netname, (*reason) ? reason : "his current activity",
-             ( ent ) ? G_admin_adminPrintName( ent ) : "console" ) );//console announcement
-   return qtrue;
- }
- 
+qboolean G_admin_warn( gentity_t *ent, int skiparg )
+{//mostly copy and paste with the proper lines altered from !mute and !kick
+  int pids[ MAX_CLIENTS ];
+  char name[ MAX_NAME_LENGTH ], *reason, err[ MAX_STRING_CHARS ];
+  int minargc;
+  gentity_t *vic;
 
+  minargc = 3 + skiparg;
+  if( G_admin_permission( ent, ADMF_UNACCOUNTABLE ) )
+    minargc = 2 + skiparg;
+
+  if( G_SayArgc() < minargc )
+  {
+    ADMP( "^3!warn: ^7usage: warn [name] [reason]\n" );
+    return qfalse;
+  }
+  G_SayArgv( 1 + skiparg, name, sizeof( name ) );
+  reason = G_SayConcatArgs( 2 + skiparg );
+  if( G_ClientNumbersFromString( name, pids ) != 1 )
+  {
+    G_MatchOnePlayer( pids, err, sizeof( err ) );
+    ADMP( va( "^3!warn: ^7%s\n", err ) );
+    return qfalse;
+  }
+  if( !admin_higher( ent, &g_entities[ pids[ 0 ] ] ) )
+  {
+    ADMP( "^3!warn: ^7sorry, but your intended victim has a higher admin"
+        " level than you.\n" );
+    return qfalse;
+  }
+ 
+  vic = &g_entities[ pids[ 0 ] ];
+  //next line is the onscreen warning
+  CPx( pids[ 0 ],va("cp \"^1You have been warned by an administrator.\n ^3Cease immediately or face admin action!\n^1 %s%s\"",(*reason)? "REASON: " : "" ,(*reason)? reason : "") );
+  AP( va( "print \"^3!warn: ^7%s^7 has been warned to cease and desist: %s by %s \n\"",
+            vic->client->pers.netname, (*reason) ? reason : "his current activity",
+            ( ent ) ? G_admin_adminPrintName( ent ) : "console" ) );//console announcement
+  return qtrue;
+}
+ 
 qboolean G_admin_putmespec( gentity_t *ent, int skiparg )
 {
   if( !ent )
