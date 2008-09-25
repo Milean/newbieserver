@@ -389,7 +389,7 @@ qboolean G_admin_permission_guid( char *guid, char flag )
 qboolean G_admin_permission( gentity_t *ent, char flag )
 {
   if(!ent) return qtrue; //console always wins
-  if(!ent->client->pers.guid) return qfalse; //if we have no guid, and we are not console, we lose.
+  if(!ent->client->pers.guid[0]) return qfalse; //if we have no guid, and we are not console, we lose.
 
   return G_admin_permission_guid(ent->client->pers.guid, flag);
 }
