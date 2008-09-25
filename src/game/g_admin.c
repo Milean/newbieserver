@@ -234,7 +234,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
 
     {"showbans", G_admin_showbans, "B",
       "display a (partial) list of active bans",
-      "(^5start at ban#^7|name|IP)"
+      "(^5start at ban#^7) (^5name|IP|'-subnet'^7)"
     },
 
     {"spec999", G_admin_spec999, "P",
@@ -3351,7 +3351,7 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
   int max_name = 1, max_banner = 1;
   int secs;
   int start = 0;
-  char skip[ MAX_NAME_LENGTH ];
+  char filter[ MAX_NAME_LENGTH ];
   char date[ 11 ];
   char *made;
   int j;
@@ -3362,6 +3362,7 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
   int ip_match_len = 0;
   char name_match[ MAX_NAME_LENGTH ] = {""};
   int show_count = 0;
+  qboolean subnetfilter = qfalse;
 
   t = trap_RealTime( NULL );
 
@@ -3375,13 +3376,18 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
     found++;
   }
 
-  if( G_SayArgc() < 3 + skiparg )
+  if( G_SayArgc() >= 2 + skiparg )
   {
-    G_SayArgv( 1 + skiparg, skip, sizeof( skip ) );
-    for( i = 0; i < sizeof( skip ) && skip[ i ] ; i++ )
+    G_SayArgv( 1 + skiparg, filter, sizeof( filter ) );
+    if( G_SayArgc() >= 3 + skiparg )
     {
-      if( ( skip[ i ] < '0' || skip[ i ] > '9' )
-        && skip[ i ] != '.' && skip[ i ] != '-' )
+      start = atoi( filter );
+      G_SayArgv( 2 + skiparg, filter, sizeof( filter ) );
+    }
+    for( i = 0; i < sizeof( filter ) && filter[ i ] ; i++ )
+    {
+      if( ( filter[ i ] < '0' || filter[ i ] > '9' )
+        && filter[ i ] != '.' && filter[ i ] != '-' )
       {
         numeric = qfalse;
         break;
@@ -3390,16 +3396,33 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
 
     if (!numeric)
     {
-      G_SanitiseName( skip, name_match );
+      if( filter[ 0 ] != '-' )
+      {
+        G_SanitiseName( filter, name_match );
+
+      }
+      else
+      {
+        if( !Q_strncmp( filter, "-sub", 4 ) )
+        {
+          subnetfilter = qtrue;
+        }
+        else
+        {
+          ADMP( va( "^3!showbans: ^7invalid argument %s\n", filter ) );
+          return qfalse;
+        }
+      }
     }
-    else if( strchr( skip, '.' ) != NULL )
+    else if( strchr( filter, '.' ) != NULL )
     {
-      ip_match = skip;
+      ip_match = filter;
       ip_match_len = strlen(ip_match);
     }
     else
     {
-      start = atoi( skip );
+      start = atoi( filter );
+      filter[0] = '\0';
     }
     // showbans 1 means start with ban 0
     if( start > 0 )
@@ -3407,7 +3430,7 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
     else if( start < 0 )
       start = found + start;
   }
-
+  
   if( start >= MAX_ADMIN_BANS || start < 0 )
     start = 0;
 
@@ -3418,9 +3441,23 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
 
     if (!numeric)
       {
-        G_SanitiseName( g_admin_bans[ i ]->name, n1 );
-        if (strstr( n1, name_match) )
-          match = qtrue;
+        if( !subnetfilter )
+        {
+          G_SanitiseName( g_admin_bans[ i ]->name, n1 );
+          if (strstr( n1, name_match) )
+            match = qtrue;
+        }
+        else
+        {
+          int mask = -1;
+          int dummy;
+          int scanflen = 0;
+          scanflen = sscanf( g_admin_bans[ i ]->ip, "%d.%d.%d.%d/%d", &dummy, &dummy, &dummy, &dummy, &mask );
+          if( scanflen == 5 && mask < 32 )
+          {
+            match = qtrue;
+          }
+        }
       }
 
     if ( ( match ) || !ip_match
@@ -3455,9 +3492,23 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
 
     if (!numeric)
     {
-      G_SanitiseName( g_admin_bans[ i ]->name, n1 );
-      if ( strstr ( n1, name_match ) == NULL )
-        continue;
+      if( !subnetfilter )
+      {
+        G_SanitiseName( g_admin_bans[ i ]->name, n1 );
+        if ( strstr ( n1, name_match ) == NULL )
+          continue;
+      }
+      else
+      {
+        int mask = -1;
+        int dummy;
+        int scanflen = 0;
+        scanflen = sscanf( g_admin_bans[ i ]->ip, "%d.%d.%d.%d/%d", &dummy, &dummy, &dummy, &dummy, &mask );
+        if( scanflen != 5 || mask >= 32 )
+        {
+          continue;
+        }
+      }
     }
     else if( ip_match != NULL
       && Q_strncmp( ip_match, g_admin_bans[ i ]->ip, ip_match_len ) != 0)
@@ -3504,9 +3555,18 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
 
   if (!numeric || ip_match)
   {
+    char matchmethod[50];
+    if( numeric ) 
+      Com_sprintf( matchmethod, sizeof(matchmethod), "IP" );
+    else if( !subnetfilter )
+      Com_sprintf( matchmethod, sizeof(matchmethod), "name" );
+    else
+      Com_sprintf( matchmethod, sizeof(matchmethod), "ip range size" );
+
+
     ADMBP( va( "^3!showbans:^7 found %d matching bans by %s.  ",
              show_count,
-             (numeric) ? "IP" : "name" ) );
+             matchmethod ) );
   }
   else
   {
@@ -3515,11 +3575,13 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
              ( ( start + MAX_ADMIN_SHOWBANS ) > found ) ?
              found : ( start + MAX_ADMIN_SHOWBANS ),
              found ) );
-    if( ( start + MAX_ADMIN_SHOWBANS ) < found )
-    {
-      ADMBP( va( "run !showbans %d to see more",
-               ( start + MAX_ADMIN_SHOWBANS + 1 ) ) );
-    }
+  }
+
+  if( ( start + MAX_ADMIN_SHOWBANS ) < found )
+  {
+    ADMBP( va( "run !showbans %d %s to see more",
+             ( start + MAX_ADMIN_SHOWBANS + 1 ),
+             (filter) ? filter : "" ) );
   }
   ADMBP( "\n" );
   ADMBP_end();
