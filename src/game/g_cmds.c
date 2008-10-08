@@ -663,6 +663,13 @@ void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
 
   G_LeaveTeam( ent );
   ent->client->pers.teamSelection = newTeam;
+
+  // G_LeaveTeam() calls G_StopFollowing() which sets spec mode to free. 
+  // Undo that in this case, or else people can freespec while in the spawn queue on their new team
+  if( newTeam != PTE_NONE )
+  {
+    ent->client->sess.spectatorState = SPECTATOR_LOCKED;
+  }
   
   
   if ( ( level.numAlienClients - level.numHumanClients > 2 && oldTeam==PTE_ALIENS && newTeam == PTE_HUMANS && level.numHumanSpawns>0 ) ||
