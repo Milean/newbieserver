@@ -829,6 +829,10 @@ static void ClientCleanName( const char *in, char *out, int outSize )
     if( !*p && ch == ' ' )
       continue;
 
+    // don't allow nonprinting characters or (dead) console keys
+    if( ch < ' ' || ch > '}' || ch == '`' )
+      continue;
+
     // check colors
     if( ch == Q_COLOR_ESCAPE )
     {

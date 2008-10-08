@@ -3616,6 +3616,7 @@ void G_StopFollowing( gentity_t *ent )
   {
     ent->client->sess.spectatorState = SPECTATOR_FREE;
     ent->client->ps.pm_type = PM_SPECTATOR;
+    ent->client->ps.stats[ STAT_HEALTH ] = 100; // hacky server-side fix to prevent cgame from viewlocking a freespec
   }
   else
   {
