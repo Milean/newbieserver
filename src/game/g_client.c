@@ -1199,6 +1199,12 @@ void ClientUserinfoChanged( int clientNum )
   else
     client->pers.teamInfo = qfalse;
 
+  s = Info_ValueForKey( userinfo, "cg_unlagged" );
+  if( !s[0] || atoi( s ) != 0 )
+    client->useUnlagged = qtrue;
+  else
+    client->useUnlagged = qfalse;
+
   // team task (0 = none, 1 = offence, 2 = defence)
   teamTask = atoi( Info_ValueForKey( userinfo, "teamtask" ) );
   // team Leader (1 = leader, 0 is normal player)

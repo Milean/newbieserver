@@ -239,6 +239,7 @@ vmCvar_t  cg_debugRandom;
 
 vmCvar_t  cg_optimizePrediction;
 vmCvar_t  cg_projectileNudge;
+vmCvar_t  cg_unlagged;
 
 
 typedef struct
@@ -325,6 +326,7 @@ static cvarTable_t cvarTable[ ] =
   { &cg_wwSmoothTime, "cg_wwSmoothTime", "300", CVAR_ARCHIVE },
   { &cg_wwFollow, "cg_wwFollow", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_wwToggle, "cg_wwToggle", "1", CVAR_ARCHIVE|CVAR_USERINFO },
+  { &cg_unlagged, "cg_unlagged", "1", CVAR_ARCHIVE|CVAR_USERINFO },
   { &cg_depthSortParticles, "cg_depthSortParticles", "1", CVAR_ARCHIVE },
   { &cg_bounceParticles, "cg_bounceParticles", "0", CVAR_ARCHIVE },
   { &cg_consoleLatency, "cg_consoleLatency", "3000", CVAR_ARCHIVE },

@@ -184,7 +184,7 @@ void meleeAttack( gentity_t *ent, float range, float width, int damage, meansOfD
 
   VectorMA( muzzle, range, forward, end );
 
-  G_UnlaggedOn( muzzle, range );
+  G_UnlaggedOn( ent, muzzle, range );
   trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
   G_UnlaggedOff( );
 
@@ -234,7 +234,7 @@ void bulletFire( gentity_t *ent, float spread, int damage, int mod )
   // don't use unlagged if this is not a client (e.g. turret)
   if( ent->client )
   {
-    G_UnlaggedOn( muzzle, 8192 * 16 );
+    G_UnlaggedOn( ent, muzzle, 8192 * 16 );
     trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
     G_UnlaggedOff( );
   }
@@ -325,7 +325,7 @@ void shotgunFire( gentity_t *ent )
   SnapVector( tent->s.origin2 );
   tent->s.eventParm = rand() & 255;    // seed for spread pattern
   tent->s.otherEntityNum = ent->s.number;
-  G_UnlaggedOn( muzzle, 8192 * 16 );
+  G_UnlaggedOn( ent, muzzle, 8192 * 16 );
   ShotgunPattern( tent->s.pos.trBase, tent->s.origin2, tent->s.eventParm, ent );
   G_UnlaggedOff();
 }
@@ -347,7 +347,7 @@ void massDriverFire( gentity_t *ent )
 
   VectorMA( muzzle, 8192 * 16, forward, end );
 
-  G_UnlaggedOn( muzzle, 8192 * 16 );
+  G_UnlaggedOn( ent, muzzle, 8192 * 16 );
   trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
   G_UnlaggedOff( );
 
@@ -503,7 +503,7 @@ void lasGunFire( gentity_t *ent )
 
   VectorMA( muzzle, 8192 * 16, forward, end );
 
-  G_UnlaggedOn( muzzle, 8192 * 16 );
+  G_UnlaggedOn( ent, muzzle, 8192 * 16 );
   trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
   G_UnlaggedOff( );
 
@@ -558,7 +558,7 @@ void painSawFire( gentity_t *ent )
 
   VectorMA( muzzle, PAINSAW_RANGE, forward, end );
 
-  G_UnlaggedOn( muzzle, PAINSAW_RANGE );
+  G_UnlaggedOn( ent, muzzle, PAINSAW_RANGE );
   trap_Trace( &tr, muzzle, NULL, NULL, end, ent->s.number, MASK_SHOT );
   G_UnlaggedOff( );
 
@@ -838,7 +838,7 @@ qboolean CheckVenomAttack( gentity_t *ent )
 
   VectorMA( muzzle, LEVEL0_BITE_RANGE, forward, end );
 
-  G_UnlaggedOn( muzzle, LEVEL0_BITE_RANGE );
+  G_UnlaggedOn( ent, muzzle, LEVEL0_BITE_RANGE );
   trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
   G_UnlaggedOff( );
 
@@ -974,7 +974,7 @@ void poisonCloud( gentity_t *ent )
   VectorAdd( ent->client->ps.origin, range, maxs );
   VectorSubtract( ent->client->ps.origin, range, mins );
 
-  G_UnlaggedOn( ent->client->ps.origin, LEVEL1_PCLOUD_RANGE );
+  G_UnlaggedOn( ent, ent->client->ps.origin, LEVEL1_PCLOUD_RANGE );
   num = trap_EntitiesInBox( mins, maxs, entityList, MAX_GENTITIES );
   for( i = 0; i < num; i++ )
   {
@@ -1268,7 +1268,7 @@ void areaZapFire( gentity_t *ent )
 
   VectorMA( muzzle, LEVEL2_AREAZAP_RANGE, forward, end );
 
-  G_UnlaggedOn( muzzle, LEVEL2_AREAZAP_RANGE );
+  G_UnlaggedOn( ent, muzzle, LEVEL2_AREAZAP_RANGE );
   trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
   G_UnlaggedOff( );
 
@@ -1330,7 +1330,7 @@ qboolean CheckPounceAttack( gentity_t *ent )
 
   VectorMA( muzzle, LEVEL3_POUNCE_RANGE, forward, end );
 
-  G_UnlaggedOn( muzzle, LEVEL3_POUNCE_RANGE );
+  G_UnlaggedOn( ent, muzzle, LEVEL3_POUNCE_RANGE );
   trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
   G_UnlaggedOff( );
 

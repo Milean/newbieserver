@@ -1531,6 +1531,7 @@ extern  vmCvar_t    cg_debugRandom;
 
 extern  vmCvar_t    cg_optimizePrediction;
 extern  vmCvar_t    cg_projectileNudge;
+extern  vmCvar_t    cg_unlagged;
 
 //
 // cg_main.c
