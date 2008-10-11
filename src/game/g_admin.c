@@ -447,14 +447,7 @@ qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len )
   {
     if( Q_isalpha( name2[ i ] ) )
      alphaCount++;
-    if( name2[ i ] == '/' )
-    {
-      if( name2[ i + 1 ] == '/' || name2[ i + 1 ] == '*' )
-      {
-        Q_strncpyz( err, "Names cannot contain '//' or '/*'. Please choose another.", len );
-        return qfalse;
-      }
-    }
+
     if( name2[ i ] == ' ' )
     {
       if( name2[ i + 1 ] == '-' )

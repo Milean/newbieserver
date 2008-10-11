@@ -809,6 +809,7 @@ static void ClientCleanName( const char *in, char *out, int outSize )
   char  ch;
   char  *p;
   int   spaces;
+  qboolean invalid = qfalse;
 
   //save room for trailing null byte
   outSize--;
@@ -879,10 +880,18 @@ static void ClientCleanName( const char *in, char *out, int outSize )
 
   // don't allow names beginning with "[skipnotify]" because it messes up /ignore-related code
   if( !Q_strncmp( p, "[skipnotify]", 12 ) )
-    Com_sprintf( p, outSize, "%s", p+12 );
+    invalid = qtrue;
+
+  // don't allow comment-beginning strings because it messes up various parsers
+  if( strstr( p, "//" ) || strstr( p, "/*" ) )
+    invalid = qtrue;
 
   // don't allow empty names
   if( *p == 0 || colorlessLen == 0 )
+    invalid = qtrue;
+
+  // if something made the name bad, put them back to UnnamedPlayer
+  if( invalid )
     Q_strncpyz( p, "UnnamedPlayer", outSize );
 }
 
