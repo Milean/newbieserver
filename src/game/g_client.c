@@ -877,6 +877,10 @@ static void ClientCleanName( const char *in, char *out, int outSize )
 
   *out = 0;
 
+  // don't allow names beginning with "[skipnotify]" because it messes up /ignore-related code
+  if( !Q_strncmp( p, "[skipnotify]", 12 ) )
+    Com_sprintf( p, outSize, "%s", p+12 );
+
   // don't allow empty names
   if( *p == 0 || colorlessLen == 0 )
     Q_strncpyz( p, "UnnamedPlayer", outSize );
