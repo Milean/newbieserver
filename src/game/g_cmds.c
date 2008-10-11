@@ -53,7 +53,7 @@ void G_SanitiseName( char *in, char *out )
       skip = qfalse;
     }
     
-    if( *in == 27 || *in == '^' )
+    if( Q_IsColorString( in ) )
     {
       in += 2;    // skip color code
       continue;

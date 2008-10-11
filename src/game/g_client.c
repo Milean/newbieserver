@@ -835,26 +835,28 @@ static void ClientCleanName( const char *in, char *out, int outSize )
       continue;
 
     // check colors
-    if( ch == Q_COLOR_ESCAPE )
+    if( Q_IsColorString( in - 1 ) )
     {
-      // solo trailing carat is not a color prefix
-      if( !*in )
-        break;
-
-      // don't allow black in a name, period
-      if( ColorIndex( *in ) == 0 )
-      {
-        in++;
-        continue;
-      }
-
       // make sure room in dest for both chars
       if( len > outSize - 2 )
         break;
 
       *out++ = ch;
-      *out++ = *in++;
       len += 2;
+
+      // solo trailing carat is not a color prefix
+      if( !*in ) {
+        *out++ = COLOR_WHITE;
+        break;
+      }
+
+      // don't allow black in a name, period
+      if( ColorIndex( *in ) == 0 )
+        *out++ = COLOR_WHITE;
+      else
+        *out++ = *in;
+
+      in++;
       continue;
     }
 
