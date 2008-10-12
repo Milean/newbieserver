@@ -704,45 +704,50 @@ void ASpawn_Think( gentity_t *self )
       if( ( ent = G_CheckSpawnPoint( self->s.number, self->s.origin,
               self->s.origin2, BA_A_SPAWN, NULL ) ) != NULL )
       {
-        if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD ||
-            ent->s.eType == ET_MOVER )
+        // If the thing blocking the spawn is a buildable, kill it. 
+        // If it's part of the map, kill self. 
+        if( ent->s.eType == ET_BUILDABLE )
+        {
+          G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+          G_SetBuildableAnim( self, BANIM_SPAWN1, qtrue );
+        }
+        else if( ent->s.number == ENTITYNUM_WORLD || ent->s.eType == ET_MOVER )
         {
           G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
           return;
         }
-    else if( g_antiSpawnBlock.integer && ent->client && 
-         ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
-    {
-      //spawnblock protection
-      if( self->spawnBlockTime && level.time - self->spawnBlockTime > 10000 )
-      {
-        //five seconds of countermeasures and we're still blocked
-        //time for something more drastic
-        G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_TRIGGER_HURT );
-        self->spawnBlockTime += 2000;
-        //inappropriate MOD but prints an apt obituary
-      }
-      else if( self->spawnBlockTime && level.time - self->spawnBlockTime > 5000 )
-        //five seconds of blocked by client and...
-      {
-        //random direction
-        vec3_t velocity;
-        velocity[0] = crandom() * g_antiSpawnBlock.integer;
-        velocity[1] = crandom() * g_antiSpawnBlock.integer;
-        velocity[2] = g_antiSpawnBlock.integer;
-            
-        VectorAdd( ent->client->ps.velocity, velocity, ent->client->ps.velocity );
-        trap_SendServerCommand( ent-g_entities, "cp \"Don't spawn block!\"" );
-      }
-      else if( !self->spawnBlockTime )
-        self->spawnBlockTime = level.time;
-        }
-
-        if( ent->s.eType == ET_CORPSE )
-          G_FreeEntity( ent ); //quietly remove
+        else if( g_antiSpawnBlock.integer && ent->client && 
+                 ent->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+        {
+          //spawnblock protection
+          if( self->spawnBlockTime && level.time - self->spawnBlockTime > 10000 )
+          {
+            //five seconds of countermeasures and we're still blocked
+            //time for something more drastic
+            G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_TRIGGER_HURT );
+            self->spawnBlockTime += 2000;
+            //inappropriate MOD but prints an apt obituary
+          }
+          else if( self->spawnBlockTime && level.time - self->spawnBlockTime > 5000 )
+          //five seconds of blocked by client and...
+          {
+            //random direction
+            vec3_t velocity;
+            velocity[0] = crandom() * g_antiSpawnBlock.integer;
+            velocity[1] = crandom() * g_antiSpawnBlock.integer;
+            velocity[2] = g_antiSpawnBlock.integer;
+                
+            VectorAdd( ent->client->ps.velocity, velocity, ent->client->ps.velocity );
+            trap_SendServerCommand( ent-g_entities, "cp \"Don't spawn block!\"" );
+          }
+          else if( !self->spawnBlockTime )
+            self->spawnBlockTime = level.time;
+       }
+       if( ent->s.eType == ET_CORPSE )
+         G_FreeEntity( ent ); //quietly remove
       }
       else
-    self->spawnBlockTime = 0;
+       self->spawnBlockTime = 0;
     }
   }
 
@@ -2481,38 +2486,44 @@ void HSpawn_Think( gentity_t *self )
       if( ( ent = G_CheckSpawnPoint( self->s.number, self->s.origin,
               self->s.origin2, BA_H_SPAWN, NULL ) ) != NULL )
       {
-        if( ent->s.eType == ET_BUILDABLE || ent->s.number == ENTITYNUM_WORLD ||
-            ent->s.eType == ET_MOVER )
+        // If the thing blocking the spawn is a buildable, kill it. 
+        // If it's part of the map, kill self. 
+        if( ent->s.eType == ET_BUILDABLE )
+        {
+          G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
+          G_SetBuildableAnim( self, BANIM_SPAWN1, qtrue );
+        }
+        else if( ent->s.number == ENTITYNUM_WORLD || ent->s.eType == ET_MOVER )
         {
           G_Damage( self, NULL, NULL, NULL, NULL, 10000, 0, MOD_SUICIDE );
           return;
         }
-    else if( g_antiSpawnBlock.integer && ent->client && 
-         ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
-    {
-      //spawnblock protection
-      if( self->spawnBlockTime && level.time - self->spawnBlockTime > 10000 )
-      {
-        //five seconds of countermeasures and we're still blocked
-        //time for something more drastic
-        G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_TRIGGER_HURT );
-        self->spawnBlockTime += 2000;
-        //inappropriate MOD but prints an apt obituary
-      }
-      else if( self->spawnBlockTime && level.time - self->spawnBlockTime > 5000 )
-        //five seconds of blocked by client and...
-      {
-        //random direction
-        vec3_t velocity;
-        velocity[0] = crandom() * g_antiSpawnBlock.integer;
-        velocity[1] = crandom() * g_antiSpawnBlock.integer;
-        velocity[2] = g_antiSpawnBlock.integer;
-            
-        VectorAdd( ent->client->ps.velocity, velocity, ent->client->ps.velocity );
-        trap_SendServerCommand( ent-g_entities, "cp \"Don't spawn block!\"" );
-      }
-      else if( !self->spawnBlockTime )
-        self->spawnBlockTime = level.time;
+        else if( g_antiSpawnBlock.integer && ent->client && 
+                 ent->client->ps.stats[ STAT_PTEAM ] == PTE_HUMANS )
+        {
+          //spawnblock protection
+          if( self->spawnBlockTime && level.time - self->spawnBlockTime > 10000 )
+          {
+            //five seconds of countermeasures and we're still blocked
+            //time for something more drastic
+            G_Damage( ent, NULL, NULL, NULL, NULL, 10000, 0, MOD_TRIGGER_HURT );
+            self->spawnBlockTime += 2000;
+            //inappropriate MOD but prints an apt obituary
+          }
+          else if( self->spawnBlockTime && level.time - self->spawnBlockTime > 5000 )
+            //five seconds of blocked by client and...
+          {
+            //random direction
+            vec3_t velocity;
+            velocity[0] = crandom() * g_antiSpawnBlock.integer;
+            velocity[1] = crandom() * g_antiSpawnBlock.integer;
+            velocity[2] = g_antiSpawnBlock.integer;
+                
+            VectorAdd( ent->client->ps.velocity, velocity, ent->client->ps.velocity );
+            trap_SendServerCommand( ent-g_entities, "cp \"Don't spawn block!\"" );
+          }
+          else if( !self->spawnBlockTime )
+            self->spawnBlockTime = level.time;
         }
 
         if( ent->s.eType == ET_CORPSE )
