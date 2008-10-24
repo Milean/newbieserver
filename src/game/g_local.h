@@ -413,7 +413,8 @@ typedef struct
   char                adminName[ MAX_NETNAME ];
   qboolean            designatedBuilder;
   qboolean            firstConnect;        // This is the first map since connect
-  statsCounters_t statscounters;
+  qboolean            useUnlagged;
+  statsCounters_t     statscounters;
 } clientPersistant_t;
 
 #define MAX_UNLAGGED_MARKERS 10
@@ -520,7 +521,6 @@ struct gclient_s
   unlagged_t          unlaggedBackup;
   unlagged_t          unlaggedCalc;
   int                 unlaggedTime;
-  qboolean            useUnlagged;
   
   int               tkcredits[ MAX_CLIENTS ];
 
