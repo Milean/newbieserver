@@ -4124,7 +4124,7 @@ static void Cmd_Ignore_f( gentity_t *ent )
        {
          trap_SendServerCommand( ent-g_entities,
            "print \"usage: share [name|slot#] [amount]\n\"" );
-         break;
+         return;
        }
      }
  
@@ -4924,7 +4924,7 @@ void G_CP( gentity_t *ent )
     }
 
       trap_SendServerCommand( i, va( "cp \"%s\"", wrappedtext ) );
-      trap_SendServerCommand( i, va( "print \"CP%s: %s\n\"", prefixes, text ) );
+      trap_SendServerCommand( i, va( "print \"%s^7 CP%s: %s\n\"", ( ent ? G_admin_adminPrintName( ent ) : "console" ), prefixes, text ) );
     }
 
      G_Printf( "cp: %s\n", ConcatArgs( 1 ) );

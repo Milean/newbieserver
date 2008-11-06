@@ -112,7 +112,7 @@ g_admin_cmd_t g_admin_cmds[ ] =
 
     {"kick", G_admin_kick, "k",
       "kick a player with an optional reason",
-      "(^5reason^7)"
+      "[^3name|slot#^7] (^5reason^7)"
     },
     
     {"L0", G_admin_L0, "l",
@@ -1992,11 +1992,11 @@ qboolean G_admin_kick( gentity_t *ent, int skiparg )
 
  trap_SendServerCommand( pids[ 0 ],
   va( "disconnect \"You have been kicked.\n%s^7\nreason:\n%s\n%s\"",
-    ( ent ) ? va( "admin:\n%s", G_admin_adminPrintName( ent ) ) : "",
+    ( ent ) ? va( "admin:\n%s", G_admin_adminPrintName( ent ) ) : "admin\nconsole",
     ( *reason ) ? reason : "kicked by admin", notice ) );
   
   trap_DropClient( pids[ 0 ], va( "kicked%s^7, reason: %s",
-    ( ent ) ? va( " by %s", G_admin_adminPrintName( ent ) ) : "",
+    ( ent ) ? va( " by %s", G_admin_adminPrintName( ent ) ) : " by console",
     ( *reason ) ? reason : "kicked by admin" ) );
 
   return qtrue;
