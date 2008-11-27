@@ -116,7 +116,7 @@ typedef struct g_admin_ban
 {
   char name[ MAX_NAME_LENGTH ];
   char guid[ 33 ];
-  char ip[ 18 ];
+  char ip[ 20 ];
   char reason[ MAX_ADMIN_BAN_REASON ];
   char made[ 18 ]; // big enough for strftime() %c
   int expires;
