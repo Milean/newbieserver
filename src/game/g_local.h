@@ -808,7 +808,7 @@ void      G_DecolorString( char *in, char *out );
 void      G_ParseEscapedString( char *buffer );
 void      G_LeaveTeam( gentity_t *self );
 void      G_ChangeTeam( gentity_t *ent, pTeam_t newTeam );
-void      G_SanitiseName( char *in, char *out );
+void      G_SanitiseString( char *in, char *out, int len );
 void      G_PrivateMessage( gentity_t *ent );
 char      *G_statsString( statsCounters_t *sc, pTeam_t *pt );
 void      Cmd_Share_f( gentity_t *ent );

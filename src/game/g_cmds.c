@@ -25,17 +25,17 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 /*
 ==================
-G_SanitiseName
+G_SanitiseString
 
 Remove case and control characters from a player name
 ==================
 */
-void G_SanitiseName( char *in, char *out )
+void G_SanitiseString( char *in, char *out, int len )
 {
   qboolean skip = qtrue;
   int spaces = 0;
 
-  while( *in )
+  while( *in && len > 0 )
   {
     // strip leading white space
     if( *in == ' ' )
@@ -66,6 +66,7 @@ void G_SanitiseName( char *in, char *out )
     }
 
     *out++ = tolower( *in++ );
+    len--;
   }
   out -= spaces; 
   *out = 0;
@@ -103,14 +104,14 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
   }
 
   // check for a name match
-  G_SanitiseName( s, s2 );
+  G_SanitiseString( s, s2, sizeof( s2 ) );
 
   for( idnum = 0, cl = level.clients; idnum < level.maxclients; idnum++, cl++ )
   {
     if( cl->pers.connected == CON_DISCONNECTED )
       continue;
 
-    G_SanitiseName( cl->pers.netname, n2 );
+    G_SanitiseString( cl->pers.netname, n2, sizeof( s2 ) );
 
     if( !strcmp( n2, s2 ) )
       return idnum;
@@ -201,7 +202,7 @@ int G_ClientNumbersFromString( char *s, int *plist)
   }
 
   // now look for name matches
-  G_SanitiseName( s, s2 );
+  G_SanitiseString( s, s2, sizeof( s2 ) );
   if( strlen( s2 ) < 1 )
     return 0;
   for( i = 0; i < level.maxclients && found <= max; i++ )
@@ -211,7 +212,7 @@ int G_ClientNumbersFromString( char *s, int *plist)
     {
       continue;
     }
-    G_SanitiseName( p->pers.netname, n2 );
+    G_SanitiseString( p->pers.netname, n2, sizeof( n2 ) );
     if( strstr( n2, s2 ) )
     {
       *plist++ = i;
