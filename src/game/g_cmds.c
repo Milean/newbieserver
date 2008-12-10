@@ -111,7 +111,7 @@ int G_ClientNumberFromString( gentity_t *to, char *s )
     if( cl->pers.connected == CON_DISCONNECTED )
       continue;
 
-    G_SanitiseString( cl->pers.netname, n2, sizeof( s2 ) );
+    G_SanitiseString( cl->pers.netname, n2, sizeof( n2 ) );
 
     if( !strcmp( n2, s2 ) )
       return idnum;
