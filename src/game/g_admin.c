@@ -5052,7 +5052,6 @@ qboolean G_admin_L1(gentity_t *ent, int skiparg ){
   int pids[ MAX_CLIENTS ];
   char name[ MAX_NAME_LENGTH ], *reason, err[ MAX_STRING_CHARS ];
   int minargc;
-  gentity_t *vic;
 
   minargc = 2 + skiparg;
 
@@ -5075,8 +5074,7 @@ qboolean G_admin_L1(gentity_t *ent, int skiparg ){
     return qfalse;
   }
  
-  vic = &g_entities[ pids[ 0 ] ];
   trap_SendConsoleCommand( EXEC_APPEND,va( "!setlevel %d 1;", pids[ 0 ] ) );
-  ClientUserinfoChanged( pids[ 0 ] );
   return qtrue;
 }
+
