@@ -5044,7 +5044,6 @@ qboolean G_admin_L0(gentity_t *ent, int skiparg ){
   }
 
   trap_SendConsoleCommand( EXEC_APPEND, va( "!setlevel %d 0;", id ) );
-  ClientUserinfoChanged( pids[ 0 ] );
 
   return qtrue;
 }
