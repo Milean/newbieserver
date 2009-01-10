@@ -13,7 +13,7 @@ else
 endif
 
 CC=gcc
-Q3ASM_CFLAGS=-O2 -Wall -Werror -fno-strict-aliasing
+Q3ASM_CFLAGS=-O2 -Wall -fno-strict-aliasing
 
 ifeq ($(PLATFORM),darwin)
   LCC_CFLAGS += -DMACOS_X=1
