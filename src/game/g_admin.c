@@ -3570,7 +3570,7 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
   {
     ADMBP( va( "run !showbans %d %s to see more",
              ( start + MAX_ADMIN_SHOWBANS + 1 ),
-             (filter) ? filter : "" ) );
+             (filter[0]) ? filter : "" ) );
   }
   ADMBP( "\n" );
   ADMBP_end();
