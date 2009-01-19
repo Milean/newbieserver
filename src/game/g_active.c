@@ -393,6 +393,12 @@ void SpectatorThink( gentity_t *ent, usercmd_t *ucmd )
    attack3 = ( ( client->buttons & BUTTON_USE_HOLDABLE ) &&
                !( client->oldbuttons & BUTTON_USE_HOLDABLE ) );
 
+  //if bot
+  if( ent->r.svFlags & SVF_BOT ) {
+    G_BotSpectatorThink( ent );
+    return;
+  }
+
   if( client->sess.spectatorState == SPECTATOR_LOCKED || client->sess.spectatorState == SPECTATOR_FOLLOW )
     client->ps.pm_type = PM_FREEZE;
   else
@@ -570,6 +576,9 @@ void ClientTimerActions( gentity_t *ent, int msec )
 
   while ( client->time100 >= 100 )
   {
+    if( ent->r.svFlags & SVF_BOT )
+      G_BotThink( ent );
+
     client->time100 -= 100;
 
     //if not trying to run then not trying to sprint
@@ -1423,7 +1432,10 @@ void ClientThink_real( gentity_t *ent )
   //
   if( level.intermissiontime )
   {
-    ClientIntermissionThink( client );
+    if( ent->r.svFlags & SVF_BOT )
+      G_BotIntermissionThink( client );
+    else
+      ClientIntermissionThink( client );
     return;
   }
 
@@ -1810,14 +1822,14 @@ void ClientThink( int clientNum )
   // phone jack if they don't get any for a while
   ent->client->lastCmdTime = level.time;
 
-  if( !g_synchronousClients.integer )
+  if( !( ent->r.svFlags & SVF_BOT ) && !g_synchronousClients.integer )
     ClientThink_real( ent );
 }
 
 
 void G_RunClient( gentity_t *ent )
 {
-  if( !g_synchronousClients.integer )
+  if( !( ent->r.svFlags & SVF_BOT ) && !g_synchronousClients.integer )
     return;
 
   ent->client->pers.cmd.serverTime = level.time;

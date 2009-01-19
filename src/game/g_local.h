@@ -73,6 +73,19 @@ typedef enum
 } moverState_t;
 
 #define SP_PODIUM_MODEL   "models/mapobjects/podium/podium4.md3"
+typedef enum
+{
+  BOT_REGULAR = 1,
+  BOT_IDLE,
+  BOT_ATTACK,
+  BOT_STAND_GROUND,
+  BOT_DEFENSIVE,
+  BOT_FOLLOW_FRIEND_PROTECT,
+  BOT_FOLLOW_FRIEND_ATTACK,
+  BOT_FOLLOW_FRIEND_IDLE,
+  BOT_TEAM_KILLER,
+  BOT_REPAIR
+} botCommand_t;
 
 //============================================================================
 
@@ -186,6 +199,15 @@ struct gentity_s
   int               waterlevel;
 
   int               noise_index;
+
+  //for targeting following
+  botCommand_t		botCommand;
+  gentity_t         *botEnemy;
+  gentity_t         *botFriend;
+  int				botFriendLastSeen;
+  int				botEnemyLastSeen;
+  int				botSkillLevel;
+  int				botTeam;
 
   // timing variables
   float             wait;
@@ -789,6 +811,15 @@ qboolean  G_SpawnInt( const char *key, const char *defaultString, int *out );
 qboolean  G_SpawnVector( const char *key, const char *defaultString, float *out );
 void      G_SpawnEntitiesFromString( void );
 char      *G_NewString( const char *string );
+
+// g_bot.c
+//
+void G_BotAdd( char *name, int team, int skill );
+void G_BotDel( int clientNum );
+void G_BotCmd( gentity_t *master, int clientNum, char *command );
+void G_BotThink( gentity_t *self );
+void G_BotSpectatorThink( gentity_t *self );
+void G_BotIntermissionThink( gclient_t *client );
 
 //
 // g_cmds.c

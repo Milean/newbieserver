@@ -155,6 +155,8 @@ void G_admin_set_adminname( gentity_t *ent );
 char* G_admin_adminPrintName( gentity_t *ent );
 
 // ! command functions
+qboolean G_admin_bot( gentity_t *ent, int skiparg );
+qboolean G_admin_botcmd( gentity_t *ent, int skiparg );
 qboolean G_admin_time( gentity_t *ent, int skiparg );
 qboolean G_admin_setlevel( gentity_t *ent, int skiparg );
 qboolean G_admin_kick( gentity_t *ent, int skiparg );

@@ -1218,6 +1218,7 @@ GOBJ_ = \
   $(B)/base/game/g_ptr.o \
   $(B)/base/game/g_weapon.o \
   $(B)/base/game/g_admin.o \
+  $(B)/base/game/g_bot.o \
   \
   $(B)/base/qcommon/q_math.o \
   $(B)/base/qcommon/q_shared.o
