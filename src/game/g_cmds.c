@@ -2315,8 +2315,8 @@ void Cmd_SetViewpos_f( gentity_t *ent )
 }
 
 #define AS_OVER_RT3         ((ALIENSENSE_RANGE*0.5f)/M_ROOT3)
-
-static qboolean G_RoomForClassChange( gentity_t *ent, pClass_t class,
+// cicho-sza: removing static identifier, cause it crashed g_bot.c compilation
+/*static*/ qboolean G_RoomForClassChange( gentity_t *ent, pClass_t class,
   vec3_t newOrigin )
 {
   vec3_t    fromMins, fromMaxs;
@@ -2377,6 +2377,84 @@ static qboolean G_RoomForClassChange( gentity_t *ent, pClass_t class,
     return qfalse;
 }
 
+// cicho-sza add-on:
+/*
+=================
+IsLesson_BlockedEq
+=================
+*/
+/*
+ *  scans cvar g_lesson_BlockEqStr string value for occurance of class or equipment name
+ *  returns: true if weapon/class should be denided
+ */
+qboolean IsLesson_BlockedEq( char * ItemOrClassName )
+{
+  char BlockedEqStr[MAX_CVAR_VALUE_STRING+3];
+  char ItemToFind[MAX_CVAR_VALUE_STRING+3];
+
+  int i;
+  int p;
+  int cnt;
+
+  // sanity checks
+  if ((!ItemOrClassName) || (ItemOrClassName == ""))
+  {
+    return qfalse;
+  }
+
+
+  // normalise (remove whitespace, make , from ; etc) g_lesson_BlockEqStr value
+  BlockedEqStr[0] = ',';
+  p = 1;
+  i = 0;
+  cnt = strlen(g_lesson_BlockEqStr.string);
+  while (i<cnt)
+  {
+    if (g_lesson_BlockEqStr.string[i] != ' ')
+      {
+        if (g_lesson_BlockEqStr.string[i] == ';')
+          BlockedEqStr[p] = ',';
+        else
+          BlockedEqStr[p] = g_lesson_BlockEqStr.string[i];
+        p++;
+      }
+
+    i++;
+  }
+  BlockedEqStr[p]   = ',';
+  BlockedEqStr[p+1] = '\0';
+
+
+  // convert input parameter to ,something, string
+  ItemToFind[0] = ',';
+  p = 1;
+  i = 0;
+  cnt = strlen(ItemOrClassName);
+  while (i<cnt)
+  {
+    if (ItemOrClassName[i] != ' ')
+      {
+        if (ItemOrClassName[i] == ';')
+          ItemToFind[p] = ',';
+        else
+          ItemToFind[p] = ItemOrClassName[i];
+        p++;
+      }
+
+    i++;
+  }
+  ItemToFind[p]   = ',';
+  ItemToFind[p+1] = '\0';
+
+  // trap_SendServerCommand( -1, va( "print \"\n..BlockedEqStr = %s\nItemToFind = %s\n\"", BlockedEqStr, ItemToFind ) );
+
+  // if item is on list, return true otherwide false :)
+  if (!strstr(BlockedEqStr, ItemToFind))
+    return qfalse;
+  else
+    return qtrue;
+}
+
 /*
 =================
 Cmd_Class_f
@@ -2401,6 +2479,14 @@ void Cmd_Class_f( gentity_t *ent )
   clientNum = ent->client - level.clients;
   trap_Argv( 1, s, sizeof( s ) );
   newClass = BG_FindClassNumForName( s );
+
+      // cicho-sza add:on
+      if ( IsLesson_BlockedEq( s ) )
+      {
+        trap_SendServerCommand( ent-g_entities,
+          va( "print \"^1Class %s is not allowed during this lesson.^7\n\"", s ) );
+        return;
+      }
 
   if( ent->client->sess.sessionTeam == TEAM_SPECTATOR )
   {
@@ -2658,6 +2744,14 @@ void Cmd_Destroy_f( gentity_t *ent )
   gentity_t   *traceEnt;
   char        cmd[ 12 ];
   qboolean    deconstruct = qtrue;
+
+  // cicho-sza add-on:
+  if( g_lesson.integer > 0 )
+  {
+    trap_SendServerCommand( ent-g_entities,
+      "print \"^1You cannot deconstruct structures during this lesson.^7\n\"" );
+    return;
+  }
 
   if( ent->client->pers.denyBuild )
   {
@@ -3021,6 +3115,14 @@ void Cmd_Buy_f( gentity_t *ent )
       return;
     }
 
+    // cicho-sza add:on
+    if ( IsLesson_BlockedEq( s ) )
+      {
+        trap_SendServerCommand( ent-g_entities,
+          va( "print \"^1Item %s is not allowed during this lesson.^7\n\"", s ) );
+        return;
+      }
+
     //don't let stripped players buy shit they shouldn't
     if ( ent->client->pers.nakedPlayer && !BG_FindNakedStagesForWeapon( weapon, g_humanStage.integer ) ) {
       trap_SendServerCommand( ent-g_entities, va( "print \"This item is currently denied to stripped players\n\"" ) );
@@ -3082,6 +3184,14 @@ void Cmd_Buy_f( gentity_t *ent )
       trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
       return;
     }
+
+    // cicho-sza add:on
+    if ( IsLesson_BlockedEq( s ) )
+      {
+        trap_SendServerCommand( ent-g_entities,
+          va( "print \"^1Item %s is not allowed during this lesson.^7\n\"", s ) );
+        return;
+      }
 
     //are we /allowed/ to buy this?
     if( !BG_FindStagesForUpgrade( upgrade, g_humanStage.integer ) || !BG_UpgradeIsAllowed( upgrade ) )

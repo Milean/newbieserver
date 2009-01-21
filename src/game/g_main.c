@@ -188,6 +188,10 @@ vmCvar_t  g_mapvoteMaxTime;
 vmCvar_t  g_msg;
 vmCvar_t  g_msgTime;
 
+// cicho-sza add-on:
+vmCvar_t  g_lesson;
+vmCvar_t  g_lesson_BlockEqStr;
+
 static cvarTable_t   gameCvarTable[ ] =
 {
   // don't override the cheat state set by the system
@@ -357,6 +361,10 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_allowShare, "g_allowShare", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse},
   { &g_banNotice, "g_banNotice", "", CVAR_ARCHIVE, 0, qfalse  },
   { &g_adminLeaveMsg, "g_adminLeaveMsg", "", CVAR_ARCHIVE, 0, qfalse  },
+
+  // cicho-sza add-on:
+  { &g_lesson, "g_lesson", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+  { &g_lesson_BlockEqStr, "g_lesson_BlockEqStr", "", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 };
 
 static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[ 0 ] );
@@ -680,6 +688,10 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
     trap_Cvar_VariableStringBuffer( "mapname", map, sizeof( map ) );
     G_MapConfigs( map );
   }
+
+  // cicho-sza add-on:
+  trap_Cvar_Set( "g_lesson", "0" );
+  trap_Cvar_Set( "g_lesson_BlockEqStr", "" );
 
   // we're done with g_mapConfigs, so reset this for the next map
   trap_Cvar_Set( "g_mapConfigsLoaded", "0" );
