@@ -191,6 +191,10 @@ vmCvar_t  g_msgTime;
 // cicho-sza add-on:
 vmCvar_t  g_lesson;
 vmCvar_t  g_lesson_BlockEqStr;
+vmCvar_t  g_strip_PlayerDmgPrcnt;
+vmCvar_t  g_strip_PlayerDmgPrcnt_def;
+vmCvar_t  g_strip_StructDmgPrcnt;
+vmCvar_t  g_strip_StructDmgPrcnt_def;
 
 static cvarTable_t   gameCvarTable[ ] =
 {
@@ -365,6 +369,11 @@ static cvarTable_t   gameCvarTable[ ] =
   // cicho-sza add-on:
   { &g_lesson, "g_lesson", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
   { &g_lesson_BlockEqStr, "g_lesson_BlockEqStr", "", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
+
+  { &g_strip_PlayerDmgPrcnt,     "g_strip_PlayerDmgPrcnt",     "100", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 100, qtrue },
+  { &g_strip_PlayerDmgPrcnt_def, "g_strip_PlayerDmgPrcnt_def", "100", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 100, qtrue },
+  { &g_strip_StructDmgPrcnt,     "g_strip_StructDmgPrcnt",       "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART,   0, qtrue },
+  { &g_strip_StructDmgPrcnt_def, "g_strip_StructDmgPrcnt_def",   "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART,   0, qtrue },
 };
 
 static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[ 0 ] );
@@ -692,6 +701,8 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   // cicho-sza add-on:
   trap_Cvar_Set( "g_lesson", "0" );
   trap_Cvar_Set( "g_lesson_BlockEqStr", "" );
+  trap_Cvar_Set( "g_strip_PlayerDmgPrcnt", g_strip_PlayerDmgPrcnt_def.string );
+  trap_Cvar_Set( "g_strip_StructDmgPrcnt", g_strip_StructDmgPrcnt_def.string );
 
   // we're done with g_mapConfigs, so reset this for the next map
   trap_Cvar_Set( "g_mapConfigsLoaded", "0" );

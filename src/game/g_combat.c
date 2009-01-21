@@ -1058,6 +1058,7 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
          vec3_t dir, vec3_t point, int damage, int dflags, int mod )
 {
   gclient_t *client;
+  int     iTmp = 0;
   int     take;
   int     save;
   int     asave = 0;
@@ -1090,7 +1091,37 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
   }
 
   if( attacker->client->pers.nakedPlayer && targ->s.eType == ET_BUILDABLE )
-    return;
+  //  return;
+  // cicho-sza add on:
+  {
+    // instead of dealing no damage at all, let's check modifier
+    if (g_strip_StructDmgPrcnt.integer < 1) return; // no more checking if no dmg to structures
+
+    // read modificator value
+    iTmp = g_strip_StructDmgPrcnt.integer;
+
+    // if damage is modified, apply modificator
+    // and yes, i know - i apply not less then 1 dmg. That is simply in case anyone forget
+    // that some weapons are soooooooo weak that setting 5% dmg would really do nothing.
+    if ((iTmp < 100) && (damage > 0))
+      damage = 1 + (int)( (float)iTmp * (float)(damage-1) / 100.0f);
+  }
+
+  if( attacker->client->pers.nakedPlayer && targ->s.eType != ET_BUILDABLE )
+  {
+    // instead of dealing no damage at all, let's check modifier
+    if (g_strip_PlayerDmgPrcnt.integer < 1) return; // no more checking if no dmg to players
+
+    // read modificator value
+    iTmp = g_strip_PlayerDmgPrcnt.integer;
+
+    // if damage is modified, apply modificator
+    // and yes, i know - i apply not less then 1 dmg. That is simply in case anyone forget
+    // that some weapons are soooooooo weak that setting 5% dmg would really do nothing.
+    if ((iTmp < 100) && (damage > 0))
+      damage = 1 + (int)( (float)iTmp * (float)(damage-1) / 100.0f);
+  }
+// end of applying structures/players dmg mod
 
   client = targ->client;
 

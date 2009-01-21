@@ -1401,6 +1401,10 @@ extern  vmCvar_t  g_buildLogMaxLength;
 // cicho-sza add-on:
 extern  vmCvar_t  g_lesson;
 extern  vmCvar_t  g_lesson_BlockEqStr;
+extern  vmCvar_t  g_strip_PlayerDmgPrcnt;
+extern  vmCvar_t  g_strip_PlayerDmgPrcnt_def;
+extern  vmCvar_t  g_strip_StructDmgPrcnt;
+extern  vmCvar_t  g_strip_StructDmgPrcnt_def;
 
 void      trap_Printf( const char *fmt );
 void      trap_Error( const char *fmt );
