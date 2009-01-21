@@ -318,6 +318,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_shove, "g_shove", "15", CVAR_ARCHIVE, 0, qfalse  },
   { &g_mapConfigs, "g_mapConfigs", "", CVAR_ARCHIVE, 0, qfalse  },
   { NULL, "g_mapConfigsLoaded", "0", CVAR_ROM, 0, qfalse  },
+  { NULL, "g_LayoutConfigsLoaded", "0", CVAR_ROM, 0, qfalse  },
 
   { &g_layouts, "g_layouts", "", CVAR_LATCH, 0, qfalse  },
   { &g_layoutAuto, "g_layoutAuto", "1", CVAR_ARCHIVE, 0, qfalse  },
@@ -682,6 +683,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
   // we're done with g_mapConfigs, so reset this for the next map
   trap_Cvar_Set( "g_mapConfigsLoaded", "0" );
+  trap_Cvar_Set( "g_LayoutConfigsLoaded", "0" );
 
   if ( g_admin.string[ 0 ] ) {
     G_admin_readconfig( NULL, 0 );

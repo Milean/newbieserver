@@ -4187,6 +4187,16 @@ void G_LayoutLoad( void )
     }
     layout++;
   }
+
+  if( trap_FS_FOpenFile( va( "layouts/%s/%s.cfg", map, level.layout ), NULL, FS_READ ) )
+  {
+    trap_SendConsoleCommand( EXEC_APPEND,
+        va( "exec layouts/%s/%s.cfg", map, level.layout ) );
+
+    trap_Cvar_Set( "g_LayoutConfigsLoaded", "1" );
+  }
+
+
 }
 
 void G_BaseSelfDestruct( pTeam_t team )
