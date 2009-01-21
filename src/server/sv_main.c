@@ -398,6 +398,7 @@ void SVC_Info( netadr_t from ) {
 	int		i, count;
 	char	*gamedir;
 	char	infostring[MAX_INFO_STRING];
+	cvar_t	*g_hiddenClients;
 
 	/*
 	 * Check whether Cmd_Argv(1) has a sane length. This was not done in the original Quake3 version which led
@@ -416,6 +417,12 @@ void SVC_Info( netadr_t from ) {
 		}
 	}
 
+   g_hiddenClients = Cvar_Get( "g_hiddenClients", "0", 0 );
+   if( g_hiddenClients->integer > sv_maxclients->integer - sv_privateClients->integer )
+   {
+      Cvar_Set( "g_hiddenClients", sv_maxclients->string - sv_privateClients->integer );
+   }
+
 	infostring[0] = 0;
 
 	// echo back the parameter to status. so servers can use it as a challenge
@@ -427,7 +434,7 @@ void SVC_Info( netadr_t from ) {
 	Info_SetValueForKey( infostring, "mapname", sv_mapname->string );
 	Info_SetValueForKey( infostring, "clients", va("%i", count) );
 	Info_SetValueForKey( infostring, "sv_maxclients", 
-		va("%i", sv_maxclients->integer - sv_privateClients->integer ) );
+		va("%i", sv_maxclients->integer - sv_privateClients->integer - g_hiddenClients->integer ) );
 	Info_SetValueForKey( infostring, "pure", va("%i", sv_pure->integer ) );
 
 	if( sv_minPing->integer ) {

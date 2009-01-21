@@ -170,9 +170,13 @@ vmCvar_t  g_buildLogMaxLength;
 
 vmCvar_t  g_tag;
 
+vmCvar_t  g_hiddenClients;
+
 vmCvar_t  g_dretchPunt;
 
 vmCvar_t  g_allowShare;
+vmCvar_t  g_shareFee;
+vmCvar_t  g_allowDonate;
 
 vmCvar_t  g_devmapNoGod;
 vmCvar_t  g_devmapNoStructDmg;
@@ -340,6 +344,8 @@ static cvarTable_t   gameCvarTable[ ] =
   
   { &g_tag, "g_tag", "main", CVAR_INIT, 0, qfalse },
   
+  { &g_hiddenClients, "g_hiddenClients", "0", CVAR_ARCHIVE | CVAR_SERVERINFO, 0, qfalse },
+
   { &g_dretchPunt, "g_dretchPunt", "1", CVAR_ARCHIVE, 0, qfalse  },
   
   { &g_msg, "g_msg", "", CVAR_ARCHIVE, 0, qfalse  },

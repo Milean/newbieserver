@@ -1282,7 +1282,9 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   char      ip[ 16 ] = {""};
   char      reason[ MAX_STRING_CHARS ] = {""};
   int       i;
-
+  int       used_privateSlots;
+  int       privateClients;
+  
   ent = &g_entities[ clientNum ];
 
   trap_GetUserinfo( clientNum, userinfo, sizeof( userinfo ) );
@@ -1296,7 +1298,27 @@ char *ClientConnect( int clientNum, qboolean firstTime )
     return va( "%s", reason );
   }
 
-
+  privateClients = trap_Cvar_VariableIntegerValue( "sv_privateClients" );
+  if( firstTime && clientNum >= privateClients && !G_admin_permission_guid( value, ADMF_VIP ) )
+  {
+    // not flag ADMF_VIP, not already connected player after mapchange, and not privateClient...
+    // may be refused, because too many players in game
+    used_privateSlots = 0;
+    for( i = 0 ; i < privateClients; i++ )
+    {
+      if( level.clients[ i ].pers.connected != CON_DISCONNECTED )
+      {
+        used_privateSlots++;
+      }
+    }
+     
+    if( ( level.numConnectedClients - used_privateSlots ) >= ( level.maxclients - privateClients - g_hiddenClients.integer ) )
+    {
+      // not flag ADMF_VIP and maxPlayers exceeded
+      return "Server is full";
+    }
+  }
+  
   // IP filtering
   // https://zerowing.idsoftware.com/bugzilla/show_bug.cgi?id=500
   // recommanding PB based IP / GUID banning, the builtin system is pretty limited

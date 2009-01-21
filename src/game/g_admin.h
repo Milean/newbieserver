@@ -78,6 +78,8 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #define ADMF_ADMINCHAT '?'
 #define ADMF_ADMINSTEALTH '&'
 
+#define ADMF_VIP '\''
+
 #define MAX_ADMIN_LISTITEMS 20
 #define MAX_ADMIN_SHOWBANS 10
 
@@ -147,6 +149,7 @@ qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen );
 qboolean G_admin_cmd_check( gentity_t *ent, qboolean say );
 qboolean G_admin_readconfig( gentity_t *ent, int skiparg );
 qboolean G_admin_permission( gentity_t *ent, char flag );
+qboolean G_admin_permission_guid( char *guid, char flag );
 qboolean G_admin_name_check( gentity_t *ent, char *name, char *err, int len );
 void G_admin_namelog_update( gclient_t *ent, qboolean disconnect );
 void G_admin_maplog_result( char *flag );

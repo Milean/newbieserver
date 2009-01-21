@@ -827,7 +827,13 @@ char	*Cvar_InfoString( int bit ) {
 
 	for (var = cvar_vars ; var ; var = var->next) {
 		if (var->flags & bit) {
-			Info_SetValueForKey (info, var->name, var->string);
+			if (!strcmp (var->name, "sv_maxclients")) {
+				cvar_t *g_hiddenClients = Cvar_Get ("g_hiddenClients", "0", 0);
+				Info_SetValueForKey (info, var->name,
+					va ("%i", var->integer - g_hiddenClients->integer));
+			} else {
+				Info_SetValueForKey (info, var->name, var->string);
+			}
 		}
 	}
 	return info;
@@ -848,7 +854,13 @@ char	*Cvar_InfoString_Big( int bit ) {
 
 	for (var = cvar_vars ; var ; var = var->next) {
 		if (var->flags & bit) {
-			Info_SetValueForKey_Big (info, var->name, var->string);
+			if (!strcmp (var->name, "sv_maxclients")) {
+				cvar_t *g_hiddenClients = Cvar_Get ("g_hiddenClients", "0", 0);
+				Info_SetValueForKey_Big (info, var->name,
+					va ("%i", var->integer - g_hiddenClients->integer));
+			} else {
+				Info_SetValueForKey_Big (info, var->name, var->string);
+			}
 		}
 	}
 	return info;

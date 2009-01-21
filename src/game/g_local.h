@@ -1381,6 +1381,8 @@ extern  vmCvar_t  g_publicSayadmins;
 extern  vmCvar_t  g_myStats;
 extern  vmCvar_t  g_antiSpawnBlock;
 
+extern  vmCvar_t  g_hiddenClients;
+
 extern  vmCvar_t  g_dretchPunt;
 
 extern  vmCvar_t  g_devmapNoGod;
