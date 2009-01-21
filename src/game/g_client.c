@@ -1407,6 +1407,16 @@ char *ClientConnect( int clientNum, qboolean firstTime )
      G_LogPrintf( "ClientAuth: %i [%s] \"%s^7\" authenticated to admin level %i using GUID %s (^7%s)\n", clientNum, client->pers.ip, client->pers.netname, client->pers.adminLevel, client->pers.guid, client->pers.adminName );
   }
 
+
+// cicho-sza add on
+
+  // check for longstrip
+  if( G_admin_longstrip_check( userinfo ) )
+  {
+     ent->client->pers.nakedPlayer = qtrue;
+  }
+
+
   // don't do the "xxx connected" messages if they were caried over from previous level
   if( firstTime )
     trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname ) );

@@ -115,6 +115,19 @@ typedef struct g_admin_admin
 }
 g_admin_admin_t;
 
+
+// cicho-sza add-on
+typedef struct g_admin_longstrip
+{
+  int to_be_removed;
+  char name[ MAX_NAME_LENGTH ];
+  char guid[ 33 ];
+  char ip[ 18 ];
+  char stripper[ MAX_NAME_LENGTH ]; // :D
+}
+g_admin_longstrip_t;
+
+
 typedef struct g_admin_ban
 {
   char name[ MAX_NAME_LENGTH ];
@@ -146,6 +159,11 @@ typedef struct g_admin_namelog
 }
 g_admin_namelog_t;
 
+
+// cicho-sza add-on:
+qboolean G_admin_longstrip_check( char *userinfo );
+
+
 qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen );
 qboolean G_admin_cmd_check( gentity_t *ent, qboolean say );
 qboolean G_admin_readconfig( gentity_t *ent, int skiparg );
@@ -166,8 +184,14 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg );
 qboolean G_admin_kick( gentity_t *ent, int skiparg );
 qboolean G_admin_adjustban( gentity_t *ent, int skiparg );
 qboolean G_admin_subnetban( gentity_t *ent, int skiparg );
+
+// cicho-sza add-on:
+qboolean G_admin_longstrip( gentity_t *ent, int skiparg );
+qboolean G_admin_unlongstrip( gentity_t *ent, int skiparg );
+
 qboolean G_admin_ban( gentity_t *ent, int skiparg );
 qboolean G_admin_unban( gentity_t *ent, int skiparg );
+
 qboolean G_admin_putteam( gentity_t *ent, int skiparg );
 qboolean G_admin_listadmins( gentity_t *ent, int skiparg );
 qboolean G_admin_listlayouts( gentity_t *ent, int skiparg );
@@ -181,6 +205,10 @@ qboolean G_admin_maplog( gentity_t *ent, int skiparg );
 qboolean G_admin_layoutsave( gentity_t *ent, int skiparg );
 qboolean G_admin_mute( gentity_t *ent, int skiparg );
 qboolean G_admin_denybuild( gentity_t *ent, int skiparg );
+
+// cicho-sza add on
+qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg );
+
 qboolean G_admin_showbans( gentity_t *ent, int skiparg );
 qboolean G_admin_help( gentity_t *ent, int skiparg );
 qboolean G_admin_admintest( gentity_t *ent, int skiparg );
