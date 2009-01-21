@@ -139,6 +139,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "save a map layout",
       "[^3mapname^7]"
     },
+
+    {"leave", G_admin_leave, "k",
+      "makes a player leave",
+      "[^3name|slot#^7] (^5additional reason^7)"
+    },
     
     {"listadmins", G_admin_listadmins, "D",
       "display a list of all server admins and their levels",
@@ -2010,6 +2015,55 @@ qboolean G_admin_kick( gentity_t *ent, int skiparg )
     ( *reason ) ? reason : "kicked by admin" ) );
 
   return qtrue;
+}
+
+qboolean G_admin_leave( gentity_t *ent, int skiparg )
+{
+	int pids[ MAX_CLIENTS ];
+	char name[ MAX_NAME_LENGTH ], *reason, err[ MAX_STRING_CHARS ];
+	char notice[51];
+	char msg[51];
+
+	trap_Cvar_VariableStringBuffer( "g_banNotice", notice, sizeof( notice ) );
+	trap_Cvar_VariableStringBuffer( "g_adminLeaveMsg", msg, sizeof( msg ) );
+
+	if( G_SayArgc() < 2 + skiparg )
+	{
+		ADMP( "^3!leave: ^7usage: !leave [^3name|slot#^7] (^5additional reason^7)\n" );
+		return qfalse;
+	}
+	G_SayArgv( 1 + skiparg, name, sizeof( name ) );
+	reason = G_SayConcatArgs( 2 + skiparg );
+	if( G_ClientNumbersFromString( name, pids ) != 1 )
+	{
+		G_MatchOnePlayer( pids, err, sizeof( err ) );
+		ADMP( va( "^3!leave: ^7%s\n", err ) );
+		return qfalse;
+	}
+	if( !admin_higher( ent, &g_entities[ pids[ 0 ] ] ) )
+	{
+		ADMP( "^3!leave: ^7sorry, but your intended victim has a higher admin"
+			 " level than you\n" );
+		return qfalse;
+	}
+
+	trap_SendServerCommand( pids[ 0 ],
+						   va( "disconnect \"You have been forced to leave by %s^7\nreason:\n%s%s%s\n%s\"",
+							  ( ent ) ? va( "admin:\n%s", G_admin_adminPrintName( ent ) ) : "console",
+							  ( *msg ) ? msg : "not welcome",
+							  ( *reason ) ? ", " : "",
+                              ( *reason ) ? reason : "",
+							  notice
+							  ) );
+
+	trap_DropClient( pids[ 0 ], va( "was forced to leave%s^7, reason: %s%s%s",
+								   ( ent ) ? va( " by %s", G_admin_adminPrintName( ent ) ) : "console",
+								   ( *msg ) ? msg : "not welcome",
+								   ( *reason ) ? ", " : "",
+								   ( *reason ) ? reason : ""
+								   ) );
+
+	return qtrue;
 }
 
 qboolean G_admin_bot( gentity_t *ent, int skiparg ) {

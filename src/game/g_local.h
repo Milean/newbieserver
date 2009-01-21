@@ -1372,6 +1372,7 @@ extern  vmCvar_t  g_minLevelToJoinTeam;
 extern  vmCvar_t  g_forceAutoSelect;
 extern  vmCvar_t  g_minLevelToSpecMM1;
 extern  vmCvar_t  g_banNotice;
+extern  vmCvar_t  g_adminLeaveMsg;
 
 extern  vmCvar_t  g_devmapKillerHP;
 
