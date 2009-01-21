@@ -914,6 +914,7 @@ typedef struct
   char      *hudName;
 
   int       stages;
+  int       nakedStages;
 
   vec3_t    mins;
   vec3_t    maxs;
@@ -1054,6 +1055,7 @@ typedef struct
 
   int       price;
   int       stages;
+  int       nakedStages;
 
   int       slots;
 
@@ -1092,6 +1094,7 @@ typedef struct
 
   int       price;
   int       stages;
+  int       nakedStages;
 
   int       slots;
 
@@ -1176,6 +1179,7 @@ char      *BG_FindSkinNameForClass( int pclass );
 float     BG_FindShadowScaleForClass( int pclass );
 char      *BG_FindHudNameForClass( int pclass );
 qboolean  BG_FindStagesForClass( int pclass, stage_t stage );
+qboolean  BG_FindNakedStagesForClass( int pclass, stage_t stage );
 void      BG_FindBBoxForClass( int pclass, vec3_t mins, vec3_t maxs, vec3_t cmaxs, vec3_t dmins, vec3_t dmaxs );
 float     BG_FindZOffsetForClass( int pclass );
 void      BG_FindViewheightForClass( int pclass, int *viewheight, int *cViewheight );
@@ -1203,6 +1207,7 @@ void      BG_InitClassOverrides( void );
 
 int       BG_FindPriceForWeapon( int weapon );
 qboolean  BG_FindStagesForWeapon( int weapon, stage_t stage );
+qboolean  BG_FindNakedStagesForWeapon( int weapon, stage_t stage );
 int       BG_FindSlotsForWeapon( int weapon );
 char      *BG_FindNameForWeapon( int weapon );
 int       BG_FindWeaponNumForName( char *name );
@@ -1230,6 +1235,7 @@ WUTeam_t  BG_FindTeamForWeapon( int weapon );
 
 int       BG_FindPriceForUpgrade( int upgrade );
 qboolean  BG_FindStagesForUpgrade( int upgrade, stage_t stage );
+qboolean  BG_FindNakedStagesForUpgrade( int upgrade, stage_t stage );
 int       BG_FindSlotsForUpgrade( int upgrade );
 char      *BG_FindNameForUpgrade( int upgrade );
 int       BG_FindUpgradeNumForName( char *name );

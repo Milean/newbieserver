@@ -734,6 +734,16 @@ void G_ChangeTeam( gentity_t *ent, pTeam_t newTeam )
      "print \"You have lost designation due to teamchange\n\"" );
   }
 
+  if( G_admin_permission( ent, ADMF_NPLAYER ) )
+  {
+    if( !ent->client->pers.nakedPlayer )
+    {
+      ent->client->pers.nakedPlayer = qtrue;
+      trap_SendServerCommand( ent-g_entities,
+        "print \"You are a stripped player here\n\"" );
+    }
+  }
+
   ent->client->pers.classSelection = PCL_NONE;
   ClientSpawn( ent, NULL, NULL, NULL );
 
@@ -2541,6 +2551,13 @@ void Cmd_Class_f( gentity_t *ent )
             BG_FindStagesForClass( newClass, g_alienStage.integer ) &&
             BG_ClassIsAllowed( newClass ) )
         {
+          //don't let stripped players evolve to classes they shouldn't
+          if ( ent->client->pers.nakedPlayer && !BG_FindNakedStagesForClass( newClass, g_alienStage.integer ) ) {
+            trap_SendServerCommand( ent-g_entities,
+                 "print \"This class is currently denied to stripped players\n\"" );
+            return;
+          }
+
           G_LogOnlyPrintf("ClientTeamClass: %i alien %s\n", clientNum, s);
 
           ent->client->pers.evolveHealthFraction = (float)ent->client->ps.stats[ STAT_HEALTH ] /
@@ -3004,6 +3021,12 @@ void Cmd_Buy_f( gentity_t *ent )
       return;
     }
 
+    //don't let stripped players buy shit they shouldn't
+    if ( ent->client->pers.nakedPlayer && !BG_FindNakedStagesForWeapon( weapon, g_humanStage.integer ) ) {
+      trap_SendServerCommand( ent-g_entities, va( "print \"This item is currently denied to stripped players\n\"" ) );
+      return;
+    }
+
     //add to inventory
     BG_AddWeaponToInventory( weapon, ent->client->ps.stats );
     BG_FindAmmoForWeapon( weapon, &maxAmmo, &maxClips );
@@ -3064,6 +3087,12 @@ void Cmd_Buy_f( gentity_t *ent )
     if( !BG_FindStagesForUpgrade( upgrade, g_humanStage.integer ) || !BG_UpgradeIsAllowed( upgrade ) )
     {
       trap_SendServerCommand( ent-g_entities, va( "print \"You can't buy this item\n\"" ) );
+      return;
+    }
+
+    //don't let stripped players buy shit they shouldn't
+    if ( ent->client->pers.nakedPlayer && !BG_FindNakedStagesForUpgrade( upgrade, g_humanStage.integer ) ) {
+      trap_SendServerCommand( ent-g_entities, va( "print \"This item is currently denied to stripped players\n\"" ) );
       return;
     }
 

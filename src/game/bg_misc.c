@@ -1538,6 +1538,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   shadowScale;
     "",                                             //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  nakedStages
     { -15, -15, -15 },                              //vec3_t  mins;
     { 15, 15, 15 },                                 //vec3_t  maxs;
     { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
@@ -1576,6 +1577,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   shadowScale;
     "alien_builder_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  nakedStages
     { -15, -15, -20 },                              //vec3_t  mins;
     { 15, 15, 20 },                                 //vec3_t  maxs;
     { 15, 15, 20 },                                 //vec3_t  crouchmaxs;
@@ -1614,6 +1616,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   shadowScale;
     "alien_builder_hud",                            //char    *hudname;
     ( 1 << S2 )|( 1 << S3 ),                        //int  stages
+    ( 1 << S2 )|( 1 << S3 ),                        //int  nakedStages
     { -20, -20, -20 },                              //vec3_t  mins;
     { 20, 20, 20 },                                 //vec3_t  maxs;
     { 20, 20, 20 },                                 //vec3_t  crouchmaxs;
@@ -1652,6 +1655,7 @@ classAttributes_t bg_classList[ ] =
     0.3f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  nakedStages
     { -15, -15, -15 },                              //vec3_t  mins;
     { 15, 15, 15 },                                 //vec3_t  maxs;
     { 15, 15, 15 },                                 //vec3_t  crouchmaxs;
@@ -1691,6 +1695,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  nakedStages
     { -18, -18, -18 },                              //vec3_t  mins;
     { 18, 18, 18 },                                 //vec3_t  maxs;
     { 18, 18, 18 },                                 //vec3_t  crouchmaxs;
@@ -1730,6 +1735,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S2 )|( 1 << S3 ),                        //int  stages
+    0,                                              //int  nakedStages
     { -20, -20, -20 },                              //vec3_t  mins;
     { 20, 20, 20 },                                 //vec3_t  maxs;
     { 20, 20, 20 },                                 //vec3_t  crouchmaxs;
@@ -1769,6 +1775,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    ( 1 << S2 )|( 1 << S3 ),                        //int  nakedStages
     { -22, -22, -22 },                              //vec3_t  mins;
     { 22, 22, 22 },                                 //vec3_t  maxs;
     { 22, 22, 22 },                                 //vec3_t  crouchmaxs;
@@ -1808,6 +1815,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S2 )|( 1 << S3 ),                        //int  stages
+    0,                                              //int  nakedStages
     { -24, -24, -24 },                              //vec3_t  mins;
     { 24, 24, 24 },                                 //vec3_t  maxs;
     { 24, 24, 24 },                                 //vec3_t  crouchmaxs;
@@ -1847,6 +1855,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    ( 1 << S2 )|( 1 << S3 ),                        //int  nakedStages
     { -32, -32, -21 },                              //vec3_t  mins;
     { 32, 32, 21 },                                 //vec3_t  maxs;
     { 32, 32, 21 },                                 //vec3_t  crouchmaxs;
@@ -1886,6 +1895,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S3 ),                                    //int  stages
+    0,                                              //int  nakedStages
     { -32, -32, -21 },                              //vec3_t  mins;
     { 32, 32, 21 },                                 //vec3_t  maxs;
     { 32, 32, 21 },                                 //vec3_t  crouchmaxs;
@@ -1925,6 +1935,7 @@ classAttributes_t bg_classList[ ] =
     2.0f,                                           //float   shadowScale;
     "alien_general_hud",                            //char    *hudname;
     ( 1 << S3 ),                                    //int  stages
+    0,                                              //int  nakedStages
     { -30, -30, -20 },                              //vec3_t  mins;
     { 30, 30, 20 },                                 //vec3_t  maxs;
     { 30, 30, 20 },                                 //vec3_t  crouchmaxs;
@@ -1964,6 +1975,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   shadowScale;
     "human_hud",                                    //char    *hudname;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ),            //int  nakedStages
     { -15, -15, -24 },                              //vec3_t  mins;
     { 15, 15, 32 },                                 //vec3_t  maxs;
     { 15, 15, 16 },                                 //vec3_t  crouchmaxs;
@@ -2003,6 +2015,7 @@ classAttributes_t bg_classList[ ] =
     1.0f,                                           //float   shadowScale;
     "human_hud",                                    //char    *hudname;
     ( 1 << S3 ),                                    //int  stages
+    0,                                              //int  nakedStages
     { -15, -15, -38 },                              //vec3_t  mins;
     { 15, 15, 38 },                                 //vec3_t  maxs;
     { 15, 15, 38 },                                 //vec3_t  crouchmaxs;
@@ -2232,6 +2245,30 @@ qboolean BG_FindStagesForClass( int pclass, stage_t stage )
     if( bg_classList[ i ].classNum == pclass )
     {
       if( bg_classList[ i ].stages & ( 1 << stage ) )
+        return qtrue;
+      else
+        return qfalse;
+    }
+  }
+
+  Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindStagesForClass\n" );
+  return qfalse;
+}
+
+/*
+==============
+BG_FindNakedStagesForClass
+==============
+*/
+qboolean BG_FindNakedStagesForClass( int pclass, stage_t stage )
+{
+  int i;
+
+  for( i = 0; i < bg_numPclasses; i++ )
+  {
+    if( bg_classList[ i ].classNum == pclass )
+    {
+      if( bg_classList[ i ].nakedStages & ( 1 << stage ) )
         return qtrue;
       else
         return qfalse;
@@ -3076,6 +3113,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_BLASTER,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     0,                    //int       slots;
     "blaster",            //char      *weaponName;
     "Blaster",            //char      *weaponHumanName;
@@ -3101,6 +3139,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_MACHINEGUN,        //int       weaponNum;
     RIFLE_PRICE,          //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "rifle",              //char      *weaponName;
     "Rifle",              //char      *weaponHumanName;
@@ -3126,6 +3165,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_SHOTGUN,           //int       weaponNum;
     SHOTGUN_PRICE,        //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S2 )|( 1 << S3 ),             //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "shotgun",            //char      *weaponName;
     "Shotgun",            //char      *weaponHumanName;
@@ -3151,6 +3191,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_FLAMER,            //int       weaponNum;
     FLAMER_PRICE,         //int       price;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
+    0,                       //int nakedStages
     SLOT_WEAPON,          //int       slots;
     "flamer",             //char      *weaponName;
     "Flame Thrower",      //char      *weaponHumanName;
@@ -3176,6 +3217,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_CHAINGUN,          //int       weaponNum;
     CHAINGUN_PRICE,       //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    0,                                   //int nakedStages
     SLOT_WEAPON,          //int       slots;
     "chaingun",           //char      *weaponName;
     "Chaingun",           //char      *weaponHumanName;
@@ -3201,6 +3243,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_MASS_DRIVER,       //int       weaponNum;
     MDRIVER_PRICE,        //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    0,                                   //int nakedStages
     SLOT_WEAPON,          //int       slots;
     "mdriver",            //char      *weaponName;
     "Mass Driver",        //char      *weaponHumanName;
@@ -3226,6 +3269,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_PULSE_RIFLE,       //int       weaponNum;
     PRIFLE_PRICE,         //int       price;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
+    0,                       //int nakedStages
     SLOT_WEAPON,          //int       slots;
     "prifle",             //char      *weaponName;
     "Pulse Rifle",        //char      *weaponHumanName;
@@ -3251,6 +3295,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_LUCIFER_CANNON,    //int       weaponNum;
     LCANNON_PRICE,        //int       price;
     ( 1 << S3 ),          //int  stages
+    0,                    //int nakedStages
     SLOT_WEAPON,          //int       slots;
     "lcannon",            //char      *weaponName;
     "Lucifer Cannon",     //char      *weaponHumanName;
@@ -3276,6 +3321,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_LAS_GUN,           //int       weaponNum;
     LASGUN_PRICE,         //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    0,                                   //int nakedStages
     SLOT_WEAPON,          //int       slots;
     "lgun",               //char      *weaponName;
     "Las Gun",            //char      *weaponHumanName;
@@ -3301,6 +3347,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_PAIN_SAW,          //int       weaponNum;
     PAINSAW_PRICE,        //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    0,                                   //int nakedStages
     SLOT_WEAPON,          //int       slots;
     "psaw",               //char      *weaponName;
     "Pain Saw",           //char      *weaponHumanName;
@@ -3326,6 +3373,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_GRENADE,           //int       weaponNum;
     GRENADE_PRICE,        //int       price;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
+    0,                       //int nakedStages
     SLOT_NONE,            //int       slots;
     "grenade",            //char      *weaponName;
     "Grenade",            //char      *weaponHumanName;
@@ -3351,6 +3399,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_HBUILD,            //int       weaponNum;
     HBUILD_PRICE,         //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "ckit",               //char      *weaponName;
     "Construction Kit",   //char      *weaponHumanName;
@@ -3376,6 +3425,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_HBUILD2,           //int       weaponNum;
     HBUILD2_PRICE,        //int       price;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "ackit",              //char      *weaponName;
     "Adv Construction Kit",//char      *weaponHumanName;
@@ -3401,6 +3451,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_ABUILD,            //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "abuild",             //char      *weaponName;
     "Alien build weapon", //char      *weaponHumanName;
@@ -3426,6 +3477,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_ABUILD2,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "abuildupg",          //char      *weaponName;
     "Alien build weapon2",//char      *weaponHumanName;
@@ -3451,6 +3503,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_ALEVEL0,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "level0",             //char      *weaponName;
     "Bite",               //char      *weaponHumanName;
@@ -3476,6 +3529,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_ALEVEL1,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "level1",             //char      *weaponName;
     "Claws",              //char      *weaponHumanName;
@@ -3501,6 +3555,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_ALEVEL1_UPG,       //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    0,                                   //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "level1upg",          //char      *weaponName;
     "Claws Upgrade",      //char      *weaponHumanName;
@@ -3526,6 +3581,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_ALEVEL2,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S2 )|( 1 << S3 ),             //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "level2",             //char      *weaponName;
     "Bite",               //char      *weaponHumanName;
@@ -3551,6 +3607,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_ALEVEL2_UPG,       //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    0,                                   //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "level2upg",          //char      *weaponName;
     "Zap",                //char      *weaponHumanName;
@@ -3576,6 +3633,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_ALEVEL3,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "level3",             //char      *weaponName;
     "Pounce",             //char      *weaponHumanName;
@@ -3601,6 +3659,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_ALEVEL3_UPG,       //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    0,                                   //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "level3upg",          //char      *weaponName;
     "Pounce (upgrade)",   //char      *weaponHumanName;
@@ -3626,6 +3685,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_ALEVEL4,           //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    0,                                   //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "level4",             //char      *weaponName;
     "Charge",             //char      *weaponHumanName;
@@ -3651,6 +3711,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_LOCKBLOB_LAUNCHER, //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "lockblob",           //char      *weaponName;
     "Lock Blob",          //char      *weaponHumanName;
@@ -3676,6 +3737,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_HIVE,              //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "hive",               //char      *weaponName;
     "Hive",               //char      *weaponHumanName;
@@ -3701,6 +3763,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_MGTURRET,          //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "mgturret",           //char      *weaponName;
     "Machinegun Turret",  //char      *weaponHumanName;
@@ -3726,6 +3789,7 @@ weaponAttributes_t bg_weapons[ ] =
     WP_TESLAGEN,          //int       weaponNum;
     0,                    //int       price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_WEAPON,          //int       slots;
     "teslagen",           //char      *weaponName;
     "Tesla Generator",    //char      *weaponHumanName;
@@ -3785,6 +3849,29 @@ qboolean BG_FindStagesForWeapon( int weapon, stage_t stage )
     if( bg_weapons[ i ].weaponNum == weapon )
     {
       if( bg_weapons[ i ].stages & ( 1 << stage ) )
+        return qtrue;
+      else
+        return qfalse;
+    }
+  }
+
+  return qfalse;
+}
+
+/*
+==============
+BG_FindNakedStagesForWeapon
+==============
+*/
+qboolean BG_FindNakedStagesForWeapon( int weapon, stage_t stage )
+{
+  int i;
+
+  for( i = 0; i < bg_numWeapons; i++ )
+  {
+    if( bg_weapons[ i ].weaponNum == weapon )
+    {
+      if( bg_weapons[ i ].nakedStages & ( 1 << stage ) )
         return qtrue;
       else
         return qfalse;
@@ -4197,6 +4284,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     UP_LIGHTARMOUR,         //int   upgradeNum;
     LIGHTARMOUR_PRICE,      //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S2 )|( 1 << S3 ),             //int  nakedStages
     SLOT_TORSO|SLOT_ARMS|SLOT_LEGS, //int   slots;
     "larmour",              //char  *upgradeName;
     "Light Armour",         //char  *upgradeHumanName;
@@ -4209,6 +4297,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     UP_HELMET,              //int   upgradeNum;
     HELMET_PRICE,           //int   price;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_HEAD,              //int   slots;
     "helmet",               //char  *upgradeName;
     "Helmet",               //char  *upgradeHumanName;
@@ -4221,6 +4310,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     UP_MEDKIT,              //int   upgradeNum;
     MEDKIT_PRICE,           //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_NONE,              //int   slots;
     "medkit",               //char  *upgradeName;
     "Medkit",               //char  *upgradeHumanName;
@@ -4233,6 +4323,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     UP_BATTPACK,            //int   upgradeNum;
     BATTPACK_PRICE,         //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    0,                                   //int  nakedStages
     SLOT_BACKPACK,          //int   slots;
     "battpack",             //char  *upgradeName;
     "Battery Pack",         //char  *upgradeHumanName;
@@ -4245,6 +4336,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     UP_JETPACK,             //int   upgradeNum;
     JETPACK_PRICE,          //int   price;
     ( 1 << S2 )|( 1 << S3 ), //int  stages
+    0,                       //int  nakedStages
     SLOT_BACKPACK,          //int   slots;
     "jetpack",              //char  *upgradeName;
     "Jet Pack",             //char  *upgradeHumanName;
@@ -4257,6 +4349,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     UP_BATTLESUIT,          //int   upgradeNum;
     BSUIT_PRICE,            //int   price;
     ( 1 << S3 ),            //int  stages
+    0,                      //int  nakedStages
     SLOT_HEAD|SLOT_TORSO|SLOT_ARMS|SLOT_LEGS|SLOT_BACKPACK, //int   slots;
     "bsuit",                //char  *upgradeName;
     "Battlesuit",           //char  *upgradeHumanName;
@@ -4269,6 +4362,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     UP_GRENADE,             //int   upgradeNum;
     GRENADE_PRICE,          //int   price;
     ( 1 << S2 )|( 1 << S3 ),//int  stages
+    0,                      //int  nakedStages
     SLOT_NONE,              //int   slots;
     "gren",                 //char  *upgradeName;
     "Grenade",              //char  *upgradeHumanName;
@@ -4281,6 +4375,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     UP_AMMO,                //int   upgradeNum;
     0,                      //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_NONE,              //int   slots;
     "ammo",                 //char  *upgradeName;
     "Ammunition",           //char  *upgradeHumanName;
@@ -4327,6 +4422,29 @@ qboolean BG_FindStagesForUpgrade( int upgrade, stage_t stage )
     if( bg_upgrades[ i ].upgradeNum == upgrade )
     {
       if( bg_upgrades[ i ].stages & ( 1 << stage ) )
+        return qtrue;
+      else
+        return qfalse;
+    }
+  }
+
+  return qfalse;
+}
+
+/*
+==============
+BG_FindNakedStagesForUpgrade
+==============
+*/
+qboolean BG_FindNakedStagesForUpgrade( int upgrade, stage_t stage )
+{
+  int i;
+
+  for( i = 0; i < bg_numUpgrades; i++ )
+  {
+    if( bg_upgrades[ i ].upgradeNum == upgrade )
+    {
+      if( bg_upgrades[ i ].nakedStages & ( 1 << stage ) )
         return qtrue;
       else
         return qfalse;

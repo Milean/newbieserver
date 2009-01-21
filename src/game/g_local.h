@@ -434,6 +434,7 @@ typedef struct
   int                 adminLevel;
   char                adminName[ MAX_NETNAME ];
   qboolean            designatedBuilder;
+  qboolean            nakedPlayer;
   qboolean            firstConnect;        // This is the first map since connect
   qboolean            useUnlagged;
   statsCounters_t     statscounters;

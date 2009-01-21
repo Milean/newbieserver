@@ -110,6 +110,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3mapname^7] (^5layout^7)"
     },
     
+    {"dress", G_admin_naked, "Q",
+      "restore a player's ability to evolve or buy weapons",
+      "[^3name|slot#^7]"
+    },
+
     {"help", G_admin_help, "h",
       "display commands available to you or help on a specific command",
       "(^5command^7)"
@@ -185,6 +190,11 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "[^3name|slot#^7]"
     },
     
+    {"strip", G_admin_naked, "q",
+      "take away a player's ability to evolve or buy weapons",
+      "[^3name|slot#^7]"
+    },
+
     {"namelog", G_admin_namelog, "e",
       "display a list of names used by recently connected players",
       "(^5name^7)"
@@ -356,6 +366,7 @@ qboolean G_admin_permission_guid( char *guid, char flag )
           case ADMF_INCOGNITO:
           case ADMF_IMMUTABLE:
           case ADMF_DBUILDER:
+          case ADMF_NPLAYER:
             return qfalse; 
           default:
             return qtrue;
@@ -390,6 +401,7 @@ qboolean G_admin_permission_guid( char *guid, char flag )
           case ADMF_INCOGNITO:
           case ADMF_IMMUTABLE:
           case ADMF_DBUILDER:
+          case ADMF_NPLAYER:
             return qfalse; 
           default:
             return qtrue;
@@ -3253,7 +3265,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
   char lname[ MAX_NAME_LENGTH ];
   char lname2[ MAX_NAME_LENGTH ];
   char guid_stub[ 9 ];
-  char muted[ 2 ], denied[ 2 ], dbuilder[ 2 ];
+  char muted[ 2 ], denied[ 2 ], dbuilder[ 2 ], nplayer[ 2 ];
   int l;
   char lname_fmt[ 5 ];
 
@@ -3316,6 +3328,18 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
       }
     }
 
+    nplayer[ 0 ] = '\0';
+    if( p->pers.nakedPlayer )
+    {
+      if( G_admin_permission( &g_entities[ i ], ADMF_NPLAYER ) )
+      {
+        Q_strncpyz( nplayer, "N", sizeof( nplayer ) );
+      }
+      else
+      {
+        Q_strncpyz( nplayer, "S", sizeof( nplayer ) );
+      }
+    }
     l = 0;
     G_SanitiseString( p->pers.netname, n2, sizeof( n2 ) );
     n[ 0 ] = '\0';
@@ -3359,7 +3383,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
 
      if( G_admin_permission(ent, ADMF_SEESFULLLISTPLAYERS ) ) {
  
-      ADMBP( va( "%2i %s%s^7 %-2i %s^7 (*%s) ^1%1s%1s%1s^7 %s^7 %s%s^7%s\n",
+      ADMBP( va( "%2i %s%s^7 %-2i %s^7 (*%s) ^1%1s%1s%1s%1s^7 %s^7 %s%s^7%s\n",
                i,
                c,
                t,
@@ -3369,6 +3393,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
                muted,
                dbuilder,
                denied,
+			   nplayer,
                p->pers.netname,
                ( *n ) ? "(a.k.a. " : "",
                n,
@@ -3377,13 +3402,14 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
      }
      else
      {
-      ADMBP( va( "%2i %s%s^7 ^1%1s%1s%1s^7 %s^7\n",
+      ADMBP( va( "%2i %s%s^7 ^1%1s%1s%1s%1s^7 %s^7\n",
                i,
                c,
                t,
                muted,
                dbuilder,
                denied,
+			   nplayer,
                p->pers.netname
              ) );
      }
@@ -4446,6 +4472,69 @@ qboolean G_admin_designate( gentity_t *ent, int skiparg )
     vic->client->pers.designatedBuilder = qtrue;
     CPx( pids[ 0 ], "cp \"^1You've been designated\"" );
     AP( va( "print \"^3!designate: ^7%s^7 has been designated by ^7%s\n\"",
+      vic->client->pers.netname,
+      ( ent ) ? G_admin_adminPrintName( ent ) : "console" ) );
+  }
+  ClientUserinfoChanged( pids[ 0 ] );
+  return qtrue;
+}
+
+qboolean G_admin_naked( gentity_t *ent, int skiparg )
+{
+  int pids[ MAX_CLIENTS ];
+  char name[ MAX_NAME_LENGTH ], err[ MAX_STRING_CHARS ];
+  char command[ MAX_ADMIN_CMD_LEN ], *cmd;
+  gentity_t *vic;
+
+  if( G_SayArgc() < 2 + skiparg )
+  {
+    ADMP( "^3!strip: ^7usage: strip [name|slot#]\n" );
+    return qfalse;
+  }
+  G_SayArgv( skiparg, command, sizeof( command ) );
+  cmd = command;
+  if( cmd && *cmd == '!' )
+    cmd++;
+  G_SayArgv( 1 + skiparg, name, sizeof( name ) );
+  if( G_ClientNumbersFromString( name, pids ) != 1 )
+  {
+    G_MatchOnePlayer( pids, err, sizeof( err ) );
+    ADMP( va( "^3!strip: ^7%s\n", err ) );
+    return qfalse;
+  }
+  if( !admin_higher( ent, &g_entities[ pids[ 0 ] ] ) &&
+    !Q_stricmp( cmd, "dress" ) )
+  {
+    ADMP( "^3!mute: ^7sorry, but your intended victim has a higher admin"
+        " level than you\n" );
+    return qfalse;
+  }
+  vic = &g_entities[ pids[ 0 ] ];
+  if( vic->client->pers.nakedPlayer == qtrue )
+  {
+    if( !Q_stricmp( cmd, "strip" ) )
+    {
+      ADMP( "^3!strip: ^7player has been stripped already\n" );
+      return qtrue;
+    }
+    vic->client->pers.nakedPlayer = qfalse;
+    CPx( pids[ 0 ], "cp \"^1You have been dressed\"" );
+    AP( va(
+      "print \"^3!strip: ^7%s^7 has been dressed by %s\n\"",
+       vic->client->pers.netname,
+       ( ent ) ? G_admin_adminPrintName( ent ) : "console" ) );
+    G_CheckDBProtection( );
+  }
+  else
+  {
+    if( !Q_stricmp( cmd, "dress" ) )
+    {
+      ADMP( "^3!dress: ^7player is dressed already\n" );
+      return qtrue;
+    }
+    vic->client->pers.nakedPlayer = qtrue;
+    CPx( pids[ 0 ], "cp \"^1You have been stripped\"" );
+    AP( va( "print \"^3!strip: ^7%s^7 has been stripped by ^7%s\n\"",
       vic->client->pers.netname,
       ( ent ) ? G_admin_adminPrintName( ent ) : "console" ) );
   }

@@ -1089,6 +1089,9 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     return;
   }
 
+  if( attacker->client->pers.nakedPlayer && targ->s.eType == ET_BUILDABLE )
+    return;
+
   client = targ->client;
 
   if( client )
