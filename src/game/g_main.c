@@ -2306,7 +2306,7 @@ void CheckVote( void )
     return;
 
   if( level.voteYes + level.voteNo > 0 )
-    voteYesPercent = (int)(100* (level.voteYes)/(level.voteYes + level.voteNo));
+    voteYesPercent = (int)( 100 * ( level.voteYes ) / ( level.voteYes + level.voteNo ) );
   else
     voteYesPercent = 0; 
   
@@ -2346,7 +2346,7 @@ void CheckVote( void )
       // same behavior as a timeout
       trap_SendServerCommand( -1, va("print \"Vote failed (%d - %d)\n\"",
             level.voteYes, level.voteNo ) );
-      G_LogOnlyPrintf("Vote failed\n");
+      G_LogPrintf("Vote failed\n");
     }
     else
     {
