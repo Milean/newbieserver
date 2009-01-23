@@ -728,7 +728,7 @@ typedef struct
   int               suddenDeathABuildPoints;
   int               suddenDeathHBuildPoints;
   qboolean          suddenDeath;
-  qboolean          suddenDeathBeginTime;
+  int               suddenDeathBeginTime;
   timeWarning_t     suddenDeathWarning;
   timeWarning_t     timelimitWarning;
 
