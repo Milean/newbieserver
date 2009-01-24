@@ -1223,31 +1223,35 @@ void G_CalculateBuildPoints( void )
   int         localHTP = g_humanBuildPoints.integer,
               localATP = g_alienBuildPoints.integer;
 
-  //g_suddenDeath sets what state we want it to be.  level.suddenDeath says whether we've calculated BPs at the 'start' of SD or not
+  // g_suddenDeath sets what state we want it to be.  
+  // level.suddenDeath says whether we've calculated BPs at the 'start' of SD or not
 
-  //reset if SD was on, but now it's off
-  if(!g_suddenDeath.integer && level.suddenDeath) {
-      level.suddenDeath=qfalse;
-      level.suddenDeathWarning=0;
+  // reset if SD was on, but now it's off
+  if(!g_suddenDeath.integer && level.suddenDeath) 
+  {
+    level.suddenDeath=qfalse;
+    level.suddenDeathWarning=0;
+    level.suddenDeathBeginTime = -1;
+    if((level.time - level.startTime) < (g_suddenDeathTime.integer * 60000 ) )
+      level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
+    else
       level.suddenDeathBeginTime = -1;
-      if((level.time - level.startTime) < (g_suddenDeathTime.integer * 60000 ) )
-        level.suddenDeathBeginTime = g_suddenDeathTime.integer * 60000;
-      else
-        level.suddenDeathBeginTime = -1;
   }
 
-    if(!level.suddenDeath){
-        if(g_suddenDeath.integer || G_TimeTilSuddenDeath( ) <= 0 ) //Conditions to enter SD
-        {
-          //begin sudden death
-          if( level.suddenDeathWarning < TW_PASSED )
-          {
+  if(!level.suddenDeath)
+  {
+    if(g_suddenDeath.integer || G_TimeTilSuddenDeath( ) <= 0 ) //Conditions to enter SD
+    {
+      //begin sudden death
+      if( level.suddenDeathWarning < TW_PASSED )
+      {
         trap_SendServerCommand( -1, "cp \"Sudden Death!\"" );
         G_LogPrintf("Beginning Sudden Death (Mode %d)\n",g_suddenDeathMode.integer);
         localHTP = 0;
         localATP = 0;
 
-        if( g_suddenDeathMode.integer == SDMODE_SELECTIVE ) {
+        if( g_suddenDeathMode.integer == SDMODE_SELECTIVE )
+        {
           for( i = 1, ent = g_entities + i; i < level.num_entities; i++, ent++ )
           {
             if( ent->s.eType != ET_BUILDABLE )
@@ -1258,9 +1262,9 @@ void G_CalculateBuildPoints( void )
               int t = BG_FindTeamForBuildable( ent->s.modelindex );
         
               if( t == BIT_HUMANS )
-            localHTP += BG_FindBuildPointsForBuildable( ent->s.modelindex );
+                localHTP += BG_FindBuildPointsForBuildable( ent->s.modelindex );
               else if( t == BIT_ALIENS )
-            localATP += BG_FindBuildPointsForBuildable( ent->s.modelindex );
+                localATP += BG_FindBuildPointsForBuildable( ent->s.modelindex );
             }
           }
         }
@@ -1269,21 +1273,22 @@ void G_CalculateBuildPoints( void )
         level.suddenDeathBeginTime = level.time;
         level.suddenDeath=qtrue;
         trap_Cvar_Set( "g_suddenDeath", "1" );
-        /*`g_suddenDeath.integer=1;`*/
 
         level.suddenDeathWarning = TW_PASSED;
-          }
-        }  else {
-       
-          //warn about sudden death
-          if( G_TimeTilSuddenDeath( ) <= 60000 &&
-          level.suddenDeathWarning < TW_IMMINENT )
-          {
-            trap_SendServerCommand( -1, va("cp \"Sudden Death in %d seconds!\"", (int)(G_TimeTilSuddenDeath() / 1000 ) ) );
-            level.suddenDeathWarning = TW_IMMINENT;
-          }
-        }
+      }
+    }  
+    else 
+    {
+       //warn about sudden death
+       if( ( G_TimeTilSuddenDeath( ) <= 60000 ) &&
+           (  level.suddenDeathWarning < TW_IMMINENT ) )
+       {
+         trap_SendServerCommand( -1, va("cp \"Sudden Death in %d seconds!\"", 
+               (int)(G_TimeTilSuddenDeath() / 1000 ) ) );
+         level.suddenDeathWarning = TW_IMMINENT;
+       }
     }
+  }
   
   //set BP at each cycle
   if( g_suddenDeath.integer )
@@ -2334,40 +2339,47 @@ void CheckVote( void )
     return;
 
   if( level.voteYes + level.voteNo > 0 )
-   voteYesPercent = (int)(100* (level.voteYes)/(level.voteYes + level.voteNo));
+    voteYesPercent = (int)( 100 * ( level.voteYes ) / ( level.voteYes + level.voteNo ) );
   else
-   voteYesPercent = 0; 
+    voteYesPercent = 0; 
   
-  if( level.time - level.voteTime >= VOTE_TIME || ( level.voteYes + level.voteNo == level.numConnectedClients ) )
+  if( ( level.time - level.voteTime >= VOTE_TIME ) || 
+      ( level.voteYes + level.voteNo == level.numConnectedClients ) )
   {
     if( voteYesPercent> votePassThreshold || level.voteNo == 0 )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, va("print \"Vote passed (%d - %d)\n\"", level.voteYes, level.voteNo ) );
+      trap_SendServerCommand( -1, va("print \"Vote passed (%d - %d)\n\"", 
+            level.voteYes, level.voteNo ) );
       G_LogPrintf( "Vote: Vote passed (%d-%d)\n", level.voteYes, level.voteNo );
       level.voteExecuteTime = level.time + 3000;
     }
     else
     {
       // same behavior as a timeout
-      trap_SendServerCommand( -1, va("print \"Vote failed (%d - %d)\n\"", level.voteYes, level.voteNo ) );
+      trap_SendServerCommand( -1, va("print \"Vote failed (%d - %d)\n\"",
+            level.voteYes, level.voteNo ) );
       G_LogPrintf( "Vote: Vote failed (%d - %d)\n", level.voteYes, level.voteNo );
     }
   }
   else
   {
-    if( level.voteYes > (int)((double)level.numConnectedClients * ((double)votePassThreshold/100.0)) )
+    if( level.voteYes > (int)( (double) level.numConnectedClients * 
+                                 ( (double) votePassThreshold/100.0 ) ) )
     {
       // execute the command, then remove the vote
-      trap_SendServerCommand( -1, va("print \"Vote passed (%d - %d)\n\"", level.voteYes, level.voteNo ) );
+      trap_SendServerCommand( -1, va("print \"Vote passed (%d - %d)\n\"",
+            level.voteYes, level.voteNo ) );
       G_LogPrintf( "Vote: Vote passed (%d - %d)\n", level.voteYes, level.voteNo );
       level.voteExecuteTime = level.time + 3000;
     }
-    else if( level.voteNo > (int)((double)level.numConnectedClients * ((double)(100.0-votePassThreshold)/100.0)) )
+    else if( level.voteNo > (int)( (double) level.numConnectedClients * 
+                                     ( (double) ( 100.0-votePassThreshold )/ 100.0 ) ) )
     {
       // same behavior as a timeout
-      trap_SendServerCommand( -1, va("print \"Vote failed (%d - %d)\n\"", level.voteYes, level.voteNo ) );
-      G_LogOnlyPrintf("Vote failed\n");
+      trap_SendServerCommand( -1, va("print \"Vote failed (%d - %d)\n\"",
+            level.voteYes, level.voteNo ) );
+      G_LogPrintf("Vote failed\n");
     }
     else
     {
