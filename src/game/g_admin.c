@@ -2277,8 +2277,25 @@ qboolean G_admin_adjustban( gentity_t *ent, int skiparg )
     ( *reason ) ? "reason: " : "",
     reason ) );
   if( ent )
-    Q_strncpyz( g_admin_bans[ bnum - 1 ]->banner, ent->client->pers.netname,
-      sizeof( g_admin_bans[ bnum - 1 ]->banner ) );
+  {
+    qboolean found = qfalse;
+    int i;
+
+    // real admin name
+    for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
+    {
+      if( !Q_stricmp( g_admin_admins[ i ]->guid, ent->client->pers.guid ) )
+      {
+        Q_strncpyz( g_admin_bans[ bnum - 1 ]->banner, g_admin_admins[ i ]->name,
+         sizeof( g_admin_bans[ bnum - 1 ]->banner ) );
+        found = qtrue;
+        break;
+      }
+    }
+    if( !found )
+      Q_strncpyz( g_admin_bans[ bnum - 1 ]->banner, ent->client->pers.netname,
+        sizeof( g_admin_bans[ bnum - 1 ]->banner ) );
+  }
   if( g_admin.string[ 0 ] )
     admin_writeconfig();
   return qtrue;
