@@ -2619,11 +2619,18 @@ void G_admin_maplog_update( void )
 
 void G_admin_maplog_result( char *flag )
 {
+  static int lastTime = 0;
   char maplog[ MAX_CVAR_VALUE_STRING ];
   int t;
 
   if( !flag )
     return;
+
+  // avoid race when called in same frame
+  if( level.time == lastTime )
+    return;
+
+  lastTime = level.time;
 
   if( g_adminMapLog.string[ 0 ] &&
     g_adminMapLog.string[ 1 ] == ';' )
@@ -3219,7 +3226,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
   return qtrue;
 }
 
-#define MAX_LISTMAPS_MAPS 128
+#define MAX_LISTMAPS_MAPS 256
 
 static int SortMaps(const void *a, const void *b)
 {
