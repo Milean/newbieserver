@@ -2931,8 +2931,25 @@ qboolean G_admin_adjustban( gentity_t *ent, int skiparg )
     ( *reason ) ? "reason: " : "",
     reason ) );
   if( ent )
-    Q_strncpyz( g_admin_bans[ bnum - 1 ]->banner, ent->client->pers.netname,
-      sizeof( g_admin_bans[ bnum - 1 ]->banner ) );
+  {
+    qboolean found = qfalse;
+    int i;
+
+    // real admin name
+    for( i = 0; i < MAX_ADMIN_ADMINS && g_admin_admins[ i ]; i++ )
+    {
+      if( !Q_stricmp( g_admin_admins[ i ]->guid, ent->client->pers.guid ) )
+      {
+        Q_strncpyz( g_admin_bans[ bnum - 1 ]->banner, g_admin_admins[ i ]->name,
+         sizeof( g_admin_bans[ bnum - 1 ]->banner ) );
+        found = qtrue;
+        break;
+      }
+    }
+    if( !found )
+      Q_strncpyz( g_admin_bans[ bnum - 1 ]->banner, ent->client->pers.netname,
+        sizeof( g_admin_bans[ bnum - 1 ]->banner ) );
+  }
   if( g_admin.string[ 0 ] )
     admin_writeconfig();
   return qtrue;
@@ -3300,11 +3317,18 @@ void G_admin_maplog_update( void )
 
 void G_admin_maplog_result( char *flag )
 {
+  static int lastTime = 0;
   char maplog[ MAX_CVAR_VALUE_STRING ];
   int t;
 
   if( !flag )
     return;
+
+  // avoid race when called in same frame
+  if( level.time == lastTime )
+    return;
+
+  lastTime = level.time;
 
   if( g_adminMapLog.string[ 0 ] &&
     g_adminMapLog.string[ 1 ] == ';' )
@@ -3914,7 +3938,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
   return qtrue;
 }
 
-#define MAX_LISTMAPS_MAPS 128
+#define MAX_LISTMAPS_MAPS 256
 
 static int SortMaps(const void *a, const void *b)
 {

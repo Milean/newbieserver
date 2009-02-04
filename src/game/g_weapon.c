@@ -139,6 +139,55 @@ void G_BounceProjectile( vec3_t start, vec3_t impact, vec3_t dir, vec3_t endout 
 }
 
 /*
+================
+G_WideTrace
+
+Trace a bounding box against entities, but not the world
+Also check there is a line of sight between the start and end point
+================
+*/
+static void G_WideTrace( trace_t *tr, gentity_t *ent, float range, float width, gentity_t **target )
+{
+  vec3_t    mins, maxs;
+  vec3_t    end;
+
+  VectorSet( mins, -width, -width, -width );
+  VectorSet( maxs, width, width, width );
+
+  *target = NULL;
+
+  if( !ent->client )
+    return;
+
+  // Set aiming directions
+  AngleVectors( ent->client->ps.viewangles, forward, right, up );
+  CalcMuzzlePoint( ent, forward, right, up, muzzle );
+  VectorMA( muzzle, range, forward, end );
+
+  G_UnlaggedOn( ent, muzzle, range );
+
+  // Trace against entities
+  trap_Trace( tr, muzzle, mins, maxs, end, ent->s.number, CONTENTS_BODY );
+  if( tr->entityNum != ENTITYNUM_NONE )
+  {
+    *target = &g_entities[ tr->entityNum ];
+
+    // Set range to the trace length plus the width, so that the end of the
+    // LOS trace is close to the exterior of the target's bounding box
+    range = Distance( muzzle, tr->endpos ) + width;
+    VectorMA( muzzle, range, forward, end );
+
+    // Trace for line of sight against the world
+    trap_Trace( tr, muzzle, NULL, NULL, end, 0, CONTENTS_SOLID );
+    if( tr->fraction < 1.0f )
+      *target = NULL;
+  }
+
+  G_UnlaggedOff( );
+}
+
+
+/*
 ======================
 SnapVectorTowards
 
@@ -1302,14 +1351,9 @@ CheckPounceAttack
 qboolean CheckPounceAttack( gentity_t *ent )
 {
   trace_t   tr;
-  vec3_t    end;
   gentity_t *tent;
   gentity_t *traceEnt;
   int       damage;
-  vec3_t    mins, maxs;
-
-  VectorSet( mins, -LEVEL3_POUNCE_WIDTH, -LEVEL3_POUNCE_WIDTH, -LEVEL3_POUNCE_WIDTH );
-  VectorSet( maxs, LEVEL3_POUNCE_WIDTH, LEVEL3_POUNCE_WIDTH, LEVEL3_POUNCE_WIDTH );
 
   if( ent->client->ps.groundEntityNum != ENTITYNUM_NONE )
   {
@@ -1323,25 +1367,10 @@ qboolean CheckPounceAttack( gentity_t *ent )
   if( ent->client->ps.weaponTime )
     return qfalse;
 
-  // set aiming directions
-  AngleVectors( ent->client->ps.viewangles, forward, right, up );
+  G_WideTrace( &tr, ent, LEVEL3_POUNCE_RANGE, LEVEL3_POUNCE_WIDTH, &traceEnt );
 
-  CalcMuzzlePoint( ent, forward, right, up, muzzle );
-
-  VectorMA( muzzle, LEVEL3_POUNCE_RANGE, forward, end );
-
-  G_UnlaggedOn( ent, muzzle, LEVEL3_POUNCE_RANGE );
-  trap_Trace( &tr, muzzle, mins, maxs, end, ent->s.number, MASK_SHOT );
-  G_UnlaggedOff( );
-
-  //miss
-  if( tr.fraction >= 1.0 )
+  if( traceEnt == NULL )
     return qfalse;
-
-  if( tr.surfaceFlags & SURF_NOIMPACT )
-    return qfalse;
-
-  traceEnt = &g_entities[ tr.entityNum ];
 
   // send blood impact
   if( traceEnt->takedamage && traceEnt->client )
