@@ -3774,6 +3774,7 @@ qboolean G_admin_listlayouts( gentity_t *ent, int skiparg )
   return qtrue;
 }
 
+
 qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
 {
   int i, j;
@@ -3785,16 +3786,35 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
   char lname[ MAX_NAME_LENGTH ];
   char lname2[ MAX_NAME_LENGTH ];
   char guid_stub[ 9 ];
-  char muted[ 2 ], denied[ 2 ], dbuilder[ 2 ], nplayer[ 2 ];
+  char muted[ 2 ], denied[ 2 ], dbuilder[ 2 ] /*, nplayer[ 2 ]*/;
   int l;
   char lname_fmt[ 5 ];
+  char param1[ 20 ] = {""};
+  qboolean only_stripped = qfalse;
+
+  if ( G_SayArgc( ) >= 2 + skiparg )
+    G_SayArgv( 1 +skiparg, param1, sizeof( param1 ) );
+
+  if ( !strcmp( param1, "stripped" ) || !strcmp( param1, "strip" ) )
+    only_stripped = qtrue;
 
   ADMBP_begin();
+
+//  ADMBP( va( "^3!listplayers^7: %d args, param1 = %s :\n",
+//    G_SayArgc( ), param1 ) );
+  if (only_stripped)
+    ADMBP( va( "^3!listplayers^7: -- only stripped --\n") );
+
   ADMBP( va( "^3!listplayers^7: %d players connected:\n",
     level.numConnectedClients ) );
+
   for( i = 0; i < level.maxclients; i++ )
   {
     p = &level.clients[ i ];
+
+    if ((only_stripped) && !(p->pers.nakedPlayer))
+      continue;
+
     Q_strncpyz( t, "S", sizeof( t ) );
     Q_strncpyz( c, S_COLOR_YELLOW, sizeof( c ) );
     if( p->pers.teamSelection == PTE_HUMANS )
@@ -3848,6 +3868,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
       }
     }
 
+/*
     nplayer[ 0 ] = '\0';
     if( p->pers.nakedPlayer )
     {
@@ -3860,6 +3881,7 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
         Q_strncpyz( nplayer, "S", sizeof( nplayer ) );
       }
     }
+*/
     l = 0;
     G_SanitiseString( p->pers.netname, n2, sizeof( n2 ) );
     n[ 0 ] = '\0';
@@ -3903,33 +3925,35 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
 
      if( G_admin_permission(ent, ADMF_SEESFULLLISTPLAYERS ) ) {
  
-      ADMBP( va( "%2i %s%s^7 %-2i %s^7 (*%s) ^1%1s%1s%1s%1s^7 %s^7 %s%s^7%s\n",
-               i,
-               c,
-               t,
-               l,
+     /* ADMBP( va( "%2i %s%s^7 %-2i %s^7 (*%s) ^1%1s%1s%1s%1s^7 %s^7 %s%s^7%s\n", */
+      ADMBP( va( "%2i %s%s^7 %-2i %s^7 (*%s) ^1%1s%1s%1s ^2%3s^7 ^7%s^7%s%s^7%s\n",
+               i,                                   /* slot */
+               c,                                   /* coulour - for team */
+               t,                                   /* team */
+               l,                                   /* level */
                ( *lname ) ? lname2 : "", 
                guid_stub,
                muted,
                dbuilder,
                denied,
-			   nplayer,
+			   p->pers.nakedPlayer?"str":"",
                p->pers.netname,
-               ( *n ) ? "(a.k.a. " : "",
+               ( *n ) ? "\n                           (a.k.a. " : "",
                n,
                ( *n ) ? ")" : ""
              ) );
      }
      else
      {
-      ADMBP( va( "%2i %s%s^7 ^1%1s%1s%1s%1s^7 %s^7\n",
+      /* ADMBP( va( "%2i %s%s^7 ^1%1s%1s%1s%1s^7 %s^7\n", */
+      ADMBP( va( "%2i %s%s^7 ^1%1s%1s%1s ^2%10s^7 ^7%s^7\n",
                i,
                c,
                t,
                muted,
                dbuilder,
                denied,
-			   nplayer,
+			   p->pers.nakedPlayer?"[stripped]":"", /*nplayer*/
                p->pers.netname
              ) );
      }
