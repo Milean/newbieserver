@@ -1090,6 +1090,13 @@ void G_Damage( gentity_t *targ, gentity_t *inflictor, gentity_t *attacker,
     return;
   }
 
+  // cicho-sza add on:
+  // if no damage to structures, exit
+  if ((targ->s.eType == ET_BUILDABLE ) && (g_StructNoDmg.integer > 0))
+  {
+    return;
+  }
+
   if( attacker->client->pers.nakedPlayer && targ->s.eType == ET_BUILDABLE )
   //  return;
   // cicho-sza add on:
