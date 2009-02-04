@@ -242,9 +242,9 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   {
     attacker->client->lastkilled_client = self->s.number;
 
-   if( g_devmapKillerHP.integer && g_cheats.integer ) 
+   if (( g_devmapKillerHP.integer && g_cheats.integer ) || (g_ShowKillerHealth.integer > 0)) /* cicho-sza add on */
    {
-     trap_SendServerCommand( self-g_entities, va( "print \"Your killer, %s, had %3i HP.\n\"", killerName, attacker->health ) );
+     trap_SendServerCommand( self-g_entities, va( "print \"Your killer, %s^7, had ^1%3i^7 HP.\n\"", killerName, attacker->health ) );
    }
 
     if( attacker == self || OnSameTeam( self, attacker ) )

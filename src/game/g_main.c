@@ -189,6 +189,7 @@ vmCvar_t  g_msg;
 vmCvar_t  g_msgTime;
 
 // cicho-sza add-on:
+vmCvar_t  g_ShowKillerHealth;
 vmCvar_t  g_lesson;
 vmCvar_t  g_lesson_BlockEqStr;
 vmCvar_t  g_strip_PlayerDmgPrcnt;
@@ -367,6 +368,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_adminLeaveMsg, "g_adminLeaveMsg", "", CVAR_ARCHIVE, 0, qfalse  },
 
   // cicho-sza add-on:
+  { &g_ShowKillerHealth, "g_ShowKillerHealth", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
   { &g_lesson, "g_lesson", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
   { &g_lesson_BlockEqStr, "g_lesson_BlockEqStr", "", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 
