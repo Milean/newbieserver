@@ -3926,17 +3926,16 @@ qboolean G_admin_listplayers( gentity_t *ent, int skiparg )
      if( G_admin_permission(ent, ADMF_SEESFULLLISTPLAYERS ) ) {
  
      /* ADMBP( va( "%2i %s%s^7 %-2i %s^7 (*%s) ^1%1s%1s%1s%1s^7 %s^7 %s%s^7%s\n", */
-      ADMBP( va( "%2i %s%s^7 %-2i %s^7 (*%s) ^1%1s%1s%1s ^2%3s^7 ^7%s^7%s%s^7%s\n",
+      ADMBP( va( "%2i %s%s^7 %-2i %s^7 (*%s) ^1%1s%1s%1s ^7%s^7%s%s^7%s\n",
                i,                                   /* slot */
                c,                                   /* coulour - for team */
                t,                                   /* team */
                l,                                   /* level */
-               ( *lname ) ? lname2 : "", 
+               ( *lname ) ? (p->pers.nakedPlayer ? "^1Stripped Player" : lname2) : "", 
                guid_stub,
                muted,
                dbuilder,
                denied,
-			   p->pers.nakedPlayer?"str":"",
                p->pers.netname,
                ( *n ) ? "\n                           (a.k.a. " : "",
                n,
