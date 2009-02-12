@@ -1106,7 +1106,7 @@ Parse_SetBaseFolder
 */
 static void Parse_SetBaseFolder(char *path)
 {
-  Com_sprintf(basefolder, sizeof(basefolder), path);
+  Com_sprintf(basefolder, sizeof(basefolder), "%s", path);
 }
 
 /*

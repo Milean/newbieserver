@@ -276,12 +276,9 @@ int G_BotBuy ( gentity_t *ent, int weapon )
 
 int G_BotEvolve( gentity_t *ent, char *classname)
 {
-  char      s[ MAX_TOKEN_CHARS ];
   int       clientNum;
   int       i;
   vec3_t    infestOrigin;
-  int       allowedClasses[ PCL_NUM_CLASSES ];
-  int       numClasses = 0;
   pClass_t  currentClass = ent->client->ps.stats[ STAT_PCLASS ];
   pClass_t  newClass;
   int       numLevels;
@@ -378,7 +375,6 @@ int G_BotEvolve( gentity_t *ent, char *classname)
 void G_BotThink( gentity_t *self )
 {
 	int distance = 0;
-	int i;
 	int clicksToStopChase = 30; //5 seconds
 	int tooCloseDistance = 100; // about 1/3 of turret range
 	int forwardMove = 127; // max speed

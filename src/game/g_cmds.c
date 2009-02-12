@@ -1711,7 +1711,7 @@ void Cmd_CallVote_f( gentity_t *ent )
         trap_SendServerCommand( ent-g_entities, "print \"callvote: You forgot to specify what people should vote on.\n\"" );
         return;
       }
-      Com_sprintf( level.voteString, sizeof( level.voteString ), nullstring);
+      Com_sprintf( level.voteString, sizeof( level.voteString ), "%s", nullstring );
       Com_sprintf( level.voteDisplayString,
           sizeof( level.voteDisplayString ), "[Poll] \'%s\'", arg2plus );
    }
@@ -2166,7 +2166,7 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
        trap_SendServerCommand( ent-g_entities, "print \"callteamvote: You forgot to specify what people should vote on.\n\"" );
        return;
      }
-     Com_sprintf( level.teamVoteString[ cs_offset ], sizeof( level.teamVoteString[ cs_offset ] ), nullstring );
+     Com_sprintf( level.teamVoteString[ cs_offset ], sizeof( level.teamVoteString[ cs_offset ] ), "%s", nullstring );
      Com_sprintf( level.teamVoteDisplayString[ cs_offset ],
          sizeof( level.voteDisplayString ), "[Poll] \'%s\'", arg2plus );
    }
@@ -2397,29 +2397,24 @@ qboolean IsLesson_BlockedEq( char * ItemOrClassName )
   int cnt;
 
   // sanity checks
-  if ((!ItemOrClassName) || (ItemOrClassName == ""))
-  {
+  if (!ItemOrClassName || ItemOrClassName[ 0 ] == '\0' )
     return qfalse;
-  }
 
 
   // normalise (remove whitespace, make , from ; etc) g_lesson_BlockEqStr value
   BlockedEqStr[0] = ',';
   p = 1;
-  i = 0;
   cnt = strlen(g_lesson_BlockEqStr.string);
-  while (i<cnt)
+  for( i = 0; i < cnt; ++i )
   {
     if (g_lesson_BlockEqStr.string[i] != ' ')
-      {
-        if (g_lesson_BlockEqStr.string[i] == ';')
-          BlockedEqStr[p] = ',';
-        else
-          BlockedEqStr[p] = g_lesson_BlockEqStr.string[i];
-        p++;
-      }
-
-    i++;
+    {
+      if (g_lesson_BlockEqStr.string[i] == ';')
+        BlockedEqStr[p] = ',';
+      else
+        BlockedEqStr[p] = g_lesson_BlockEqStr.string[i];
+      ++p;
+    }
   }
   BlockedEqStr[p]   = ',';
   BlockedEqStr[p+1] = '\0';
@@ -2428,9 +2423,8 @@ qboolean IsLesson_BlockedEq( char * ItemOrClassName )
   // convert input parameter to ,something, string
   ItemToFind[0] = ',';
   p = 1;
-  i = 0;
   cnt = strlen(ItemOrClassName);
-  while (i<cnt)
+  for( i = 0; i < cnt; ++i )
   {
     if (ItemOrClassName[i] != ' ')
       {
@@ -2438,10 +2432,8 @@ qboolean IsLesson_BlockedEq( char * ItemOrClassName )
           ItemToFind[p] = ',';
         else
           ItemToFind[p] = ItemOrClassName[i];
-        p++;
+        ++p;
       }
-
-    i++;
   }
   ItemToFind[p]   = ',';
   ItemToFind[p+1] = '\0';

@@ -4337,8 +4337,7 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
   if( ( start + MAX_ADMIN_SHOWBANS ) < found )
   {
     ADMBP( va( "run !showlongstrips %d %s to see more",
-             ( start + MAX_ADMIN_SHOWBANS + 1 ),
-             (filter) ? filter : "" ) );
+               start + MAX_ADMIN_SHOWBANS + 1, filter ) );
   }
   ADMBP( "\n" );
   ADMBP_end();
@@ -5287,27 +5286,27 @@ qboolean G_admin_naked( gentity_t *ent, int skiparg )
   char command[ MAX_ADMIN_CMD_LEN ], *cmd;
   gentity_t *vic;
 
-  if( G_SayArgc() < 2 + skiparg )
-  {
-    ADMP( "^3!strip: ^7usage: strip [name|slot#]\n" );
-    return qfalse;
-  }
   G_SayArgv( skiparg, command, sizeof( command ) );
   cmd = command;
   if( cmd && *cmd == '!' )
     cmd++;
+
+  if( G_SayArgc() < 2 + skiparg )
+  {
+    ADMP( va( "^3%s: ^7usage: !%s [name|slot#]\n", cmd, cmd ) );
+    return qfalse;
+  }
   G_SayArgv( 1 + skiparg, name, sizeof( name ) );
   if( G_ClientNumbersFromString( name, pids ) != 1 )
   {
     G_MatchOnePlayer( pids, err, sizeof( err ) );
-    ADMP( va( "^3!strip: ^7%s\n", err ) );
+    ADMP( va( "^3!%s: ^7%s\n", cmd, err ) );
     return qfalse;
   }
-  if( !admin_higher( ent, &g_entities[ pids[ 0 ] ] ) &&
-    !Q_stricmp( cmd, "dress" ) )
+  if( !admin_higher( ent, &g_entities[ pids[ 0 ] ] ) )
   {
-    ADMP( "^3!mute: ^7sorry, but your intended victim has a higher admin"
-        " level than you\n" );
+    ADMP( va( "^3!%s: ^7sorry, but your intended victim has a higher admin"
+        " level than you\n", cmd ) );
     return qfalse;
   }
   vic = &g_entities[ pids[ 0 ] ];
@@ -5321,7 +5320,7 @@ qboolean G_admin_naked( gentity_t *ent, int skiparg )
     vic->client->pers.nakedPlayer = qfalse;
     CPx( pids[ 0 ], "cp \"^1You have been dressed\"" );
     AP( va(
-      "print \"^3!strip: ^7%s^7 has been dressed by %s\n\"",
+      "print \"^3!dress: ^7%s^7 has been dressed by %s\n\"",
        vic->client->pers.netname,
        ( ent ) ? G_admin_adminPrintName( ent ) : "console" ) );
     G_CheckDBProtection( );
