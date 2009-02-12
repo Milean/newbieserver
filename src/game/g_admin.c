@@ -221,7 +221,6 @@ g_admin_cmd_t g_admin_cmds[ ] =
       ""
     },
 
-
     {"putteam", G_admin_putteam, "p",
       "move a player to a specified team",
       "[^3name|slot#^7] [^3h|a|s^7]"
@@ -5448,7 +5447,7 @@ qboolean G_admin_buildlog( gentity_t *ent, int skiparg )
           if(G_ClientNumbersFromString(argbuf + 1, pids) != 1)
           {
            G_MatchOnePlayer(pids, err, sizeof(err));
-           ADMP(va("^3!revert: ^7%s\n", err));
+           ADMP(va("^3!buildlog: ^7%s\n", err));
            return qfalse;
           }
           builder = g_entities + *pids;
