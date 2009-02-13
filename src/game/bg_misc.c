@@ -4284,7 +4284,7 @@ upgradeAttributes_t bg_upgrades[ ] =
     UP_LIGHTARMOUR,         //int   upgradeNum;
     LIGHTARMOUR_PRICE,      //int   price;
     ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  stages
-    ( 1 << s1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
+    ( 1 << S1 )|( 1 << S2 )|( 1 << S3 ), //int  nakedStages
     SLOT_TORSO|SLOT_ARMS|SLOT_LEGS, //int   slots;
     "larmour",              //char  *upgradeName;
     "Light Armour",         //char  *upgradeHumanName;
