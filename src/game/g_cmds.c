@@ -1485,9 +1485,9 @@ void Cmd_CallVote_f( gentity_t *ent )
 
     if( *ptr == 'r' || *ptr=='R' )
     {
-      while( *ptr != ' ' )
-        ptr++;
       ptr++;
+      while( *ptr == ' ' )
+        ptr++;
       strcpy(reason, ptr);
     }
     else
@@ -1937,9 +1937,9 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
     if( *ptr == 'r' || *ptr=='R' )
     {
-      while( *ptr != ' ' )
-        ptr++;
       ptr++;
+      while( *ptr == ' ' )
+        ptr++;
       strcpy(reason, ptr);
     }
     else
