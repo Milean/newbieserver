@@ -634,6 +634,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
 
   level.snd_fry = G_SoundIndex( "sound/misc/fry.wav" ); // FIXME standing in lava / slime
 
+  trap_Cvar_Set( "qvm_version",
+                 QVM_NAME " " QVM_VERSIONNUM " (" __DATE__ ", " __TIME__ ")" );
+
   if( g_logFile.string[ 0 ] )
   {
     if( g_logFileSync.integer )
