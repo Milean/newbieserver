@@ -24,7 +24,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 #include "g_local.h"
 
 #define QVM_NAME       "Lakitu7's QVM"
-#define QVM_VERSIONNUM      "5.4"
+#define QVM_VERSIONNUM      "5.5"
 
 level_locals_t  level;
 
@@ -663,6 +663,9 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
     level.humanStage2Time = level.humanStage3Time = level.startTime;
 
   level.snd_fry = G_SoundIndex( "sound/misc/fry.wav" ); // FIXME standing in lava / slime
+
+  trap_Cvar_Set( "qvm_version",
+                 QVM_NAME " " QVM_VERSIONNUM " (" __DATE__ ", " __TIME__ ")" );
 
   if( g_logFile.string[ 0 ] )
   {

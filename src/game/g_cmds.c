@@ -1495,9 +1495,9 @@ void Cmd_CallVote_f( gentity_t *ent )
 
     if( *ptr == 'r' || *ptr=='R' )
     {
-      while( *ptr != ' ' )
-        ptr++;
       ptr++;
+      while( *ptr == ' ' )
+        ptr++;
       strcpy(reason, ptr);
     }
     else
@@ -1947,9 +1947,9 @@ void Cmd_CallTeamVote_f( gentity_t *ent )
 
     if( *ptr == 'r' || *ptr=='R' )
     {
-      while( *ptr != ' ' )
-        ptr++;
       ptr++;
+      while( *ptr == ' ' )
+        ptr++;
       strcpy(reason, ptr);
     }
     else
@@ -3203,6 +3203,13 @@ void Cmd_Buy_f( gentity_t *ent )
     //don't let stripped players buy shit they shouldn't
     if ( ent->client->pers.nakedPlayer && !BG_FindNakedStagesForUpgrade( upgrade, g_humanStage.integer ) ) {
       trap_SendServerCommand( ent-g_entities, va( "print \"This item is currently denied to stripped players\n\"" ) );
+      return;
+    }
+
+    if( upgrade == UP_BATTLESUIT && ent->client->ps.pm_flags & PMF_DUCKED )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        va( "print \"You can't buy this item while crouching\n\"" ) );
       return;
     }
 
