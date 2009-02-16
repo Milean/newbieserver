@@ -3368,8 +3368,8 @@ qboolean G_admin_showbans( gentity_t *ent, int skiparg )
   char date[ 11 ];
   char *made;
   int j;
-  char n1[ MAX_NAME_LENGTH ] = {""};
-  char n2[ MAX_NAME_LENGTH ] = {""};
+  char n1[ MAX_NAME_LENGTH * 2 ] = {""};
+  char n2[ MAX_NAME_LENGTH * 2 ] = {""};
   qboolean numeric = qtrue;
   char *ip_match = NULL;
   int ip_match_len = 0;
