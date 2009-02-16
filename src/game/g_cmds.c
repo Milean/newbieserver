@@ -3067,6 +3067,13 @@ void Cmd_Buy_f( gentity_t *ent )
       return;
     }
 
+    if( upgrade == UP_BATTLESUIT && ent->client->ps.pm_flags & PMF_DUCKED )
+    {
+      trap_SendServerCommand( ent-g_entities,
+        va( "print \"You can't buy this item while crouching\n\"" ) );
+      return;
+    }
+
     if( upgrade == UP_AMMO )
       G_GiveClientMaxAmmo( ent, buyingEnergyAmmo );
     else
