@@ -1400,6 +1400,8 @@ extern  vmCvar_t  g_msgTime;
 extern  vmCvar_t  g_buildLogMaxLength;
 
 // cicho-sza add-on:
+extern  vmCvar_t  g_StripEqChange;
+extern  vmCvar_t  g_StripEqChange_def;
 extern  vmCvar_t  g_StructNoDmg;
 extern  vmCvar_t  g_ShowKillerHealth;
 extern  vmCvar_t  g_lesson;

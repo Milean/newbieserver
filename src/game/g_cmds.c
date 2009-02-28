@@ -2378,6 +2378,85 @@ void Cmd_SetViewpos_f( gentity_t *ent )
 }
 
 // cicho-sza add-on:
+
+/*
+====================
+OverrideNakedStage
+====================
+*/
+/*
+ *  ( blame: cicho-sza :D )
+ *  scans cvar g_StripEqChange string value to check
+ *  if override for naked stage was set
+ *  returns: -1 // no override
+ *            0 // override, forbidden at current stage
+ *            1 // override, allowed at current stage
+ */
+int OverrideNakedStage( char * ItemOrClassName, int CheckStage )
+{
+  char sClearedList[MAX_CVAR_VALUE_STRING];
+  char sClearedItem[MAX_CVAR_VALUE_STRING];
+  char * seek;
+  int i, p, cnt;
+  
+  // remove all space from g_StripEqChange.string, and replace = with :
+  p   = 0;
+  cnt = strlen(g_StripEqChange.string);
+  for( i = 0; i < cnt; ++i )
+  {
+    if (g_StripEqChange.string[i] != ' ')
+    {
+      if (g_StripEqChange.string[i] == '=')
+        sClearedList[p] = ':';
+      else
+        sClearedList[p] = g_StripEqChange.string[i];
+      ++p;
+    }
+  }
+  sClearedList[p] = '\0';
+  
+  // remove all space from ItemOrClassName and add : at the end
+  p   = 0;
+  cnt = strlen(ItemOrClassName);
+  for( i = 0; i < cnt; ++i )
+  {
+    if (ItemOrClassName[i] != ' ')
+    {
+      sClearedItem[p] = ItemOrClassName[i];
+      ++p;
+    }
+  }
+  sClearedItem[p]   = ':';
+  sClearedItem[p+1] = '\0';
+
+  // (yes, I am aware it would be much easier with trim and concat IF they were available :D)
+
+  // fortunately strstr is present, so can
+  // at least search in normal way 
+  seek = strstr(sClearedList, sClearedItem);
+    
+  // if not found - no override
+  if (!seek)
+    return -1;
+  
+  // find separation char
+  // and skip past to it, it it was separation char not the \0
+  while ( (seek[0] != '\0') && (seek[0] != ':') ) seek++;
+  if (seek[0] == ':') seek++;  
+
+  // now seek points to either \0 or to char with assigned stage.
+  // in first case - no override
+  if (seek[0] == '\0') return -1;
+  
+  i = seek[0]-'0'; // since '0'-'0'==0
+  if ((i < 0) || (i > CheckStage)) 
+    return 0;
+  
+  return 1;
+}
+
+
+
 /*
 =================
 IsLesson_BlockedEq
@@ -2466,6 +2545,7 @@ void Cmd_Class_f( gentity_t *ent )
   vec3_t    mins, maxs;
   int       num;
   gentity_t *other;
+  int       iNakedStageOvr = -1;
 
 
   clientNum = ent->client - level.clients;
@@ -2479,6 +2559,9 @@ void Cmd_Class_f( gentity_t *ent )
           va( "print \"^1Class %s is not allowed during this lesson.^7\n\"", s ) );
         return;
       }
+
+      if (ent->client->pers.nakedPlayer)
+        iNakedStageOvr = OverrideNakedStage(s, g_alienStage.integer);
 
   if( ent->client->sess.sessionTeam == TEAM_SPECTATOR )
   {
@@ -2630,7 +2713,21 @@ void Cmd_Class_f( gentity_t *ent )
             BG_ClassIsAllowed( newClass ) )
         {
           //don't let stripped players evolve to classes they shouldn't
-          if ( ent->client->pers.nakedPlayer && !BG_FindNakedStagesForClass( newClass, g_alienStage.integer ) ) {
+          
+          if ( 
+                (
+                  ent->client->pers.nakedPlayer 
+                && 
+                  !BG_FindNakedStagesForClass( newClass, g_alienStage.integer ) 
+                &&
+                  (iNakedStageOvr == -1)  // check above only if no override was set
+                )
+                
+                ||
+                
+                (iNakedStageOvr == 0) // or simply deny if override says so
+             ) 
+          {
             trap_SendServerCommand( ent-g_entities,
                  "print \"This class is currently denied to stripped players\n\"" );
             return;
@@ -3013,6 +3110,8 @@ void Cmd_Buy_f( gentity_t *ent )
   int       maxAmmo, maxClips;
   qboolean  buyingEnergyAmmo = qfalse;
   qboolean  hasEnergyWeapon = qfalse;
+  
+  int iNakedStageOvr = -1;
 
   for( i = UP_NONE; i < UP_NUM_UPGRADES; i++ )
   {
@@ -3031,6 +3130,9 @@ void Cmd_Buy_f( gentity_t *ent )
   }
 
   trap_Argv( 1, s, sizeof( s ) );
+
+  if (ent->client->pers.nakedPlayer)
+    iNakedStageOvr = OverrideNakedStage(s, g_humanStage.integer);
 
   weapon = BG_FindWeaponNumForName( s );
   upgrade = BG_FindUpgradeNumForName( s );
@@ -3116,7 +3218,16 @@ void Cmd_Buy_f( gentity_t *ent )
       }
 
     //don't let stripped players buy shit they shouldn't
-    if ( ent->client->pers.nakedPlayer && !BG_FindNakedStagesForWeapon( weapon, g_humanStage.integer ) ) {
+    if ( 
+          (
+            ent->client->pers.nakedPlayer && 
+            !BG_FindNakedStagesForWeapon( weapon, g_humanStage.integer ) &&
+            (iNakedStageOvr == -1) // check only if no override is set
+          )
+          ||
+          (iNakedStageOvr == 0) // simply deny
+        ) 
+    {
       trap_SendServerCommand( ent-g_entities, va( "print \"This item is currently denied to stripped players\n\"" ) );
       return;
     }
@@ -3193,7 +3304,12 @@ void Cmd_Buy_f( gentity_t *ent )
     }
 
     //don't let stripped players buy shit they shouldn't
-    if ( ent->client->pers.nakedPlayer && !BG_FindNakedStagesForUpgrade( upgrade, g_humanStage.integer ) ) {
+    if (
+          (ent->client->pers.nakedPlayer && !BG_FindNakedStagesForUpgrade( upgrade, g_humanStage.integer ) && (iNakedStageOvr==-1) )
+          ||
+          (iNakedStageOvr == 0) 
+       ) 
+    {
       trap_SendServerCommand( ent-g_entities, va( "print \"This item is currently denied to stripped players\n\"" ) );
       return;
     }

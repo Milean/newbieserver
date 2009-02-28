@@ -189,6 +189,8 @@ vmCvar_t  g_msg;
 vmCvar_t  g_msgTime;
 
 // cicho-sza add-on:
+vmCvar_t  g_StripEqChange;
+vmCvar_t  g_StripEqChange_def;
 vmCvar_t  g_StructNoDmg;
 vmCvar_t  g_ShowKillerHealth;
 vmCvar_t  g_lesson;
@@ -369,6 +371,9 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_adminLeaveMsg, "g_adminLeaveMsg", "", CVAR_ARCHIVE, 0, qfalse  },
 
   // cicho-sza add-on:
+  { &g_StripEqChange,     "g_StripEqChange",     "", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
+  { &g_StripEqChange_def, "g_StripEqChange_def", "", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
+  
   { &g_StructNoDmg, "g_StructNoDmg", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
   { &g_ShowKillerHealth, "g_ShowKillerHealth", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
   { &g_lesson, "g_lesson", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
@@ -706,6 +711,7 @@ void G_InitGame( int levelTime, int randomSeed, int restart )
   }
 
   // cicho-sza add-on:
+  trap_Cvar_Set( "g_StripEqChange", g_StripEqChange_def.string );
   trap_Cvar_Set( "g_StructNoDmg", "0");
   trap_Cvar_Set( "g_lesson", "0" );
   trap_Cvar_Set( "g_lesson_BlockEqStr", "" );
