@@ -189,6 +189,17 @@ vmCvar_t  g_msg;
 vmCvar_t  g_msgTime;
 
 // cicho-sza add-on:
+vmCvar_t  g_AutoStrip;
+vmCvar_t  g_AutoStrip_MinKillToFeed;
+vmCvar_t  g_AutoStrip_MinKills;
+vmCvar_t  g_AutoStrip_KillsPerStage;
+vmCvar_t  g_AutoStrip_BetterThanTeam;
+vmCvar_t  g_AutoStrip_BetterThanEnemy;
+vmCvar_t  g_AutoStrip_DebugMsg;
+vmCvar_t  g_AutoStrip_KillingSpreeLvl;
+vmCvar_t  g_AutoStrip_KillingSpreePerStage;
+vmCvar_t  g_AutoStrip_KillingSpreeStageDif;
+
 vmCvar_t  g_StripEqChange;
 vmCvar_t  g_StripEqChange_def;
 vmCvar_t  g_StructNoDmg;
@@ -371,6 +382,17 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_adminLeaveMsg, "g_adminLeaveMsg", "", CVAR_ARCHIVE, 0, qfalse  },
 
   // cicho-sza add-on:
+  { &g_AutoStrip,                "g_AutoStrip",                   "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue },
+  { &g_AutoStrip_DebugMsg,       "g_AutoStrip_DebugMsg",          "0", CVAR_ARCHIVE, 0, qfalse },
+  { &g_AutoStrip_MinKillToFeed,  "g_AutoStrip_MinKillToFeed",   "1.0", CVAR_ARCHIVE, 0, qfalse },
+  { &g_AutoStrip_MinKills,       "g_AutoStrip_MinKills",          "5", CVAR_ARCHIVE, 0, qfalse },
+  { &g_AutoStrip_KillsPerStage,  "g_AutoStrip_KillsPerStage",     "4", CVAR_ARCHIVE, 0, qfalse },
+  { &g_AutoStrip_BetterThanTeam, "g_AutoStrip_BetterThanTeam",  "100", CVAR_ARCHIVE, 0, qfalse },
+  { &g_AutoStrip_BetterThanEnemy,"g_AutoStrip_BetterThanEnemy", "100", CVAR_ARCHIVE, 0, qfalse },
+  { &g_AutoStrip_KillingSpreeLvl,      "g_AutoStrip_KillingSpreeLvl",      "6", CVAR_ARCHIVE, 0, qfalse },
+  { &g_AutoStrip_KillingSpreePerStage, "g_AutoStrip_KillingSpreePerStage", "2", CVAR_ARCHIVE, 0, qfalse },
+  { &g_AutoStrip_KillingSpreeStageDif, "g_AutoStrip_KillingSpreeStageDif", "1", CVAR_ARCHIVE, 0, qfalse },
+
   { &g_StripEqChange,     "g_StripEqChange",     "", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
   { &g_StripEqChange_def, "g_StripEqChange_def", "", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
   

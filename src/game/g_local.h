@@ -389,6 +389,23 @@ typedef struct
   long timeLastViewed;
 } statsCounters_level;
 
+
+/*
+ * some data kept for all level 
+ * (used for automated server actions)
+ *
+ * cleared on each level change
+ */
+typedef struct
+{
+  short kills;
+  short deaths;
+  short suicides;
+  short teamkills;
+  short killingSpree;
+} statsKeepForLevel_t;
+
+
 // client data that stays across multiple respawns, but is cleared
 // on each level change or team change at ClientBegin()
 typedef struct
@@ -438,6 +455,9 @@ typedef struct
   qboolean            firstConnect;        // This is the first map since connect
   qboolean            useUnlagged;
   statsCounters_t     statscounters;
+
+  statsKeepForLevel_t LevelKeepStats;      // used by auto-strip and (in future) similar routines
+
 } clientPersistant_t;
 
 #define MAX_UNLAGGED_MARKERS 10
@@ -1400,6 +1420,17 @@ extern  vmCvar_t  g_msgTime;
 extern  vmCvar_t  g_buildLogMaxLength;
 
 // cicho-sza add-on:
+extern  vmCvar_t  g_AutoStrip;
+extern  vmCvar_t  g_AutoStrip_MinKillToFeed;
+extern  vmCvar_t  g_AutoStrip_MinKills;
+extern  vmCvar_t  g_AutoStrip_KillsPerStage;
+extern  vmCvar_t  g_AutoStrip_BetterThanTeam;
+extern  vmCvar_t  g_AutoStrip_BetterThanEnemy;
+extern  vmCvar_t  g_AutoStrip_DebugMsg;
+extern  vmCvar_t  g_AutoStrip_KillingSpreeLvl;
+extern  vmCvar_t  g_AutoStrip_KillingSpreePerStage;
+extern  vmCvar_t  g_AutoStrip_KillingSpreeStageDif;
+
 extern  vmCvar_t  g_StripEqChange;
 extern  vmCvar_t  g_StripEqChange_def;
 extern  vmCvar_t  g_StructNoDmg;

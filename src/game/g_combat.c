@@ -67,6 +67,226 @@ void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker )
   self->client->ps.stats[ STAT_VIEWLOCK ] = vectoyaw( dir );
 }
 
+
+
+void DoCheckAutoStrip( gentity_t *self )
+{
+  float AS_min_kill_ratio;
+  int AS_debug;
+  int AS_min_kills;
+  int AS_kills_per_stage;
+  int AS_better_team;
+  int AS_better_enemy;
+  int AS_killingSpreeLvl;
+
+  int my_kills;
+  int my_deaths;
+  int my_killingSpree;
+  float my_kill_ratio;
+
+  int my_team_players = 0;
+  int my_team_kills;
+  int my_team_stage;
+  float my_team_avg = 0.0f;
+
+  int enemy_team_players = 0;
+  int enemy_team_kills;
+  int enemy_team_stage;
+  float enemy_team_avg = 0.0f;
+
+  gentity_t *player;
+  int i;
+
+  // is AutoStrip active? if not, no point to do anything
+  if (g_AutoStrip.integer < 1) return;
+
+  // get settings
+  AS_min_kill_ratio  = g_AutoStrip_MinKillToFeed.value;    //   1.0f;
+  AS_min_kills       = g_AutoStrip_MinKills.integer;       //   4;
+  AS_kills_per_stage = g_AutoStrip_KillsPerStage.integer;  //   4;
+  AS_better_team     = g_AutoStrip_BetterThanTeam.integer; // 100;
+  AS_better_enemy    = g_AutoStrip_BetterThanEnemy.integer;// 200;
+  AS_debug           = g_AutoStrip_DebugMsg.integer;       //   0;
+
+  // safety check.. this should never happen, but :)
+  // ========================================================
+  if ( !self ) return;
+
+  if ( !self->client ) return;
+
+  if ( !( ( self->client->pers.teamSelection == PTE_ALIENS ) || ( self->client->pers.teamSelection == PTE_HUMANS ) ) )
+    return;
+  // ========================================================
+
+  // now, let's start checking
+  my_kills = self->client->pers.LevelKeepStats.kills;
+  if ( my_kills < AS_min_kills )
+    {
+      if (AS_debug>0) G_AdminsPrintf("::debug info (auto-strip) | my_kills < AS_min_kills (%d < %d)\n", my_kills, AS_min_kills);
+      return; // minimal "kill count" condition - not met
+    }
+
+  my_deaths = self->client->pers.LevelKeepStats.deaths;
+  if (my_deaths == 0) ++my_deaths; // do not divide by 0 :)
+
+  my_kill_ratio = ( (float)my_kills / (float)my_deaths );
+  if ( my_kill_ratio < AS_min_kill_ratio )
+    {
+      if (AS_debug>0) G_AdminsPrintf("::debug info (auto-strip) | my_kill_ratio < AS_min_kill_ratio (%f < %f)\n", my_kill_ratio, AS_min_kill_ratio);
+      return; // minimal "effciency" condition - not met
+    }
+
+
+  if ( self->client->pers.teamSelection == PTE_ALIENS )
+    {
+      my_team_kills = level.alienStatsCounters.kills;
+      my_team_stage = g_alienStage.integer;
+
+      enemy_team_kills = level.humanStatsCounters.kills;
+      enemy_team_stage = g_humanStage.integer;
+
+      // get current teams sizes
+      for( i = 0; i < MAX_CLIENTS; i++ )
+        {
+          if (!g_entities[i].inuse) continue;
+          player = &g_entities[i];
+
+          if( !player->client ) continue;
+
+          if( player->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+            ++my_team_players;
+          else
+            ++enemy_team_players;
+        }
+    }
+  else
+    {
+      my_team_kills = level.humanStatsCounters.kills;
+      my_team_stage = g_humanStage.integer;
+
+      enemy_team_kills = level.alienStatsCounters.kills;
+      enemy_team_stage = g_alienStage.integer;
+
+      // get current teams sizes
+      for( i = 0; i < MAX_CLIENTS; i++ )
+        {
+          if (!g_entities[i].inuse) continue;
+          player = &g_entities[i];
+
+          if( !player->client ) continue;
+
+          if( player->client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS )
+            ++enemy_team_players;
+          else
+            ++my_team_players;
+        }
+    }
+
+
+  AS_killingSpreeLvl = g_AutoStrip_KillingSpreeLvl.integer;
+  if ( AS_killingSpreeLvl > 0 )
+    {
+      my_killingSpree = self->client->pers.LevelKeepStats.killingSpree;
+      if ( my_killingSpree > 0 ) 
+        {
+          // allow more killing with higher stages
+          AS_killingSpreeLvl += ( g_AutoStrip_KillingSpreePerStage.integer * my_team_stage );
+
+          // if enemy is at even lower stage than our team, some extra killing is natural,
+          // while facing higher stage enemy makes killing harder (thus shorter killing spree allowed)
+          AS_killingSpreeLvl += ( g_AutoStrip_KillingSpreeStageDif.integer * (my_team_stage - enemy_team_stage) );
+
+          // ok, last check - if after stage difference modification we didn't end too low
+          if (AS_killingSpreeLvl < AS_min_kills ) 
+            AS_killingSpreeLvl = AS_min_kills;
+
+          if (AS_debug>0) G_AdminsPrintf("::debug info (auto-strip) | killing spree = %d, killing spree allowed = %d\n", 
+               my_killingSpree, AS_killingSpreeLvl );
+
+          if ( my_killingSpree > AS_killingSpreeLvl )
+            // ok, so we have definitely killed enough enemies without dieing to be considered pro :)
+            {
+              self->client->pers.nakedPlayer = qtrue;
+
+              G_AdminsPrintf(
+                "Player %s^7 was auto-stripped (killing spree: %d, killing spree allowed: %d).\n",
+                self->client->pers.netname,
+                my_killingSpree,
+                AS_killingSpreeLvl         
+              );
+
+              trap_SendServerCommand( self - g_entities,
+                va( "cp \"%s.\"", 
+                 "Nice ^1killing spree^7. Feel noticed."
+                ) 
+              );
+
+              return;
+            }
+        }
+    }
+
+  if (AS_debug>0) G_AdminsPrintf("::debug info (auto-strip) | my_team_players = %d, enemy_team_players = %d\n", my_team_players, enemy_team_players );
+
+  if ( my_kills < AS_kills_per_stage * (my_team_stage+1) )
+    {
+      if (AS_debug>0) G_AdminsPrintf("::debug info (auto-strip) | my_kills < AS_kills_per_stage * stage (%d < %d)\n", my_kills, (AS_kills_per_stage * (my_team_stage+1)) );
+      return; // minimal "stage kill count" condition - not met
+    }
+
+  if (AS_better_team>0)
+    {
+      if (my_team_players > 0)
+        my_team_avg = (float)my_team_kills / (float)my_team_players;
+      my_team_avg = my_team_avg * (100 + AS_better_team) / 100.0f;
+    }
+  else
+    my_team_avg = my_kills;
+
+  if (AS_better_enemy>0)
+    {
+      if (enemy_team_players > 0)
+        enemy_team_avg = (float)enemy_team_kills / (float)enemy_team_players;
+      enemy_team_avg = enemy_team_avg * (100 + AS_better_enemy) / 100.0f;
+
+      // in case of totaly newbie enemy team..
+      if (enemy_team_avg < AS_min_kills)
+        enemy_team_avg = AS_min_kills;
+    }
+  else
+   enemy_team_avg = my_kills;
+
+  if (AS_debug>0)
+    G_AdminsPrintf(
+          "::debug info (auto-strip)\n my_team treshold: %f\n enemy_team treshold: %f\n my_kills: %d\n\n",
+          my_team_avg,
+          enemy_team_avg,
+          my_kills
+      );
+
+
+  if ( (my_kills > my_team_avg) || (my_kills > enemy_team_avg) )
+    {
+      self->client->pers.nakedPlayer = qtrue;
+
+
+      G_AdminsPrintf(
+          "Player %s^7 was auto-stripped (%s).\n",
+          self->client->pers.netname,
+          (my_kills > my_team_avg)?"own team avg":"enemy team avg"
+      );
+
+      trap_SendServerCommand( self - g_entities,
+        va( "cp \"You have ^1exceed^7 %s team average.\"", 
+             (my_kills > my_team_avg)?"your":"enemy" 
+           ) 
+      );
+    }
+
+}
+
+
+
 // these are just for logging, the client prints its own messages
 char *modNames[ ] =
 {
@@ -161,6 +381,8 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       if( attacker != self && attacker->client->ps.stats[ STAT_PTEAM ]  == self->client->ps.stats[ STAT_PTEAM ] ) 
       {
         attacker->client->pers.statscounters.teamkills++;
+        attacker->client->pers.LevelKeepStats.teamkills++;
+
         if( attacker->client->pers.teamSelection == PTE_ALIENS ) 
         {
           level.alienStatsCounters.teamkills++;
@@ -228,7 +450,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
   self->enemy = attacker;
 
   self->client->ps.persistant[ PERS_KILLED ]++;
-  self->client->pers.statscounters.deaths++;
+
+  self->client->pers.statscounters.deaths++; 
+  self->client->pers.LevelKeepStats.deaths++;
+  self->client->pers.LevelKeepStats.killingSpree = 0;
+
   if( self->client->pers.teamSelection == PTE_ALIENS ) 
   {
     level.alienStatsCounters.deaths++;
@@ -304,7 +530,11 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       AddScore( attacker, 1 );
 
       attacker->client->lastKillTime = level.time;
+
       attacker->client->pers.statscounters.kills++;
+      attacker->client->pers.LevelKeepStats.kills++;
+      attacker->client->pers.LevelKeepStats.killingSpree++;
+
       if( attacker->client->pers.teamSelection == PTE_ALIENS ) 
       {
         level.alienStatsCounters.kills++;
@@ -313,11 +543,16 @@ void player_die( gentity_t *self, gentity_t *inflictor, gentity_t *attacker, int
       {
          level.humanStatsCounters.kills++;
       }
+
+      if ( attacker->client->pers.nakedPlayer == qfalse )
+        DoCheckAutoStrip( attacker );
      }
     
     if( attacker == self )
     {
       attacker->client->pers.statscounters.suicides++;
+      attacker->client->pers.LevelKeepStats.suicides++;
+
       if( attacker->client->pers.teamSelection == PTE_ALIENS ) 
       {
         level.alienStatsCounters.suicides++;
