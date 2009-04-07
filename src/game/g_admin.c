@@ -4065,7 +4065,7 @@ qboolean G_admin_listrotation( gentity_t *ent, int skiparg )
           statusColor = 7;
           status = "";
         }
-        ADMBP( va( "^%i%3i %-20s ^%i%s\n", statusColor, j + 1, mapRotations.rotations[ i ].maps[ j ].name, statusColor, status ) );
+        ADMBP( va( "^%i%3i %-20s ^%i%s\n       \\__ layouts: %s\n", statusColor, j + 1, mapRotations.rotations[ i ].maps[ j ].name, statusColor, status, mapRotations.rotations[ i ].maps[ j ].layouts ) );
       }
 
       ADMBP_end();
