@@ -1191,9 +1191,21 @@ qboolean G_admin_longstrip_check( char *userinfo )
   int i;
   int userIP = 0, intIP = 0, IP[5], k, tempIP, mask, ipscanfcount;
   qboolean ignoreIP = qfalse;
+  char userName[ 100 ];
+  int iNameCnt = 0;
 
   if( !*userinfo )
     return qfalse;
+
+  value = Info_ValueForKey( userinfo, "name" );
+  Q_strncpyz( userName, value, sizeof( userName ) );  
+
+  // skip "Newbie#...."
+  if ( strstr(value, "Newbie#") )
+    {
+      // will not be checked in loop
+      userName[0] = '\0';
+    }
 
   value = Info_ValueForKey( userinfo, "ip" );
   Q_strncpyz( ip, value, sizeof( ip ) );
@@ -1269,7 +1281,21 @@ qboolean G_admin_longstrip_check( char *userinfo )
 
       return qtrue;
     }
+
+    // if name matching - increment counter
+    if ( *userName && !Q_stricmp(g_admin_longstrips[ i ]->name, userName) ) iNameCnt++;
   }
+
+  // not returned yet, so no player found - yet displaying info
+  // if names were matching entries of longstrip table
+  if (iNameCnt>0) 
+  {
+    G_AdminsPrintf(
+       "%d longstrip(s) found for name: %s^7.\n",
+       iNameCnt, userName
+    );
+  }
+
   return qfalse;
 }
 
@@ -5242,7 +5268,7 @@ qboolean G_admin_designate( gentity_t *ent, int skiparg )
     !Q_stricmp( cmd, "undesignate" ) )
   {
     ADMP( "^3!%s: ^7sorry, but your intended victim has a higher admin"
-        " level than you\n", cmd );
+        " level than you\n" /*, cmd * - ADMP is one arg only.. */);
     return qfalse;
   }
   vic = &g_entities[ pids[ 0 ] ];
