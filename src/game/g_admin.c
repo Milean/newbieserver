@@ -5267,8 +5267,8 @@ qboolean G_admin_designate( gentity_t *ent, int skiparg )
   if( !admin_higher( ent, &g_entities[ pids[ 0 ] ] ) &&
     !Q_stricmp( cmd, "undesignate" ) )
   {
-    ADMP( "^3!%s: ^7sorry, but your intended victim has a higher admin"
-        " level than you\n" /*, cmd * - ADMP is one arg only.. */);
+    ADMP( va( "^3%s: ^7sorry, but your intended victim has a higher admin"
+        " level than you\n", cmd) );
     return qfalse;
   }
   vic = &g_entities[ pids[ 0 ] ];
