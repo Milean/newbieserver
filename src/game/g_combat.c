@@ -69,6 +69,14 @@ void LookAtKiller( gentity_t *self, gentity_t *inflictor, gentity_t *attacker )
 
 
 
+/* 
+ *  Routine for checking if given player is not too efficient to
+ *  to be treated as newbie. If needed, strip is applied, and
+ *  admins are notified (on admin line)
+ *
+ *  initial idea and code: cicho-sza
+ *  time-based ideas: Milean
+ */
 void DoCheckAutoStrip( gentity_t *self )
 {
   float AS_min_kill_ratio;
@@ -78,6 +86,8 @@ void DoCheckAutoStrip( gentity_t *self )
   int AS_better_team;
   int AS_better_enemy;
   int AS_killingSpreeLvl;
+  float AS_allowed_kpm; // kills per minute. I am not proud of this short ;)
+  float AS_kpm_treshold;
 
   int my_kills;
   int my_deaths;
@@ -94,11 +104,18 @@ void DoCheckAutoStrip( gentity_t *self )
   int enemy_team_stage;
   float enemy_team_avg = 0.0f;
 
+  float fGameMinutes = (float)level.time / (float)(1000 * 60); 
+           // if i am not mistaken, 
+           // level.time is in mili seconds, so to get minutes / ( 1000 * 60 )
+
   gentity_t *player;
   int i;
 
   // is AutoStrip active? if not, no point to do anything
   if (g_AutoStrip.integer < 1) return;
+
+  // is disabled in lessons and we have one going on?
+  if ( (g_AutoStrip_NotInLesson.integer > 0) && (g_lesson.integer > 0) ) return;
 
   // get settings
   AS_min_kill_ratio  = g_AutoStrip_MinKillToFeed.value;    //   1.0f;
@@ -107,6 +124,8 @@ void DoCheckAutoStrip( gentity_t *self )
   AS_better_team     = g_AutoStrip_BetterThanTeam.integer; // 100;
   AS_better_enemy    = g_AutoStrip_BetterThanEnemy.integer;// 200;
   AS_debug           = g_AutoStrip_DebugMsg.integer;       //   0;
+  AS_allowed_kpm     = g_AutoStrip_kpmAllowed.value;       //   0; 0 = off
+  AS_kpm_treshold    = g_AutoStrip_kpmTreshold.value;      //   0; 0 = off
 
   // safety check.. this should never happen, but :)
   // ========================================================
@@ -122,9 +141,19 @@ void DoCheckAutoStrip( gentity_t *self )
   my_kills = self->client->pers.LevelKeepStats.kills;
   if ( my_kills < AS_min_kills )
     {
-      if (AS_debug>0) G_AdminsPrintf("::debug info (auto-strip) | my_kills < AS_min_kills (%d < %d)\n", my_kills, AS_min_kills);
+      if (AS_debug>0) G_AdminsPrintf("::debug info (auto-strip) | my_kills < AS_min_kills (%d < %d)\n", 
+                                      my_kills, AS_min_kills);
       return; // minimal "kill count" condition - not met
     }
+
+  if ( AS_allowed_kpm > 0 )
+    if ( my_kills < AS_allowed_kpm * fGameMinutes )
+      {
+        if (AS_debug>0) 
+           G_AdminsPrintf("::debug info (auto-strip) | my_kills < allowed_kpm * game minutes (%d < %f * %f)\n", 
+                          my_kills, AS_allowed_kpm, fGameMinutes );
+        return; // minimal "allowed kills per minute" condition not exceeded
+      }
 
   my_deaths = self->client->pers.LevelKeepStats.deaths;
   if (my_deaths == 0) ++my_deaths; // do not divide by 0 :)
@@ -132,7 +161,8 @@ void DoCheckAutoStrip( gentity_t *self )
   my_kill_ratio = ( (float)my_kills / (float)my_deaths );
   if ( my_kill_ratio < AS_min_kill_ratio )
     {
-      if (AS_debug>0) G_AdminsPrintf("::debug info (auto-strip) | my_kill_ratio < AS_min_kill_ratio (%f < %f)\n", my_kill_ratio, AS_min_kill_ratio);
+      if (AS_debug>0) G_AdminsPrintf("::debug info (auto-strip) | my_kill_ratio < AS_min_kill_ratio (%f < %f)\n", 
+                                      my_kill_ratio, AS_min_kill_ratio);
       return; // minimal "effciency" condition - not met
     }
 
@@ -183,6 +213,7 @@ void DoCheckAutoStrip( gentity_t *self )
     }
 
 
+  // check killing spree
   AS_killingSpreeLvl = g_AutoStrip_KillingSpreeLvl.integer;
   if ( AS_killingSpreeLvl > 0 )
     {
@@ -226,11 +257,36 @@ void DoCheckAutoStrip( gentity_t *self )
         }
     }
 
-  if (AS_debug>0) G_AdminsPrintf("::debug info (auto-strip) | my_team_players = %d, enemy_team_players = %d\n", my_team_players, enemy_team_players );
+  // check if player didn't kill more per minute than it is allowed
+  if ( AS_kpm_treshold > 0 )
+    if ( my_kills > AS_kpm_treshold * fGameMinutes ) 
+      {
+        self->client->pers.nakedPlayer = qtrue;
+
+        G_AdminsPrintf(
+                "Player %s^7 was auto-stripped (kills per minute. Kills: %d, allowed: %f).\n",
+                self->client->pers.netname,
+                my_kills,
+                (AS_kpm_treshold * fGameMinutes)
+        );
+
+        trap_SendServerCommand( self - g_entities,
+                va( "cp \"%s.\"", 
+                 "Nice ^1killing speed^7. Feel noticed."
+                ) 
+        );
+
+        return;
+      }
+
+
+  if (AS_debug>0) G_AdminsPrintf("::debug info (auto-strip) | my_team_players = %d, enemy_team_players = %d\n", 
+                                 my_team_players, enemy_team_players );
 
   if ( my_kills < AS_kills_per_stage * (my_team_stage+1) )
     {
-      if (AS_debug>0) G_AdminsPrintf("::debug info (auto-strip) | my_kills < AS_kills_per_stage * stage (%d < %d)\n", my_kills, (AS_kills_per_stage * (my_team_stage+1)) );
+      if (AS_debug>0) G_AdminsPrintf("::debug info (auto-strip) | my_kills < AS_kills_per_stage * stage (%d < %d)\n", 
+                                     my_kills, (AS_kills_per_stage * (my_team_stage+1)) );
       return; // minimal "stage kill count" condition - not met
     }
 
@@ -281,6 +337,7 @@ void DoCheckAutoStrip( gentity_t *self )
              (my_kills > my_team_avg)?"your":"enemy" 
            ) 
       );
+
     }
 
 }

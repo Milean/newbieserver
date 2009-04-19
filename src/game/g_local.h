@@ -1430,6 +1430,9 @@ extern  vmCvar_t  g_AutoStrip_DebugMsg;
 extern  vmCvar_t  g_AutoStrip_KillingSpreeLvl;
 extern  vmCvar_t  g_AutoStrip_KillingSpreePerStage;
 extern  vmCvar_t  g_AutoStrip_KillingSpreeStageDif;
+extern  vmCvar_t  g_AutoStrip_kpmAllowed;
+extern  vmCvar_t  g_AutoStrip_kpmTreshold;
+extern  vmCvar_t  g_AutoStrip_NotInLesson;
 
 extern  vmCvar_t  g_StripEqChange;
 extern  vmCvar_t  g_StripEqChange_def;

@@ -199,6 +199,9 @@ vmCvar_t  g_AutoStrip_DebugMsg;
 vmCvar_t  g_AutoStrip_KillingSpreeLvl;
 vmCvar_t  g_AutoStrip_KillingSpreePerStage;
 vmCvar_t  g_AutoStrip_KillingSpreeStageDif;
+vmCvar_t  g_AutoStrip_kpmAllowed;
+vmCvar_t  g_AutoStrip_kpmTreshold;
+vmCvar_t  g_AutoStrip_NotInLesson;
 
 vmCvar_t  g_StripEqChange;
 vmCvar_t  g_StripEqChange_def;
@@ -382,6 +385,8 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_adminLeaveMsg, "g_adminLeaveMsg", "", CVAR_ARCHIVE, 0, qfalse  },
 
   // cicho-sza add-on:
+  { &g_AutoStrip_kpmTreshold,    "g_AutoStrip_kpmTreshold",       "0", CVAR_ARCHIVE, 0, qfalse }, 
+  { &g_AutoStrip_kpmAllowed,     "g_AutoStrip_kpmAllowed",        "0", CVAR_ARCHIVE, 0, qfalse }, 
   { &g_AutoStrip,                "g_AutoStrip",                   "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue },
   { &g_AutoStrip_DebugMsg,       "g_AutoStrip_DebugMsg",          "0", CVAR_ARCHIVE, 0, qfalse },
   { &g_AutoStrip_MinKillToFeed,  "g_AutoStrip_MinKillToFeed",   "1.0", CVAR_ARCHIVE, 0, qfalse },
@@ -392,6 +397,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_AutoStrip_KillingSpreeLvl,      "g_AutoStrip_KillingSpreeLvl",      "6", CVAR_ARCHIVE, 0, qfalse },
   { &g_AutoStrip_KillingSpreePerStage, "g_AutoStrip_KillingSpreePerStage", "2", CVAR_ARCHIVE, 0, qfalse },
   { &g_AutoStrip_KillingSpreeStageDif, "g_AutoStrip_KillingSpreeStageDif", "1", CVAR_ARCHIVE, 0, qfalse },
+  { &g_AutoStrip_NotInLesson,       "g_AutoStrip_NotInLesson",          "0", CVAR_ARCHIVE, 0, qfalse },
 
   { &g_StripEqChange,     "g_StripEqChange",     "", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
   { &g_StripEqChange_def, "g_StripEqChange_def", "", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
