@@ -337,7 +337,8 @@ g_admin_level_t *g_admin_levels[ MAX_ADMIN_LEVELS ];
 g_admin_admin_t *g_admin_admins[ MAX_ADMIN_ADMINS ];
 
 // cicho-sza add-on
-g_admin_longstrip_t *g_admin_longstrips[ MAX_ADMIN_BANS ];
+#define MAX_LONGSTRIPS (4 * MAX_ADMIN_BANS)
+g_admin_longstrip_t *g_admin_longstrips[ MAX_LONGSTRIPS ];
 
 g_admin_ban_t *g_admin_bans[ MAX_ADMIN_BANS ];
 g_admin_command_t *g_admin_commands[ MAX_ADMIN_COMMANDS ];
@@ -646,7 +647,7 @@ static void admin_writeconfig( void )
   }
 
   // cicho-sza add-on
-  for( i = 0; i < MAX_ADMIN_BANS && g_admin_longstrips[ i ]; i++ )
+  for( i = 0; i < MAX_LONGSTRIPS && g_admin_longstrips[ i ]; i++ )
   {
     // skip empty (cleared) records
     if (g_admin_longstrips[ i ]->to_be_removed > 0) continue;
@@ -1230,7 +1231,7 @@ qboolean G_admin_longstrip_check( char *userinfo )
 
   ignoreIP = G_admin_permission_guid( guid , 'W');
 
-  for( i = 0; i < MAX_ADMIN_BANS && g_admin_longstrips[ i ]; i++ )
+  for( i = 0; i < MAX_LONGSTRIPS && g_admin_longstrips[ i ]; i++ )
   {
 
     // skip empty (cleared) records
@@ -1594,6 +1595,8 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   char levels[ MAX_STRING_CHARS ] = {""};
   int i;
 
+// ADMP( "^3!readconfig: ^7 ---- start ----\n" );
+
   G_admin_cleanup();
 
   if( !g_admin.string[ 0 ] )
@@ -1612,11 +1615,17 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
     admin_default_levels();
     return qfalse;
   }
+
+
+//ADMP( va( "^3!readconfig: ^7 admin_file_len: %d \n", len)  );
+
   cnf = G_Alloc( len + 1 );
   cnf2 = cnf;
   trap_FS_Read( cnf, len, f );
   *( cnf + len ) = '\0';
   trap_FS_FCloseFile( f );
+
+//ADMP( va( "^3!readconfig: ^7 cnf len = : %d \n", strlen(cnf) )  );
 
   t = COM_Parse( &cnf );
 
@@ -1656,7 +1665,11 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
       level_open = admin_open =
                      ban_open = command_open = qfalse;
     }
+    // just content of open part..
 
+
+  // -- xyz_open checks --
+    // [level] section processing
     if( level_open )
     {
       if( !Q_stricmp( t, "level" ) )
@@ -1678,6 +1691,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
                 COM_GetCurrentParseLine() ) );
       }
     }
+    // [admin] section processing
     else if( admin_open )
     {
       if( !Q_stricmp( t, "name" ) )
@@ -1705,6 +1719,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
 
     }
 
+    // [strip] section processing
     // cicho-sza add on
     else if( lstrip_open )
     {
@@ -1732,6 +1747,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
       }
     }
 
+    // [ban] section processing
     else if( ban_open )
     {
       if( !Q_stricmp( t, "name" ) )
@@ -1769,6 +1785,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
                 COM_GetCurrentParseLine() ) );
       }
     }
+    // [command] section processing
     else if( command_open )
     {
       if( !Q_stricmp( t, "command" ) )
@@ -1814,6 +1831,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
                 COM_GetCurrentParseLine() ) );
       }
     }
+  // end of ---- xyz_open checks    
 
     if( !Q_stricmp( t, "[level]" ) )
     {
@@ -1840,7 +1858,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
     // cicho-sza add on
     else if( !Q_stricmp( t, "[strip]" ) )
     {
-      if( lstripc >= MAX_ADMIN_BANS )
+      if( lstripc >= MAX_LONGSTRIPS )
         return qfalse;
       lstrip = G_Alloc( sizeof( g_admin_longstrip_t ) );
       *lstrip->name = '\0';
@@ -1876,8 +1894,12 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
       memset( c->levels, -1, sizeof( c->levels ) );
       command_open = qtrue;
     }
+
     t = COM_Parse( &cnf );
   }
+  // end of while(t) loop
+
+
   if( level_open )
   {
 
@@ -1901,7 +1923,7 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
   ADMP( va( "^3!readconfig: ^7loaded %d levels, %d admins, %d bans, %d commands\n",
           lc, ac, bc, cc ) );
 */
-  ADMP( va( "^3!readconfig: ^7loaded %d levels, %d admins, %d bans, %d longstrips, %d commands\n",
+  ADMP( va( "\n\n^3!readconfig: ^7loaded\n\t%d levels\n\t%d admins\n\t%d bans\n\t%d longstrips\n\t%d commands\n\n",
           lc, ac, bc, lstripc, cc ) );
 
 
@@ -2176,7 +2198,7 @@ static qboolean admin_create_longstrip( gentity_t *ent,
   Q_strncpyz( b->ip, ip, sizeof( b->ip ) );
 
   // adding check if longstrip for [guid + ip] is not already present
-  for (i = 0; i < MAX_ADMIN_BANS && g_admin_longstrips[i]; i++ )
+  for (i = 0; i < MAX_LONGSTRIPS && g_admin_longstrips[i]; i++ )
     if (
          ( !Q_stricmp( g_admin_longstrips[i]->guid, b->guid ) ) &&
          ( !Q_stricmp( g_admin_longstrips[i]->ip, b->ip ) ) &&
@@ -2207,10 +2229,10 @@ static qboolean admin_create_longstrip( gentity_t *ent,
   else
     Q_strncpyz( b->stripper, "console", sizeof( b->stripper ) );
 
-  for( i = 0; i < MAX_ADMIN_BANS && g_admin_longstrips[ i ]; i++ )
+  for( i = 0; i < MAX_LONGSTRIPS && g_admin_longstrips[ i ]; i++ )
     ;
 
-  if( i == MAX_ADMIN_BANS )
+  if( i == MAX_LONGSTRIPS )
   {
     ADMP( "^3!longstrip: ^7too many longstrips\n" );
     G_Free( b );
@@ -3109,7 +3131,7 @@ qboolean G_admin_unlongstrip( gentity_t *ent, int skiparg )
   }
   G_SayArgv( 1 + skiparg, bs, sizeof( bs ) );
   bnum = atoi( bs );
-  if( bnum < 1 || bnum > MAX_ADMIN_BANS || !g_admin_longstrips[ bnum - 1 ] )
+  if( bnum < 1 || bnum > MAX_LONGSTRIPS || !g_admin_longstrips[ bnum - 1 ] )
   {
     ADMP( "^3!unlongstrip: ^7invalid strip#\n" );
     return qfalse;
@@ -4139,7 +4161,7 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
   int show_count = 0;
   qboolean subnetfilter = qfalse;
 
-  for( i = 0; i < MAX_ADMIN_BANS && g_admin_longstrips[ i ]; i++ )
+  for( i = 0; i < MAX_LONGSTRIPS && g_admin_longstrips[ i ]; i++ )
   {
     // skip empty (cleared) records
     if (g_admin_longstrips[ i ]->to_be_removed > 0) continue;
@@ -4207,7 +4229,7 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
     start = 0;
 
 
-  for( i = start; i < MAX_ADMIN_BANS && g_admin_longstrips[ i ] 
+  for( i = start; i < MAX_LONGSTRIPS && g_admin_longstrips[ i ] 
     && show_count < MAX_ADMIN_SHOWBANS; i++ )
   {
     qboolean match = qfalse;
@@ -4259,7 +4281,7 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
 
   ADMBP_begin();
   show_count = 0;
-  for( i = start; i < MAX_ADMIN_BANS && g_admin_longstrips[ i ]
+  for( i = start; i < MAX_LONGSTRIPS && g_admin_longstrips[ i ]
     && show_count < MAX_ADMIN_SHOWBANS; i++ )
   {
     if (g_admin_longstrips[ i ]->to_be_removed > 0) continue;
