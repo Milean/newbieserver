@@ -1420,6 +1420,8 @@ extern  vmCvar_t  g_msgTime;
 extern  vmCvar_t  g_buildLogMaxLength;
 
 // cicho-sza add-on:
+extern  vmCvar_t  g_ReservedNameMatch;
+extern  vmCvar_t  g_ReservedNameMinLev;
 extern  vmCvar_t  g_AutoStrip;
 extern  vmCvar_t  g_AutoStrip_MinKillToFeed;
 extern  vmCvar_t  g_AutoStrip_MinKills;

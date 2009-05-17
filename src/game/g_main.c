@@ -189,6 +189,8 @@ vmCvar_t  g_msg;
 vmCvar_t  g_msgTime;
 
 // cicho-sza add-on:
+vmCvar_t  g_ReservedNameMatch;
+vmCvar_t  g_ReservedNameMinLev;
 vmCvar_t  g_AutoStrip;
 vmCvar_t  g_AutoStrip_MinKillToFeed;
 vmCvar_t  g_AutoStrip_MinKills;
@@ -385,6 +387,9 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_adminLeaveMsg, "g_adminLeaveMsg", "", CVAR_ARCHIVE, 0, qfalse  },
 
   // cicho-sza add-on:
+  { &g_ReservedNameMatch,  "g_ReservedNameMatche", "robocookie#", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
+  { &g_ReservedNameMinLev, "g_ReservedNameMinLev", "2",           CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+
   { &g_AutoStrip_kpmTreshold,    "g_AutoStrip_kpmTreshold",       "0", CVAR_ARCHIVE, 0, qfalse }, 
   { &g_AutoStrip_kpmAllowed,     "g_AutoStrip_kpmAllowed",        "0", CVAR_ARCHIVE, 0, qfalse }, 
   { &g_AutoStrip,                "g_AutoStrip",                   "0", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qtrue },

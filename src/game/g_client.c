@@ -1015,6 +1015,14 @@ void ClientUserinfoChanged( int clientNum )
   char      userinfo[ MAX_INFO_STRING ];
   team_t    team;
 
+  int l = 0;
+  int isBot = 0;
+  char sa_name[ MAX_NAME_LENGTH ] = {""};
+  char ReservedNamePattern[ MAX_NAME_LENGTH ] = {""};
+  int  ReservedNameMinLevel = 0;
+
+  Q_strncpyz( ReservedNamePattern, g_ReservedNameMatch.string, sizeof( ReservedNamePattern ) );
+
   ent = g_entities + clientNum;
   client = ent->client;
 
@@ -1042,6 +1050,45 @@ void ClientUserinfoChanged( int clientNum )
   Q_strncpyz( oldname, client->pers.netname, sizeof( oldname ) );
   s = Info_ValueForKey( userinfo, "name" );
   ClientCleanName( s, newname, sizeof( newname ) );
+
+  // robocookie# check!
+  G_SanitiseString( newname, sa_name, sizeof( sa_name ) );
+  if ( strstr(sa_name, ReservedNamePattern) )
+  {
+    ReservedNameMinLevel = g_ReservedNameMinLev.integer;
+
+    l = G_admin_level( ent );
+    isBot = (ent->r.svFlags & SVF_BOT);
+
+    if ( ( l < ReservedNameMinLevel ) && (!isBot) )
+      {
+        // send message to player
+        trap_SendServerCommand( 
+          ent - g_entities,
+          va( 
+              "print \"%s^7 name is reserved for admins and bot-helpers.\n\"", 
+              newname 
+            )
+        );
+
+        // let's see what we can rename him/her to..
+        G_SanitiseString( oldname, sa_name, sizeof( sa_name ) );
+        if ( strstr(sa_name, ReservedNamePattern) )
+          {
+            // if player connected with unallowed nick, there is nothing to revert to
+            Q_strncpyz( newname, "UnnamedPlayer", sizeof( newname ) );
+            revertName = qfalse;
+          }
+        else
+          {
+           // Q_strncpyz( oldname, "UnnamedPlayer", sizeof( oldname ) );
+
+           // previous name was ok, so let's just force revert
+           revertName = qtrue; 
+          }
+      }
+  }
+
 
   if( strcmp( oldname, newname ) )
   {
