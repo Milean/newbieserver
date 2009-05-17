@@ -1420,6 +1420,7 @@ extern  vmCvar_t  g_msgTime;
 extern  vmCvar_t  g_buildLogMaxLength;
 
 // cicho-sza add-on:
+extern  vmCvar_t  g_lesson_NoVotes;
 extern  vmCvar_t  g_ReservedNameMatch;
 extern  vmCvar_t  g_ReservedNameMinLev;
 extern  vmCvar_t  g_AutoStrip;
@@ -1435,6 +1436,8 @@ extern  vmCvar_t  g_AutoStrip_KillingSpreeStageDif;
 extern  vmCvar_t  g_AutoStrip_kpmAllowed;
 extern  vmCvar_t  g_AutoStrip_kpmTreshold;
 extern  vmCvar_t  g_AutoStrip_NotInLesson;
+
+qboolean IsStringListMember( char* StringList, char * Item );
 
 extern  vmCvar_t  g_StripEqChange;
 extern  vmCvar_t  g_StripEqChange_def;

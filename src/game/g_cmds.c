@@ -1387,6 +1387,7 @@ void Cmd_Where_f( gentity_t *ent )
   trap_SendServerCommand( ent-g_entities, va( "print \"%s\n\"", vtos( ent->s.origin ) ) );
 }
 
+
 /*
 ==================
 Cmd_CallVote_f
@@ -1505,6 +1506,16 @@ void Cmd_CallVote_f( gentity_t *ent )
       trap_SendServerCommand( ent-g_entities, "print \"callvote: Warning: invalid argument specified \n\"" );
     }
   }
+
+
+  if (g_lesson.integer > 0)
+    {
+      if (IsStringListMember(g_lesson_NoVotes.string, arg1))
+        {
+           trap_SendServerCommand( ent-g_entities, "print \"callvote: this vote is not allowed during this lesson. \n\"" );
+           return;
+        }      
+    }
 
   // detect clientNum for partial name match votes
   if( !Q_stricmp( arg1, "kick" ) ||

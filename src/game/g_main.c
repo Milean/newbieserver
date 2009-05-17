@@ -189,6 +189,7 @@ vmCvar_t  g_msg;
 vmCvar_t  g_msgTime;
 
 // cicho-sza add-on:
+vmCvar_t  g_lesson_NoVotes;
 vmCvar_t  g_ReservedNameMatch;
 vmCvar_t  g_ReservedNameMinLev;
 vmCvar_t  g_AutoStrip;
@@ -387,6 +388,8 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_adminLeaveMsg, "g_adminLeaveMsg", "", CVAR_ARCHIVE, 0, qfalse  },
 
   // cicho-sza add-on:
+  { &g_lesson_NoVotes,  "g_lesson_NoVotes", "map, map_restart, nextmap", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
+
   { &g_ReservedNameMatch,  "g_ReservedNameMatche", "robocookie#", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
   { &g_ReservedNameMinLev, "g_ReservedNameMinLev", "2",           CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
 
@@ -509,6 +512,87 @@ void QDECL G_Error( const char *fmt, ... )
 
   trap_Error( text );
 }
+
+
+
+
+
+/* 
+ *  cicho-sza add-on
+ *
+ *    StringList - string such like "map, next_map, map_restart" containing set
+ *                 of values delimited by , or ;. Space is allowed (will be ommited
+ *                 while checking)
+ *
+ *    Item - string that we want to check if it is contained in StringList
+ *
+ *  returns: qtrue if Item is member of StringList
+ */
+qboolean IsStringListMember( char* StringList, char * Item )
+{
+  char StringListClearStr[MAX_CVAR_VALUE_STRING+3];
+  char ItemToFind[MAX_CVAR_VALUE_STRING+3];
+
+  int i;
+  int p;
+  int cnt;
+
+  // sanity checks
+  if (!Item || Item[ 0 ] == '\0' )
+    return qfalse;
+
+  if (!StringList || StringList[ 0 ] == '\0' )
+    return qfalse;
+
+
+  // normalise (remove whitespace, make , from ; etc) g_lesson_BlockEqStr value
+  StringListClearStr[0] = ',';
+  p = 1;
+  cnt = strlen(StringList);
+  for( i = 0; i < cnt; ++i )
+  {
+    if (StringList[i] != ' ')
+    {
+      if (StringList[i] == ';')
+        StringListClearStr[p] = ',';
+      else
+        StringListClearStr[p] = StringList[i];
+      ++p;
+    }
+  }
+  StringListClearStr[p]   = ',';
+  StringListClearStr[p+1] = '\0';
+
+
+  // convert input parameter to ,something, string
+  ItemToFind[0] = ',';
+  p = 1;
+  cnt = strlen(Item);
+  for( i = 0; i < cnt; ++i )
+  {
+    if (Item[i] != ' ')
+      {
+        if (Item[i] == ';')
+          ItemToFind[p] = ',';
+        else
+          ItemToFind[p] = Item[i];
+        ++p;
+      }
+  }
+  ItemToFind[p]   = ',';
+  ItemToFind[p+1] = '\0';
+
+
+  // if item is on list, return true otherwide false :)
+  if (!strstr(StringListClearStr, ItemToFind))
+    return qfalse;
+  else
+    return qtrue;
+}
+
+
+
+
 
 /*
 ================
