@@ -646,6 +646,16 @@ static void admin_writeconfig( void )
     trap_FS_Write( "\n", 1, f );
   }
 
+
+
+// panic-way debugging :) 
+if (g_DebugMsg.integer > 0)
+  {
+    G_AdminsPrintf(
+            "[g_DebugMsg] admin_writeconfig: %s^7.\n",
+            "saving longstrips in the loop");   
+  }
+
   // cicho-sza add-on
   for( i = 0; i < MAX_LONGSTRIPS && g_admin_longstrips[ i ]; i++ )
   {
@@ -663,6 +673,16 @@ static void admin_writeconfig( void )
     admin_writeconfig_string( g_admin_longstrips[ i ]->stripper, f );
     trap_FS_Write( "\n", 1, f );
   }
+
+// panic-way debugging :) 
+if (g_DebugMsg.integer > 0)
+  {
+    G_AdminsPrintf(
+            "[g_DebugMsg] admin_writeconfig: %s^7.\n",
+            "saving longstrips in the loop - done");   
+  }
+
+
 
   for( i = 0; i < MAX_ADMIN_BANS && g_admin_bans[ i ]; i++ )
   {
@@ -1231,6 +1251,15 @@ qboolean G_admin_longstrip_check( char *userinfo )
 
   ignoreIP = G_admin_permission_guid( guid , 'W');
 
+
+// panic-way debugging :) 
+if (g_DebugMsg.integer > 0)
+  {
+    G_AdminsPrintf(
+            "[g_DebugMsg] G_admin_longstrip_chec: %s^7.\n",
+            "going to check longstrips table for player occurence");   
+  }
+
   for( i = 0; i < MAX_LONGSTRIPS && g_admin_longstrips[ i ]; i++ )
   {
 
@@ -1285,6 +1314,15 @@ qboolean G_admin_longstrip_check( char *userinfo )
 
     // if name matching - increment counter
     if ( *userName && !Q_stricmp(g_admin_longstrips[ i ]->name, userName) ) iNameCnt++;
+  }
+
+
+// panic-way debugging :) 
+if (g_DebugMsg.integer > 0)
+  {
+    G_AdminsPrintf(
+            "[g_DebugMsg] G_admin_longstrip_chec: %s^7.\n",
+            "going to check longstrips table for player occurence - done");   
   }
 
   // not returned yet, so no player found - yet displaying info
@@ -1654,7 +1692,19 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
 
       // cicho-sza add on
       else if( lstrip_open )
+{
+
+// panic-way debugging :) 
+if (g_DebugMsg.integer > 0)
+  {
+    G_AdminsPrintf(
+            "[g_DebugMsg] G_admin_readconfig: %s^7.\n",
+            "going to insert to longstrip table..");   
+  }
+
+
         g_admin_longstrips[ lstripc++ ] = lstrip; 
+}
 
       else if( command_open )
         g_admin_commands[ cc++ ] = c;
@@ -1910,7 +1960,18 @@ qboolean G_admin_readconfig( gentity_t *ent, int skiparg )
 
   // cicho-sza add on
   if (lstrip_open )
+{
+
+// panic-way debugging :) 
+if (g_DebugMsg.integer > 0)
+  {
+    G_AdminsPrintf(
+            "[g_DebugMsg] G_admin_readconfig: %s^7.\n",
+            "going to insert to longstrip table..");   
+  }
+
     g_admin_longstrips[ lstripc++ ] = lstrip;
+}
 
   if( ban_open )
     g_admin_bans[ bc++ ] = b;
@@ -2197,6 +2258,15 @@ static qboolean admin_create_longstrip( gentity_t *ent,
   Q_strncpyz( b->guid, guid, sizeof( b->guid ) );
   Q_strncpyz( b->ip, ip, sizeof( b->ip ) );
 
+
+// panic-way debugging :) 
+if (g_DebugMsg.integer > 0)
+  {
+    G_AdminsPrintf(
+            "[g_DebugMsg] admin_create_longstrip: %s^7.\n",
+            "looping through longstrips..");   
+  }
+
   // adding check if longstrip for [guid + ip] is not already present
   for (i = 0; i < MAX_LONGSTRIPS && g_admin_longstrips[i]; i++ )
     if (
@@ -2209,6 +2279,14 @@ static qboolean admin_create_longstrip( gentity_t *ent,
       G_Free( b );
       return qfalse;
     }
+
+// panic-way debugging :) 
+if (g_DebugMsg.integer > 0)
+  {
+    G_AdminsPrintf(
+            "[g_DebugMsg] admin_create_longstrip: %s^7.\n",
+            "looping through longstrips.. - done");   
+  }
 
   Q_strncpyz( b->name, netname, sizeof( b->name ) );
   b->to_be_removed = 0;
@@ -2229,8 +2307,25 @@ static qboolean admin_create_longstrip( gentity_t *ent,
   else
     Q_strncpyz( b->stripper, "console", sizeof( b->stripper ) );
 
+
+// panic-way debugging :) 
+if (g_DebugMsg.integer > 0)
+  {
+    G_AdminsPrintf(
+            "[g_DebugMsg] admin_create_longstrip: %s^7.\n",
+            "looping through longstrips to find last one");   
+  }
+
   for( i = 0; i < MAX_LONGSTRIPS && g_admin_longstrips[ i ]; i++ )
     ;
+
+// panic-way debugging :) 
+if (g_DebugMsg.integer > 0)
+  {
+    G_AdminsPrintf(
+            "[g_DebugMsg] admin_create_longstrip: %s^7.\n",
+            "looping through longstrips to find last one - done");   
+  }
 
   if( i == MAX_LONGSTRIPS )
   {
@@ -2238,7 +2333,17 @@ static qboolean admin_create_longstrip( gentity_t *ent,
     G_Free( b );
     return qfalse;
   }
+
   g_admin_longstrips[ i ] = b;
+
+// panic-way debugging :) 
+if (g_DebugMsg.integer > 0)
+  {
+    G_AdminsPrintf(
+            "[g_DebugMsg] admin_create_longstrip: %s^7.\n",
+            "didn't crush after insterting into longstrip table");   
+  }
+
   return qtrue;
 }
 

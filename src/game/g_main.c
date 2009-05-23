@@ -189,6 +189,7 @@ vmCvar_t  g_msg;
 vmCvar_t  g_msgTime;
 
 // cicho-sza add-on:
+vmCvar_t  g_DebugMsg;
 vmCvar_t  g_lesson_NoVotes;
 vmCvar_t  g_ReservedNameMatch;
 vmCvar_t  g_ReservedNameMinLev;
@@ -388,6 +389,8 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_adminLeaveMsg, "g_adminLeaveMsg", "", CVAR_ARCHIVE, 0, qfalse  },
 
   // cicho-sza add-on:
+  { &g_DebugMsg, "g_DebugMsg", "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 0, qtrue },
+
   { &g_lesson_NoVotes,  "g_lesson_NoVotes", "map, map_restart, nextmap", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
 
   { &g_ReservedNameMatch,  "g_ReservedNameMatche", "robocookie#", CVAR_SERVERINFO | CVAR_ARCHIVE, 0, qfalse },
