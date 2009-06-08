@@ -4330,7 +4330,7 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
       start = found + start;
   }
 
-  if( start >= MAX_ADMIN_BANS || start < 0 )
+  if( start >= MAX_LONGSTRIPS || start < 0 )
     start = 0;
 
 
