@@ -5697,7 +5697,7 @@ qboolean G_admin_designate( gentity_t *ent, int skiparg )
     vic->client->pers.designatedBuilder = qfalse;
     CPx( pids[ 0 ], "cp \"^1Your designation has been revoked\"" );
     AP( va(
-      "print \"^3!designate: ^7%s^7's designation has been revoked by %s\n\"",
+      "print \"^3!undesignate: ^7%s^7's designation has been revoked by %s\n\"",
        vic->client->pers.netname,
        ( ent ) ? G_admin_adminPrintName( ent ) : "console" ) );
     G_CheckDBProtection( );
