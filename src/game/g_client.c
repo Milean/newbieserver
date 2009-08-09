@@ -1348,9 +1348,11 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   char      userinfo[ MAX_INFO_STRING ];
   gentity_t *ent;
   char      guid[ 33 ];
+  char      guid_stub[ 9 ];
   char      ip[ 16 ] = {""};
   char      reason[ MAX_STRING_CHARS ] = {""};
   int       i;
+  int       j;
   int       used_privateSlots;
   int       privateClients;
   int       strip_count = 0, newbie_count = 0;
@@ -1432,6 +1434,10 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   }
   Q_strncpyz( client->pers.ip, ip, sizeof( client->pers.ip ) );
   client->pers.adminLevel = G_admin_level( ent );
+
+  for( j = 0; j < 8; j++ )
+    guid_stub[ j ] = client->pers.guid[ j + 24 ];
+  guid_stub[ j ] = '\0';
 
   client->pers.connected = CON_CONNECTING;
 
@@ -1516,7 +1522,10 @@ char *ClientConnect( int clientNum, qboolean firstTime )
 
   // don't do the "xxx connected" messages if they were caried over from previous level
   if( firstTime )
+  {
     trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname ) );
+    G_AdminsPrintf("%s^7 has IP ^3%s ^7and GUID ^3*%s^7\n", client->pers.netname, client->pers.ip, guid_stub );
+  }
 
   // count current clients and rank for scoreboard
   CalculateRanks( );
