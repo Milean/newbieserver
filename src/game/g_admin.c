@@ -2499,19 +2499,15 @@ qboolean G_admin_leave( gentity_t *ent, int skiparg )
 	}
 
 	trap_SendServerCommand( pids[ 0 ],
-						   va( "disconnect \"You have been forced to leave by %s^7\nreason:\n%s%s%s\n%s\"",
-							  ( ent ) ? va( "admin:\n%s", G_admin_adminPrintName( ent ) ) : "console",
-							  ( *msg ) ? msg : "not welcome",
-							  ( *reason ) ? ", " : "",
-                              ( *reason ) ? reason : "",
+						   va( "disconnect \"You have been forced to leave by %s^7\nreason:\n%s\n%s\"",
+							  ( ent ) ? va( "admin:\n%s", G_admin_adminPrintName( ent ) ) : "console.",
+                              ( *reason ) ? reason : ( ( *msg ) ? msg : "not welcome" ),
 							  notice
 							  ) );
 
-	trap_DropClient( pids[ 0 ], va( "was forced to leave%s^7, reason: %s%s%s",
-								   ( ent ) ? va( " by %s", G_admin_adminPrintName( ent ) ) : "console",
-								   ( *msg ) ? msg : "not welcome",
-								   ( *reason ) ? ", " : "",
-								   ( *reason ) ? reason : ""
+	trap_DropClient( pids[ 0 ], va( "forced to leave by %s^7, reason: %s",
+								   ( ent ) ? va( "%s", G_admin_adminPrintName( ent ) ) : "console",
+								   ( *reason ) ? reason : ( ( *msg ) ? msg : "not welcome" )
 								   ) );
 
 	return qtrue;
