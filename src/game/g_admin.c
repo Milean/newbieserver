@@ -267,10 +267,10 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "(^5start at ban#^7) (^5name|IP|'-subnet'^7)"
     },
 
-    // cicho-sza add on
+    // cicho-sza add on; GUID filtering added by Urcscumug
     {"showlongstrips", G_admin_showlongstrips, "q",
       "display a (partial) list of longbans",
-      "(^5start at strip#^7) (^5name|IP|'-subnet'^7)"
+      "(^5start at strip#^7) (^5name|IP|GUID|'-subnet'^7)"
     },
 
     {"spec999", G_admin_spec999, "P",
@@ -4238,9 +4238,10 @@ qboolean G_admin_listrotation( gentity_t *ent, int skiparg )
 
 
 
-// cicho-sza add on
+// cicho-sza add on; GUID filtering added by Urcscumug
 qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
 {
+  // init necessary vars
   int i, found = 0;
   int t;
   char name_fmt[ 32 ] = { "%s" };
@@ -4254,6 +4255,7 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
   char n1[ MAX_NAME_LENGTH ] = {""};
   char n2[ MAX_NAME_LENGTH ] = {""};
   char guid_stub[ 9 ];
+  char guid_match[ 9 ] = {""};
 
   qboolean numeric = qtrue;
   char *ip_match = NULL;
@@ -4261,7 +4263,9 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
   char name_match[ MAX_NAME_LENGTH ] = {""};
   int show_count = 0;
   qboolean subnetfilter = qfalse;
+  qboolean guid = qfalse;
 
+  // count non-empty entries
   for( i = 0; i < MAX_LONGSTRIPS && g_admin_longstrips[ i ]; i++ )
   {
     // skip empty (cleared) records
@@ -4270,130 +4274,245 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
     found++;
   }
 
+  // if number of arguments (minus those to skip) is >= 2
   if( G_SayArgc() >= 2 + skiparg )
   {
+    // copy the first arg (after those to skip) into 'filter'
     G_SayArgv( 1 + skiparg, filter, sizeof( filter ) );
+    // if number of arguments (minus those to skip) is >= 3
     if( G_SayArgc() >= 3 + skiparg )
     {
+      // convert what's in 'filter' to integer and put it into 'start'
       start = atoi( filter );
+      // copy the second arg (after those to skip) into 'filter'
       G_SayArgv( 2 + skiparg, filter, sizeof( filter ) );
     }
+    // examine the chars in 'filter'
     for( i = 0; i < sizeof( filter ) && filter[ i ] ; i++ )
     {
+      // if a char is not 0-9.-
       if( ( filter[ i ] < '0' || filter[ i ] > '9' )
         && filter[ i ] != '.' && filter[ i ] != '-' )
       {
+        // set 'numeric' to false
         numeric = qfalse;
+        // and stop looking further
         break;
       }
     }
 
+    // if 'filter' aka the first parameter is not numeric
     if (!numeric)
     {
+      // if the first char in 'filter' is not dash
       if( filter[ 0 ] != '-' )
       {
-        G_SanitiseString( filter, name_match, sizeof( name_match ) );
-
-      }
-      else
-      {
-        if( !Q_strncmp( filter, "-sub", 4 ) )
+        // determine if 'filter' is a guid;
+        // if 'filter' has 8 chars (9 with the end of string terminator)
+        if (sizeof( filter ) == 9)
         {
-          subnetfilter = qtrue;
+          guid = qtrue;
+          // test that 'filter' contains just 0-9A-F chars
+          for( i = 0; i < sizeof( filter ) && filter[ i ] ; i++ )
+          {
+            if( filter[ i ] < '0' || (filter[ i ] > '9' && filter[ i ]) < 'A' || filter[ i ] > 'F' )
+            {
+              guid = qfalse;
+              break;
+            }
+          }
+        }
+        // 'guid' will be true if the filter contains exactly 8 chars (9 with terminator) and all are 0-9A-F
+        if ( guid )
+        {
+          // put the sanitized version of 'filter' into 'guid_match'
+          // we'll assume matching by guid
+          G_SanitiseString( filter, guid_match, sizeof( guid_match ) );
         }
         else
         {
+          // put the sanitized version of 'filter' into 'name_match'
+          // we'll assume matching by name
+          G_SanitiseString( filter, name_match, sizeof( name_match ) );
+        }
+
+      }
+      // if the first char in 'filter' is a dash
+      else
+      {
+        // if 'filter' begins with "-sub"
+        if( !Q_strncmp( filter, "-sub", 4 ) )
+        {
+          // set 'subnetfilter' to true;
+          // we'll assume subnet matching
+          subnetfilter = qtrue;
+        }
+        // 'filter' starts with dash but not "-sub"
+        else
+        {
+          // complain about invalid parameter
           ADMP( va( "^3!showlongstrips: ^7invalid argument %s\n", filter ) );
+          // bail out
           return qfalse;
         }
       }
     }
+    // if 'filter' is "numeric" and contains a dot
     else if( strchr( filter, '.' ) != NULL )
     {
+      // copy 'filter' into 'ip_match'
       ip_match = filter;
+      // set 'ip_match_len' to the length of 'ip_match'
       ip_match_len = strlen(ip_match);
+      // we'll assume matching by IP
     }
+    // 'filter' is "numeric" and doesn't contain a dot
     else
     {
+      // convert 'filter' to number and put it into 'start'
       start = atoi( filter );
+      // truncate 'filter' completely
       filter[0] = '\0';
     }
 
     // showlongstrips 1 means start with strip 0
+    // if 'start' was set to something strictly positive,
     if( start > 0 )
+      // make it zero-based
       start -= 1;
+    // if 'start' was set to something strictly negative
     else if( start < 0 )
+      // treat it as an offset from the end of the list
       start = found + start;
   }
+  // there's just one or no params (minus those to skip);
+  // FIXME: the 1st param is ignored; shouldn't it be examined and, if numeric, used as 'start'?
 
+  // sanity check; 'start' can't be anymore outside the 0 - MAX_LONGSTRIPS range
   if( start >= MAX_LONGSTRIPS || start < 0 )
     start = 0;
 
+  // another sanity check: if user asked for more than existing entries to be skipped
+  if( start >= found )
+  {
+    // display how many valid entries are there
+    ADMP( va( "^3!showlongstrips: ^7there are %d active longstrips\n", found ) );
+    // and bail out
+    return qfalse;
+  }
 
+  // loop through the entries, starting from 'start', and keep going as long
+  // as there are entries left and we haven't filled a page of display
+  // THIS LOOP SERVES TO FIND MAX VALUES FOR max_length AND max_banner
   for( i = start; i < MAX_LONGSTRIPS && g_admin_longstrips[ i ] 
     && show_count < MAX_ADMIN_SHOWBANS; i++ )
   {
+    // init 'match' to false
     qboolean match = qfalse;
 
+    // ignore empty entries
     if (g_admin_longstrips[ i ]->to_be_removed > 0) continue;
 
+    // if the filter is not numeric
     if (!numeric)
       {
+        // if the filter is not a subnet
         if( !subnetfilter )
         {
-          G_SanitiseString( g_admin_longstrips[ i ]->name, n1, sizeof( n1 ) );
-          if (strstr( n1, name_match) )
-            match = qtrue;
+          // guid matching
+          if ( guid )
+          {
+            // copy the relevant part of the entry's guid to 'guid_stub'
+            for( t = 0; t < 8; t++ )
+              guid_stub[ t ] = g_admin_longstrips[ i ]->guid[ t + 24 ];
+            guid_stub[ t ] = '\0';
+            // compare 'guid_stub' with the filtering string
+            if (strstr( guid_stub, name_match) )
+              // if they match, set 'match' to true
+              match = qtrue;
+          }
+          // name matching
+          else {
+            // copy the sanitised version of the entry's name into 'n1'
+            G_SanitiseString( g_admin_longstrips[ i ]->name, n1, sizeof( n1 ) );
+            // compare the entry's name with the filtering string
+            if (strstr( n1, name_match) )
+              // if they match, set 'match' to true
+              match = qtrue;
+          }
         }
+        // filter is a subnet
         else
         {
+          // init vars
           int mask = -1;
           int dummy;
           int scanflen = 0;
+          // determine if filtering mask matches IP
           scanflen = sscanf( g_admin_longstrips[ i ]->ip, "%d.%d.%d.%d/%d", &dummy, &dummy, &dummy, &dummy, &mask );
           if( scanflen == 5 && mask < 32 )
           {
+            // set 'match' to true if matching
             match = qtrue;
           }
         }
       }
 
+    // if the filter matched,
+    // or ip_match is empty
+    // or ip_match is not empty but it doesn't match the entry's IP
     if ( ( match ) || !ip_match
       || Q_strncmp( ip_match, g_admin_longstrips[ i ]->ip, ip_match_len) == 0 )
     {
+      // copy the entry name, with colors stripped off, into 'n1'
       G_DecolorString( g_admin_longstrips[ i ]->name, n1 );
+      // copy the entry stripper name, with colors stripped off, into 'n2'
       G_DecolorString( g_admin_longstrips[ i ]->stripper, n2 );
+      // if the stripped name is bigger than accepted max length
       if( strlen( n1 ) > max_name )
       {
+        // adjust 'max_name' to match 'n1''s length
         max_name = strlen( n1 );
       }
+      // if the stripper's name is bigger than accepted max length
       if( strlen( n2 ) > max_banner )
+        // adjust 'max_banner' to match 'n2''s length
         max_banner = strlen( n2 );
 
+      // increment the shown counter
       show_count++;
     }
   }
 
-  if( start >= found )
-  {
-    ADMP( va( "^3!showlongstrips: ^7there are %d active longstrips\n", found ) );
-    return qfalse;
-  }
-
   ADMBP_begin();
-  show_count = 0;
-  for( i = start; i < MAX_LONGSTRIPS && g_admin_longstrips[ i ]
-    && show_count < MAX_ADMIN_SHOWBANS; i++ )
+  // once again, loop through the strips, starting from 'start', and keep going as long
+  // as there are strips left and we haven't filled a page of display
+  // THIS LOOP SERVES TO ACTUALLY DISPLAY THE MATCHING ENTRIES
+  for( i = start, show_count = 0; i < MAX_LONGSTRIPS && g_admin_longstrips[ i ]
+    && show_count < MAX_ADMIN_SHOWBANS; i++)
   {
+    // skip empty entries
     if (g_admin_longstrips[ i ]->to_be_removed > 0) continue;
 
+    // repeat the matching tests and skip the entry if it doesn't match
     if (!numeric)
     {
       if( !subnetfilter )
       {
-        G_SanitiseString( g_admin_longstrips[ i ]->name, n1, sizeof( n1 ) );
-        if ( strstr ( n1, name_match ) == NULL )
-          continue;
+        if ( guid )
+        {
+          for( t = 0; t < 8; t++ )
+            guid_stub[ t ] = g_admin_longstrips[ i ]->guid[ t + 24 ];
+          guid_stub[ t ] = '\0';
+          if (strstr( guid_stub, name_match) )
+            continue;
+        }
+        else
+        {
+          G_SanitiseString( g_admin_longstrips[ i ]->name, n1, sizeof( n1 ) );
+          if ( strstr ( n1, name_match ) == NULL )
+            continue;
+        }
       }
       else
       {
@@ -4429,6 +4548,7 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
     secs = ( g_admin_bans[ i ]->expires - t );
     G_admin_duration( secs, duration, sizeof( duration ) );
 */
+    // format and print the relevant stuff in the entry
     G_DecolorString( g_admin_longstrips[ i ]->name, n1 );
     Com_sprintf( name_fmt, sizeof( name_fmt ), "%%%is",
       ( max_name + strlen( g_admin_longstrips[ i ]->name ) - strlen( n1 ) ) );
@@ -4455,14 +4575,18 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
 //             g_admin_bans[ i ]->reason
              ) );
 
+    // increment the shown counter
     show_count++;
   }
 
+  // format and print a summary of the findings
   if (!numeric || ip_match)
   {
     char matchmethod[50];
     if( numeric )
       Com_sprintf( matchmethod, sizeof(matchmethod), "IP" );
+    else if ( guid )
+      Com_sprintf( matchmethod, sizeof(matchmethod), "GUID" );
     else if( !subnetfilter )
       Com_sprintf( matchmethod, sizeof(matchmethod), "name" );
     else
@@ -4489,6 +4613,7 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
   }
   ADMBP( "\n" );
   ADMBP_end();
+  // we're done
   return qtrue;
 }
 
