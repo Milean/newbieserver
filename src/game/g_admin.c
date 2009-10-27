@@ -1587,8 +1587,37 @@ void G_admin_namelog_update( gclient_t *client, qboolean disconnect )
       g_admin_namelog[ i ]->slot = ( disconnect ) ? -1 : clientNum;
  
       // if this player is connecting, they are no longer banned
+      // check for previous mute/denybuild and restore
       if( !disconnect )
+      {
         g_admin_namelog[ i ]->banned = qfalse;
+
+        if( g_admin_namelog[ i ]->muted )
+        {
+          client->pers.muted = qtrue;
+          G_AdminsPrintf( "^7%s^7's mute has been restored.\n", client->pers.netname );
+          g_admin_namelog[ i ]->muted = qfalse;
+        }
+        if( g_admin_namelog[ i ]->denyBuild )
+        {
+          client->pers.denyBuild = qtrue;
+          G_AdminsPrintf( "^7%s^7's denybuild has been restored.\n", client->pers.netname );
+          g_admin_namelog[ i ]->denyBuild = qfalse;
+        }
+      }
+      else
+      {
+        //for mute
+        if( client->pers.muted )
+        {
+          g_admin_namelog[ i ]->muted = qtrue;
+        }
+        //denybuild
+        if( client->pers.denyBuild )
+        {
+          g_admin_namelog[ i ]->denyBuild = qtrue;
+        }
+      }
 
       return;
     }
