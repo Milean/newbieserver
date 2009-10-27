@@ -2587,9 +2587,9 @@ qboolean G_admin_bot( gentity_t *ent, int skiparg ) {
 
 		G_SayArgv( 3 + skiparg, team, sizeof( team ) );
 
-		if(!Q_stricmp(team,"humans")) {
+		if( team[ 0 ] == 'h' || team[ 0 ] == 'H' ) {
 			team_int = PTE_HUMANS;
-		} else if(!Q_stricmp(team,"aliens")) {
+ 		} else if( team[ 0 ] == 'a' || team[ 0 ] == 'A' ) {
 			team_int = PTE_ALIENS;
 		} else {
 			ADMP( "^7Invalid bot team.\n" );
