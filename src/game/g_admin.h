@@ -187,6 +187,7 @@ qboolean G_admin_setlevel( gentity_t *ent, int skiparg );
 qboolean G_admin_kick( gentity_t *ent, int skiparg );
 qboolean G_admin_adjustban( gentity_t *ent, int skiparg );
 qboolean G_admin_subnetban( gentity_t *ent, int skiparg );
+qboolean G_admin_subnetstrip( gentity_t *ent, int skiparg );
 
 // cicho-sza add-on:
 qboolean G_admin_longstrip( gentity_t *ent, int skiparg );

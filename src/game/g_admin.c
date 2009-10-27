@@ -293,6 +293,15 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "\n ^1WARNING:^7 Use of this command may make your admin.dat incompatible with other game.qvms"
     },
 
+    {"subnetstrip", G_admin_subnetstrip, "E",
+      "Add or change a subnet mask on a strip",
+      "[^3longstrip#^7] [^5CIDR mask^7]"
+      "\n ^3Example:^7 '!subnetstrip 10 16' changes longstrip #10 to be a strip on XXX.XXX.*.*"
+      "\n ^3Example:^7 '!subnetstrip 10 24' changes longstrip #10 to be a strip on XXX.XXX.XXX.*"
+      "\n ^3Example:^7 '!subnetstrip 10 32' changes longstrip #10 to be a regular (non-subnet) ban"
+      "\n ^1WARNING:^7 Use of this command may make your admin.dat incompatible with other game.qvms"
+    },
+
     {"time", G_admin_time, "C",
       "show the current local server time",
       ""},
@@ -3257,7 +3266,116 @@ qboolean G_admin_subnetban( gentity_t *ent, int skiparg )
   return qtrue;
 }
 
+qboolean G_admin_subnetstrip( gentity_t *ent, int skiparg )
+{
+  int bnum;
+  int mask;
+  int IPRlow = 0, IPRhigh = 0;
+  char cIPRlow[ 32 ], cIPRhigh[ 32 ];
+  char bs[ 5 ];
+  char strmask[ 5 ];
+  char exl[2];
+  int k, IP[5];
+  
+  if( G_SayArgc() < 3 + skiparg )
+  {
+    ADMP( "^3!subnetstrip: ^7usage: !subnetstrip [longstrip#] [mask]\n" );
+    return qfalse;
+  }
+  G_SayArgv( 1 + skiparg, bs, sizeof( bs ) );
+  bnum = atoi( bs );
+  if( bnum < 1 || bnum > MAX_LONGSTRIPS || !g_admin_longstrips[ bnum - 1] )
+  {
+    ADMP( "^3!subnetstrip: ^7invalid longstrip#\n" );
+    return qfalse;
+  }
 
+  G_SayArgv( 2 + skiparg, strmask, sizeof( strmask ) );
+  mask = atoi( strmask );
+  
+  if( mask >= 0 && mask <= 32)
+  {
+    G_SayArgv( 3 + skiparg, exl, sizeof( exl ) );
+    if( mask >= 0 && mask < 16 && strcmp(exl, "!") )
+    {
+      if( ent )
+      {
+        ADMP( "^3!subnetstrip: ^7Only console may strip such a large network. Regular admins may only strip >=16.\n" );
+        return qfalse;
+      }
+
+      ADMP( "^3!subnetstrip: ^1WARNING:^7 you are about to strip a large network, use !subnetstrip [strip] [mask] ! to force^7\n" );
+      return qfalse;
+    }
+    else
+    {
+      sscanf(g_admin_longstrips[ bnum - 1 ]->ip, "%d.%d.%d.%d/%d", &IP[4], &IP[3], &IP[2], &IP[1], &IP[0]);
+      for(k = 4; k >= 1; k--)
+      {
+        if(!IP[k]) IP[k] = 0;
+        IPRlow |= IP[k] << 8*(k-1);
+      }
+      IPRhigh = IPRlow;
+      if( mask == 32 )
+      {
+        Q_strncpyz( 
+          g_admin_longstrips[ bnum - 1 ]->ip, 
+          va("%i.%i.%i.%i", IP[4], IP[3], IP[2], IP[1]), 
+          sizeof( g_admin_longstrips[ bnum - 1 ]->ip ) 
+        );
+      }
+      else
+      {
+        Q_strncpyz( 
+          g_admin_longstrips[ bnum - 1 ]->ip, 
+          va("%i.%i.%i.%i/%i", IP[4], IP[3], IP[2], IP[1], mask ), 
+          sizeof( g_admin_longstrips[ bnum - 1 ]->ip )
+        );
+        IPRlow &= ~((1 << (32-mask)) - 1);
+        IPRhigh |= ((1 << (32-mask)) - 1);
+      }
+    }
+  }
+  else
+  {
+    ADMP( "^3!subnetstrip: ^7mask is out of range, please use 0-32 inclusive\n" );
+    return qfalse;
+  }
+  if( mask > 0 )
+  {
+    Q_strncpyz( 
+      cIPRlow, 
+      va("%i.%i.%i.%i", (IPRlow & (255 << 24)) >> 24, (IPRlow & (255 << 16)) >> 16, (IPRlow & (255 << 8)) >> 8, IPRlow & 255), 
+      sizeof( cIPRlow ) 
+    );
+    Q_strncpyz( 
+      cIPRhigh, 
+      va("%i.%i.%i.%i", (IPRhigh & (255 << 24)) >> 24, (IPRhigh & (255 << 16)) >> 16, (IPRhigh & (255 << 8)) >> 8, IPRhigh & 255), 
+      sizeof( cIPRhigh ) 
+    );
+  }
+  else
+  {
+    Q_strncpyz( cIPRlow, "0.0.0.0", sizeof( cIPRlow ) );
+    Q_strncpyz( cIPRhigh, "255.255.255.255", sizeof( cIPRhigh ) );
+    
+  }
+  
+  AP( va( "print \"^3!subnetstrip: ^7longstrip #%d for %s^7 has been updated by %s^7 "
+    "%s (%s - %s)\n\"",
+    bnum,
+    g_admin_longstrips[ bnum - 1 ]->name,
+    ( ent ) ? G_admin_adminPrintName( ent ) : "console",
+    g_admin_longstrips[ bnum - 1 ]->ip,
+    cIPRlow,
+    cIPRhigh) );
+  if( ent )
+    Q_strncpyz( g_admin_longstrips[ bnum - 1 ]->stripper, ent->client->pers.netname,
+      sizeof( g_admin_longstrips[ bnum - 1 ]->stripper ) );
+  if( g_admin.string[ 0 ] )
+    admin_writeconfig();
+  return qtrue;
+}
 
 // cicho-sza add on
 qboolean G_admin_unlongstrip( gentity_t *ent, int skiparg )
