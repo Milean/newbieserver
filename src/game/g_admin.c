@@ -280,8 +280,8 @@ g_admin_cmd_t g_admin_cmds[ ] =
      //kev: a bit of a hack, but there is no real point to
      //creating a new admin flag for this, so i stole it from !help
     {"specme", G_admin_putmespec, "h",
-        "moves you to the spectators",
-    ""
+      "moves you to the spectators (can be done silently with the 's' argument)",
+      "(^5s^7)"
     },
 
     {"subnetban", G_admin_subnetban, "E",
@@ -5724,6 +5724,20 @@ qboolean G_admin_putmespec( gentity_t *ent, int skiparg )
   }
   
   G_ChangeTeam( ent, PTE_NONE );
+
+  // check for silent '!specme s' - requires !kick permission
+  if( G_SayArgc() > 1 + skiparg )
+  {
+    char arg[ 2 ];
+
+    G_SayArgv( 1 + skiparg, arg, sizeof( arg ) );
+    if( ( arg[0] == 's' || arg[0] == 'S' ) && G_admin_permission( ent, 'k' ) )
+    {
+      G_AdminsPrintf( "^3!specme: ^7%s has silently joined the spectators\n", G_admin_adminPrintName( ent ) );
+      return qtrue;
+    }
+  }
+
   AP( va("print \"^3!specme: ^7%s^7 decided to join the spectators\n\"", ent->client->pers.netname ) );
   return qtrue;
 }
