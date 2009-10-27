@@ -2916,16 +2916,20 @@ void Cmd_Destroy_f( gentity_t *ent )
       if( !g_markDeconstruct.integer && !g_cheats.integer )
       {
         if( ent->client->pers.teamSelection == PTE_ALIENS &&
-            traceEnt->s.modelindex == BA_A_SPAWN )
+            traceEnt->s.modelindex == BA_A_SPAWN &&
+            level.numAlienSpawns <= 1 )
         {
-          if( level.numAlienSpawns <= 1 )
-            return;
+          trap_SendServerCommand( ent-g_entities, 
+            "print \"You cannot deconstruct your last egg\n\"" );
+          return;
         }
         else if( ent->client->pers.teamSelection == PTE_HUMANS &&
-                 traceEnt->s.modelindex == BA_H_SPAWN )
+                 traceEnt->s.modelindex == BA_H_SPAWN &&
+                 level.numHumanSpawns <= 1 )
         {
-          if( level.numHumanSpawns <= 1 )
-            return;
+          trap_SendServerCommand( ent-g_entities, 
+            "print \"You cannot deconstruct your last node\n\"" );
+          return;
         }
       }
 
