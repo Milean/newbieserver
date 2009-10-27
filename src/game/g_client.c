@@ -899,6 +899,28 @@ static void ClientCleanName( const char *in, char *out, int outSize )
 
 
 /*
+=================
+G_IsUnnamed
+
+Check if the player has named him or herself
+=================
+*/
+qboolean G_IsUnnamed( gentity_t *ent )
+{
+  char namePrefix[ MAX_NAME_LENGTH - 4 ];
+
+  if( g_newbieNamePrefix.string[ 0 ] && g_newbieNumbering.integer )
+    Q_strncpyz( namePrefix, g_newbieNamePrefix.string , sizeof( namePrefix ) );
+  else if( !g_newbieNamePrefix.string[ 0 ] && g_newbieNumbering.integer )
+    strcpy( namePrefix, "Newbie#" );
+  else if( !g_newbieNumbering.integer )
+    strcpy( namePrefix, "UnnamedPlayer" );
+
+  return strstr( ent->client->pers.netname, namePrefix ) ? qtrue : qfalse;
+}
+
+
+/*
 ===================
 G_NextNewbieName
 

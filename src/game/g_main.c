@@ -104,6 +104,7 @@ vmCvar_t  g_minNameChangePeriod;
 vmCvar_t  g_maxNameChanges;
 vmCvar_t  g_newbieNumbering;
 vmCvar_t  g_newbieNamePrefix;
+vmCvar_t  g_newbieDenyBuild;
 
 vmCvar_t  g_humanBuildPoints;
 vmCvar_t  g_alienBuildPoints;
@@ -305,6 +306,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_maxNameChanges, "g_maxNameChanges", "5", 0, 0, qfalse},
   { &g_newbieNumbering, "g_newbieNumbering", "0", CVAR_ARCHIVE, 0, qfalse},
   { &g_newbieNamePrefix, "g_newbieNamePrefix", "Newbie#", CVAR_ARCHIVE, 0, qfalse},
+  { &g_newbieDenyBuild, "g_newbieDenyBuild", "0", CVAR_ARCHIVE, 0, qfalse },
 
   { &g_smoothClients, "g_smoothClients", "1", 0, 0, qfalse},
   { &g_clientUpgradeNotice, "g_clientUpgradeNotice", "1", 0, 0, qfalse},

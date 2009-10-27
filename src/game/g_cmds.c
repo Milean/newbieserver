@@ -2853,6 +2853,15 @@ void Cmd_Destroy_f( gentity_t *ent )
     return;
   }
 
+  // newbie checking
+  if ( g_newbieDenyBuild.integer && G_IsUnnamed( ent ) )
+  {
+    // send message to player
+    trap_SendServerCommand( ent-g_entities,
+      "print \"You must set a name before you can decon. Press Esc, then Options to set one.\n\"" );
+    return;
+  }
+
   if( ent->client->pers.denyBuild )
   {
     trap_SendServerCommand( ent-g_entities,
@@ -3553,6 +3562,15 @@ void Cmd_Build_f( gentity_t *ent )
   float         dist;
   vec3_t        origin;
   pTeam_t       team;
+
+  // newbie checking
+  if ( g_newbieDenyBuild.integer && G_IsUnnamed( ent ) )
+  {
+    // send message to player
+    trap_SendServerCommand( ent-g_entities,
+      "print \"You must set a name before you can build. Press Esc, then Options to set one.\n\"" );
+    return;
+  }
 
   if( ent->client->pers.denyBuild )
   {
