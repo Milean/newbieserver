@@ -1604,6 +1604,14 @@ void G_admin_namelog_update( gclient_t *client, qboolean disconnect )
           G_AdminsPrintf( "^7%s^7's denybuild has been restored.\n", client->pers.netname );
           g_admin_namelog[ i ]->denyBuild = qfalse;
         }
+
+        // if stripped in this game and not longstripped, strip
+        if( g_admin_namelog[ i ]->nakedPlayer && !client->pers.nakedPlayer )
+        {
+          client->pers.nakedPlayer = qtrue;
+          G_AdminsPrintf( "^7%s^7's strip has been restored\n", client->pers.netname );
+          g_admin_namelog[ i ]->nakedPlayer = qfalse;
+        }
       }
       else
       {
@@ -1616,6 +1624,11 @@ void G_admin_namelog_update( gclient_t *client, qboolean disconnect )
         if( client->pers.denyBuild )
         {
           g_admin_namelog[ i ]->denyBuild = qtrue;
+        }
+        //strip
+        if( client->pers.nakedPlayer )
+        {
+          g_admin_namelog[ i ]->nakedPlayer = qtrue;
         }
       }
 

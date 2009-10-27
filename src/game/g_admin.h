@@ -158,6 +158,7 @@ typedef struct g_admin_namelog
   qboolean  banned;
   qboolean  denyBuild;
   qboolean  muted;
+  qboolean  nakedPlayer;
 }
 g_admin_namelog_t;
 
