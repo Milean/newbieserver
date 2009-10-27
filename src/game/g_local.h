@@ -458,6 +458,7 @@ typedef struct
 
   statsKeepForLevel_t LevelKeepStats;      // used by auto-strip and (in future) similar routines
 
+  qboolean            givenClothes;
 } clientPersistant_t;
 
 #define MAX_UNLAGGED_MARKERS 10

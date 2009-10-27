@@ -137,6 +137,9 @@ void DoCheckAutoStrip( gentity_t *self )
     return;
   // ========================================================
 
+  // been dressed by an admin? disable auto-strip
+  if ( self->client->pers.givenClothes ) return;
+
   // now, let's start checking
   my_kills = self->client->pers.LevelKeepStats.kills;
   if ( my_kills < AS_min_kills )

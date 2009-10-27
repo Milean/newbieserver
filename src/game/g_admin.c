@@ -5620,6 +5620,7 @@ qboolean G_admin_naked( gentity_t *ent, int skiparg )
       return qtrue;
     }
     vic->client->pers.nakedPlayer = qfalse;
+    vic->client->pers.givenClothes = qtrue;
     CPx( pids[ 0 ], "cp \"^1You have been dressed\"" );
     AP( va(
       "print \"^3!dress: ^7%s^7 has been dressed by %s\n\"",
@@ -5635,6 +5636,7 @@ qboolean G_admin_naked( gentity_t *ent, int skiparg )
       return qtrue;
     }
     vic->client->pers.nakedPlayer = qtrue;
+    vic->client->pers.givenClothes = qfalse;
     CPx( pids[ 0 ], "cp \"^1You have been stripped\"" );
     AP( va( "print \"^3!strip: ^7%s^7 has been stripped by ^7%s\n\"",
       vic->client->pers.netname,
