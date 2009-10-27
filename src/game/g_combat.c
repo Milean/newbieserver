@@ -250,9 +250,8 @@ void DoCheckAutoStrip( gentity_t *self )
               );
 
               trap_SendServerCommand( self - g_entities,
-                va( "cp \"%s.\"", 
-                 "Nice ^1killing spree^7. Feel noticed."
-                ) 
+                  "cp \"^1You have been stripped\n"
+                    "^7See ^3!info strip^7 for details\""
               );
 
               return;
@@ -274,9 +273,8 @@ void DoCheckAutoStrip( gentity_t *self )
         );
 
         trap_SendServerCommand( self - g_entities,
-                va( "cp \"%s.\"", 
-                 "Nice ^1killing speed^7. Feel noticed."
-                ) 
+            "cp \"^1You have been stripped\n"
+              "^7See ^3!info strip^7 for details\""
         );
 
         return;
@@ -336,9 +334,8 @@ void DoCheckAutoStrip( gentity_t *self )
       );
 
       trap_SendServerCommand( self - g_entities,
-        va( "cp \"You have ^1exceed^7 %s team average.\"", 
-             (my_kills > my_team_avg)?"your":"enemy" 
-           ) 
+          "cp \"^1You have been stripped\n"
+            "^7See ^3!info strip^7 for details\""
       );
 
     }
