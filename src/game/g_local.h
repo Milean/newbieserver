@@ -871,6 +871,7 @@ void      Cmd_Builder_f( gentity_t *ent );
 void      G_WordWrap( char *buffer, int maxwidth );
 void      G_CP( gentity_t *ent );
 qboolean  G_RoomForClassChange( gentity_t *ent, pClass_t class, vec3_t newOrigin );
+int       OverrideNakedStage( char * ItemOrClassName, int CheckStage );
 
 //
 // g_physics.c

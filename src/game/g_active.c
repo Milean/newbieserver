@@ -812,7 +812,16 @@ void ClientTimerActions( gentity_t *ent, int msec )
 
     //replenish alien health
     if( client->ps.stats[ STAT_PTEAM ] == PTE_ALIENS &&
-      level.surrenderTeam != PTE_ALIENS )
+      level.surrenderTeam != PTE_ALIENS
+      &&
+      ( !client->pers.nakedPlayer ||
+        ( BG_FindNakedStagesForClass( client->pers.classSelection, g_alienStage.integer ) &&
+          OverrideNakedStage( BG_FindNameForClassNum( client->pers.classSelection ),
+            g_alienStage.integer) == -1 )
+        ||
+        OverrideNakedStage( BG_FindNameForClassNum( client->pers.classSelection ),
+          g_alienStage.integer ) == 1 )
+      )
     {
       int       entityList[ MAX_GENTITIES ];
       vec3_t    range = { LEVEL4_REGEN_RANGE, LEVEL4_REGEN_RANGE, LEVEL4_REGEN_RANGE };

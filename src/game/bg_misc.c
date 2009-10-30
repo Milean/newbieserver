@@ -2088,7 +2088,7 @@ char *BG_FindNameForClassNum( int pclass )
 
   Com_Printf( S_COLOR_YELLOW "WARNING: fallthrough in BG_FindNameForClassNum\n" );
   //wimp out
-  return 0;
+  return '\0';
 }
 
 /*
