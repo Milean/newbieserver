@@ -3125,8 +3125,19 @@ void Cmd_Buy_f( gentity_t *ent )
   int       maxAmmo, maxClips;
   qboolean  buyingEnergyAmmo = qfalse;
   qboolean  hasEnergyWeapon = qfalse;
-  
-  int iNakedStageOvr = -1;
+  int       oldWeapon = -1;
+  int       iNakedStageOvr = -1;
+
+  for( i = WP_NONE + 1; i < WP_NUM_WEAPONS; i++ )
+  {
+    if( i == WP_BLASTER )
+      continue;
+    else if( BG_InventoryContainsWeapon( i, ent->client->ps.stats ) )
+    {
+      oldWeapon = i;
+      break; // found the weapon, no need to continue
+    }
+  }
 
   for( i = UP_NONE; i < UP_NUM_UPGRADES; i++ )
   {
@@ -3328,6 +3339,20 @@ void Cmd_Buy_f( gentity_t *ent )
       trap_SendServerCommand( ent-g_entities, va( "print \"This item is currently denied to stripped players\n\"" ) );
       return;
     }
+
+    // a stripped player buying ammo for a stripped weapon
+    // consider overrides first
+    iNakedStageOvr = OverrideNakedStage( BG_FindNameForWeapon( oldWeapon ), g_humanStage.integer );
+    // G_AdminsPrintf( "^1Weapon: ^3%s   ^1Override: ^3%i\n", BG_FindNameForWeapon( oldWeapon ), iNakedStageOvr );
+    if( ent ->client->pers.nakedPlayer && upgrade == UP_AMMO &&
+        ( ( !BG_FindNakedStagesForWeapon( oldWeapon, g_humanStage.integer ) && iNakedStageOvr == -1 ) ||
+        iNakedStageOvr == 0 )
+      )
+    {
+      trap_SendServerCommand( ent-g_entities, va( "print \"Because of strip you are not allowed to use this weapon anymore\n\"" ) );
+      return;
+    }
+
 
     if( upgrade == UP_BATTLESUIT && ent->client->ps.pm_flags & PMF_DUCKED )
     {

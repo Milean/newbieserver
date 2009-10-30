@@ -3917,7 +3917,7 @@ char *BG_FindNameForWeapon( int weapon )
   }
 
   //wimp out
-  return 0;
+  return '\0';
 }
 
 /*
