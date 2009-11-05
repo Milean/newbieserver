@@ -5733,7 +5733,7 @@ qboolean G_admin_putmespec( gentity_t *ent, int skiparg )
     G_SayArgv( 1 + skiparg, arg, sizeof( arg ) );
     if( ( arg[0] == 's' || arg[0] == 'S' ) && G_admin_permission( ent, 'k' ) )
     {
-      G_AdminsPrintf( "^3!specme: ^7%s has silently joined the spectators\n", G_admin_adminPrintName( ent ) );
+      G_AdminsPrintf( "^3!specme: ^7%s ^7has silently joined the spectators\n", G_admin_adminPrintName( ent ) );
       return qtrue;
     }
   }
