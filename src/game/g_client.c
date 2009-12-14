@@ -1504,6 +1504,7 @@ char *ClientConnect( int clientNum, qboolean firstTime )
           continue;
 
         if( tempent->client->pers.nakedPlayer == qtrue ) ++strip_count;
+        else if( G_admin_permission( tempent, ADMF_NPLAYER ) ) ++strip_count;
         else ++newbie_count;
       }
 
