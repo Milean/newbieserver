@@ -218,6 +218,7 @@ vmCvar_t  g_strip_PlayerDmgPrcnt;
 vmCvar_t  g_strip_PlayerDmgPrcnt_def;
 vmCvar_t  g_strip_StructDmgPrcnt;
 vmCvar_t  g_strip_StructDmgPrcnt_def;
+vmCvar_t  g_connectedStripPrcnt;
 
 static cvarTable_t   gameCvarTable[ ] =
 {
@@ -424,6 +425,7 @@ static cvarTable_t   gameCvarTable[ ] =
   { &g_strip_PlayerDmgPrcnt_def, "g_strip_PlayerDmgPrcnt_def", "100", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART, 100, qtrue },
   { &g_strip_StructDmgPrcnt,     "g_strip_StructDmgPrcnt",       "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART,   0, qtrue },
   { &g_strip_StructDmgPrcnt_def, "g_strip_StructDmgPrcnt_def",   "0", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART,   0, qtrue },
+  { &g_connectedStripPrcnt,      "g_connectedStripPrcnt",       "50", CVAR_SERVERINFO | CVAR_ARCHIVE | CVAR_NORESTART,  50, qtrue },
 };
 
 static int gameCvarTableSize = sizeof( gameCvarTable ) / sizeof( gameCvarTable[ 0 ] );

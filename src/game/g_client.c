@@ -1353,6 +1353,8 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   int       i;
   int       used_privateSlots;
   int       privateClients;
+  int       strip_count = 0, newbie_count = 0;
+  gentity_t *tempent;
   
   ent = &g_entities[ clientNum ];
 
@@ -1482,9 +1484,34 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   // check for longstrip
   if( G_admin_longstrip_check( userinfo ) )
   {
-     ent->client->pers.nakedPlayer = qtrue;
-  }
+    ent->client->pers.nakedPlayer = qtrue;
 
+    if( firstTime && !G_admin_permission( ent, 'X' ) && ent->r.svFlags ^ SVF_BOT )
+    {
+      // management of strip/newbie ratio
+      for( i = 1, tempent = g_entities + i; i < MAX_CLIENTS; ++i, ++tempent )
+      {
+        if( ent == tempent )
+          continue;
+
+        if( !tempent || !tempent->inuse || !tempent->client )
+          continue;
+
+        if( tempent->r.svFlags & SVF_BOT )
+          continue;
+
+        if( tempent->client->pers.connected != CON_CONNECTING && tempent->client->pers.connected != CON_CONNECTED )
+          continue;
+
+        if( tempent->client->pers.nakedPlayer == qtrue ) ++strip_count;
+        else ++newbie_count;
+      }
+
+      if( strip_count + newbie_count > 5 )
+        if( 100 * strip_count / (strip_count + newbie_count) > g_connectedStripPrcnt.integer )
+          return "There are too many non-newbies connected. Please try again later.";
+    }
+  }
 
   // don't do the "xxx connected" messages if they were caried over from previous level
   if( firstTime )
