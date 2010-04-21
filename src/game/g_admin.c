@@ -1219,7 +1219,8 @@ qboolean G_admin_longstrip_check( char *userinfo )
   char ip[ 16 ];
   char *value;
   int i;
-  int userIP = 0, intIP = 0, IP[5], k, tempIP, mask, ipscanfcount;
+  unsigned int userIP = 0, intIP = 0, tempIP;
+  int IP[5], k, mask, ipscanfcount;
   qboolean ignoreIP = qfalse;
   char userName[ 100 ];
   int iNameCnt = 0;
@@ -1295,7 +1296,7 @@ if (g_DebugMsg.integer > 0)
 
       if(mask > 0 && mask <= 32)
       {
-        tempIP &= ~((1 << (32-mask)) - 1); // FIXME: can overflow
+        tempIP &= ~((1 << (32-mask)) - 1);
         intIP &= ~((1 << (32-mask)) - 1);
       }
 
@@ -1355,7 +1356,8 @@ qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen )
   char ip[ 16 ];
   char *value;
   int i;
-  int userIP = 0, intIP = 0, IP[5], k, tempIP, mask, ipscanfcount;
+  unsigned int userIP = 0, intIP = 0, tempIP;
+  int IP[5], k, mask, ipscanfcount;
   int t;
   char notice[51];
   qboolean ignoreIP = qfalse;
@@ -1413,7 +1415,7 @@ qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen )
 
       if(mask > 0 && mask <= 32) 
       {
-        tempIP &= ~((1 << (32-mask)) - 1); // FIXME: can overflow
+        tempIP &= ~((1 << (32-mask)) - 1);
         intIP &= ~((1 << (32-mask)) - 1);
       }
 
@@ -3159,7 +3161,7 @@ qboolean G_admin_subnetban( gentity_t *ent, int skiparg )
 {
   int bnum;
   int mask;
-  int IPRlow = 0, IPRhigh = 0;
+  unsigned int IPRlow = 0, IPRhigh = 0;
   char cIPRlow[ 32 ], cIPRhigh[ 32 ];
   char bs[ 5 ];
   char strmask[ 5 ];
@@ -3270,7 +3272,7 @@ qboolean G_admin_subnetstrip( gentity_t *ent, int skiparg )
 {
   int bnum;
   int mask;
-  int IPRlow = 0, IPRhigh = 0;
+  unsigned int IPRlow = 0, IPRhigh = 0;
   char cIPRlow[ 32 ], cIPRhigh[ 32 ];
   char bs[ 5 ];
   char strmask[ 5 ];
