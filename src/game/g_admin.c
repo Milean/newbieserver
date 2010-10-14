@@ -6499,6 +6499,11 @@ void G_admin_cleanup()
     G_Free( g_admin_commands[ i ] );
     g_admin_commands[ i ] = NULL;
   }
+  for( i = 0; i < MAX_LONGSTRIPS && g_admin_longstrips[ i ]; ++i )
+  {
+    G_Free( g_admin_longstrips[ i ] );
+    g_admin_longstrips[ i ] = NULL;
+  }
 }
 
 qboolean G_admin_L0(gentity_t *ent, int skiparg ){
