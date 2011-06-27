@@ -89,7 +89,12 @@ g_admin_cmd_t g_admin_cmds[ ] =
       "cancel a vote taking place",
       ""
     },
-    
+
+    {"checkstrip", G_admin_checkstripname, "q",
+      "Check if player has a longstrip record",
+      "[^3name|slot#^7]"
+    },
+
     {"cp", G_admin_cp, "Z",
       "display a CP message to users, optionally specifying team(s) to send to",
       "(-AHS) [^3message^7]"
@@ -1213,7 +1218,7 @@ void G_admin_duration( int secs, char *duration, int dursize )
 /*
  *  checks if given user is listed in longstrips
  */
-qboolean G_admin_longstrip_check( char *userinfo )
+int G_admin_longstrip_check( char *userinfo, g_admin_longstrip_t *stripinfo, qboolean silent )
 {
   char guid[ 33 ];
   char ip[ 16 ];
@@ -1224,9 +1229,10 @@ qboolean G_admin_longstrip_check( char *userinfo )
   qboolean ignoreIP = qfalse;
   char userName[ 100 ];
   int iNameCnt = 0;
+  int stripID = -1;
 
   if( !*userinfo )
-    return qfalse;
+    return 0;
 
   value = Info_ValueForKey( userinfo, "name" );
   Q_strncpyz( userName, value, sizeof( userName ) );  
@@ -1247,7 +1253,7 @@ qboolean G_admin_longstrip_check( char *userinfo )
     *value = '\0';              // if found, replace it with end-of-string (crude :D)
 
   if( !*ip )
-    return qfalse;
+    return 0;
 
   value = Info_ValueForKey( userinfo, "cl_guid" );
   Q_strncpyz( guid, value, sizeof( guid ) );
@@ -1302,30 +1308,52 @@ if (g_DebugMsg.integer > 0)
 
       if( intIP == tempIP || mask == 0 )
       {
+        if( !silent )
+        {
           G_AdminsPrintf(
             "Stripped player %s^7 (%s^7) connected.\n",
             Info_ValueForKey( userinfo, "name" ),
             g_admin_longstrips[ i ]->name);
 
-        return qtrue;
+        }
+        stripID = i;
+        break;
       }
     }
 
     // check for stripped guid
     if( *guid && !Q_stricmp( g_admin_longstrips[ i ]->guid, guid ) )
     {
+      if( !silent )
+      {
       G_AdminsPrintf(
        "Stripped player %s^7 (%s^7) connected.\n",
             Info_ValueForKey( userinfo, "name" ),
             g_admin_longstrips[ i ]->name);
 
-      return qtrue;
+      }
+      stripID = i;
+      break;
     }
 
     // if name matching - increment counter
     if ( *userName && !Q_stricmp(g_admin_longstrips[ i ]->name, userName) ) iNameCnt++;
   }
 
+  if ( stripID >= 0 )
+  {
+    if ( stripinfo )
+    {
+      stripinfo->to_be_removed = stripID;
+      Q_strncpyz( stripinfo->name, g_admin_longstrips[ stripID ]->name, sizeof( stripinfo->name ) );
+      Q_strncpyz( stripinfo->ip, g_admin_longstrips[ stripID ]->ip, sizeof( stripinfo->ip ) );
+      Q_strncpyz( stripinfo->stripper, g_admin_longstrips[ stripID ]->stripper, sizeof( stripinfo->stripper ) );
+      for( i = 0; i < 8; i++ )
+         stripinfo->guid[ i ] = g_admin_longstrips[ stripID ]->guid[ i + 24 ];
+      stripinfo->guid[ 8 ] = '\0';
+    }
+    return 1;
+  }
 
 // panic-way debugging :) 
 if (g_DebugMsg.integer > 0)
@@ -1337,7 +1365,7 @@ if (g_DebugMsg.integer > 0)
 
   // not returned yet, so no player found - yet displaying info
   // if names were matching entries of longstrip table
-  if (iNameCnt>0) 
+  if (iNameCnt>0 && !silent)
   {
     G_AdminsPrintf(
        "%d longstrip(s) found for name: %s^7.\n",
@@ -1345,7 +1373,63 @@ if (g_DebugMsg.integer > 0)
     );
   }
 
-  return qfalse;
+  return -iNameCnt;
+}
+
+qboolean G_admin_checkstripname( gentity_t *ent, int skiparg )
+{
+  int pids[ MAX_CLIENTS ];
+  char err[ MAX_STRING_CHARS ];
+  char name[ MAX_NAME_LENGTH ];
+  char stripname[ MAX_NAME_LENGTH ];
+  char userinfo[ MAX_INFO_STRING ];
+  g_admin_longstrip_t stripinfo;
+  gentity_t *vic;
+  int searchResult;
+
+  if( G_SayArgc() < 2 + skiparg )
+  {
+    ADMP( "^3!checkname: ^7usage: !checkname [^3name|slot#^7] \n" );
+    return qfalse;
+  }
+
+  G_SayArgv( 1 + skiparg, name, sizeof( name ) );
+  if( G_ClientNumbersFromString( name, pids ) != 1 )
+  {
+    G_MatchOnePlayer(pids, err, sizeof( err ) );
+    ADMP( va( "^3!checkname: ^7%s\n", err ) );
+    return qfalse;
+  }
+
+  vic = &g_entities[ pids[ 0 ] ];
+  trap_GetUserinfo( pids[ 0 ], userinfo, sizeof( userinfo ) );
+  searchResult = G_admin_longstrip_check( userinfo , &stripinfo, qtrue);
+  if( searchResult == 1 )
+  {
+    ADMP( va( "^3!checkstrip: ^7Longstrip found for ^7%s^7: \n%4i %s^7 (%s) %-15s by: %s^7\n",
+              vic->client->pers.netname,
+              (stripinfo.to_be_removed + 1),
+              stripinfo.name,
+              stripinfo.guid,
+              stripinfo.ip,
+              stripinfo.stripper
+              ));
+    return qtrue;
+  }
+  else
+  {
+    if( searchResult == 0)
+    {
+      ADMP( va( "^3!checkstrip: ^7Player 7%s ^7has no longstrip record . \n",
+                vic->client->pers.netname));
+    }
+    else
+    {
+      ADMP( va( "^3!checkstrip: ^7%i longstrip(s) found for name: ^7%s^7.\n",
+                (-searchResult), vic->client->pers.netname));
+    }
+    return qfalse;
+  }
 }
 
 qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen )

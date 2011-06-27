@@ -164,7 +164,8 @@ g_admin_namelog_t;
 
 
 // cicho-sza add-on:
-qboolean G_admin_longstrip_check( char *userinfo );
+int G_admin_longstrip_check( char *userinfo, g_admin_longstrip_t *stripinfo, qboolean silent );
+qboolean G_admin_checkstripname( gentity_t *ent, int skiparg );
 
 
 qboolean G_admin_ban_check( char *userinfo, char *reason, int rlen );

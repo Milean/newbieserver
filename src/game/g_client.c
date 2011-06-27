@@ -1488,7 +1488,7 @@ char *ClientConnect( int clientNum, qboolean firstTime )
 // cicho-sza add on
 
   // check for longstrip
-  if( G_admin_longstrip_check( userinfo ) )
+  if( G_admin_longstrip_check( userinfo , 0, qfalse) > 0)
   {
     ent->client->pers.nakedPlayer = qtrue;
 
