@@ -1381,7 +1381,6 @@ qboolean G_admin_checkstripname( gentity_t *ent, int skiparg )
   int pids[ MAX_CLIENTS ];
   char err[ MAX_STRING_CHARS ];
   char name[ MAX_NAME_LENGTH ];
-  char stripname[ MAX_NAME_LENGTH ];
   char userinfo[ MAX_INFO_STRING ];
   g_admin_longstrip_t stripinfo;
   gentity_t *vic;
