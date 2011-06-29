@@ -1398,7 +1398,7 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   // check to see if they are on the banned IP list
   value = Info_ValueForKey( userinfo, "ip" );
   i = 0;
-  while( *value && i < sizeof( ip ) - 2 )
+  while( *value && i < sizeof( ip ) - 1 )
   {
     if( *value != '.' && ( *value < '0' || *value > '9' ) )
       break;
