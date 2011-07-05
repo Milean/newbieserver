@@ -4539,13 +4539,13 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
       {
         // determine if 'filter' is a guid;
         // if 'filter' has 8 chars (9 with the end of string terminator)
-        if (sizeof( filter ) == 9)
+        if (strlen( filter ) == 8)
         {
           guid = qtrue;
           // test that 'filter' contains just 0-9A-F chars
           for( i = 0; i < sizeof( filter ) && filter[ i ] ; i++ )
           {
-            if( filter[ i ] < '0' || (filter[ i ] > '9' && filter[ i ]) < 'A' || filter[ i ] > 'F' )
+            if( (filter[ i ] < '0' || filter[ i ] > '9') && (filter[ i ] < 'A' || filter[ i ] > 'F') )
             {
               guid = qfalse;
               break;
@@ -4557,7 +4557,7 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
         {
           // put the sanitized version of 'filter' into 'guid_match'
           // we'll assume matching by guid
-          G_SanitiseString( filter, guid_match, sizeof( guid_match ) );
+          Q_strncpyz( guid_match, filter, sizeof( guid_match ) );
         }
         else
         {
@@ -4657,7 +4657,7 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
               guid_stub[ t ] = g_admin_longstrips[ i ]->guid[ t + 24 ];
             guid_stub[ t ] = '\0';
             // compare 'guid_stub' with the filtering string
-            if (strstr( guid_stub, name_match) )
+            if (strstr( guid_stub, guid_match) )
               // if they match, set 'match' to true
               match = qtrue;
           }
@@ -4734,7 +4734,7 @@ qboolean G_admin_showlongstrips( gentity_t *ent, int skiparg )
           for( t = 0; t < 8; t++ )
             guid_stub[ t ] = g_admin_longstrips[ i ]->guid[ t + 24 ];
           guid_stub[ t ] = '\0';
-          if (strstr( guid_stub, name_match) )
+          if (!strstr( guid_stub, guid_match) )
             continue;
         }
         else
