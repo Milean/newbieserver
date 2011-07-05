@@ -1357,6 +1357,8 @@ char *ClientConnect( int clientNum, qboolean firstTime )
   int       privateClients;
   int       strip_count = 0, newbie_count = 0;
   gentity_t *tempent;
+  g_admin_longstrip_t stripinfo;
+  int scresult;
   
   ent = &g_entities[ clientNum ];
 
@@ -1488,7 +1490,8 @@ char *ClientConnect( int clientNum, qboolean firstTime )
 // cicho-sza add on
 
   // check for longstrip
-  if( G_admin_longstrip_check( userinfo , 0, qfalse) > 0)
+  scresult = G_admin_longstrip_check( userinfo , &stripinfo);
+  if( scresult > 0)
   {
     ent->client->pers.nakedPlayer = qtrue;
 
@@ -1515,14 +1518,33 @@ char *ClientConnect( int clientNum, qboolean firstTime )
       }
 
       if( strip_count + newbie_count > 5 )
+      {
         if( 100 * strip_count / (strip_count + newbie_count) > g_connectedStripPrcnt.integer )
+        {
+          G_LogPrintf("Stripped player %s ^7(%s^7) tried to connect.\n",
+                      ent->client->pers.netname, stripinfo.name);
           return "There are too many non-newbies connected. Please try again later.";
+        }
+      }
     }
   }
 
   // don't do the "xxx connected" messages if they were caried over from previous level
   if( firstTime )
   {
+    if( scresult != 0 )
+    {
+      if( scresult > 0 )
+      {
+        G_AdminsPrintf("Stripped player %s^7 (%s^7) connected.\n",
+                       client->pers.netname, stripinfo.name);
+      }
+      else
+      {
+        G_AdminsPrintf("%d longstrip(s) found for name: %s^7.\n",
+                        ( -scresult ), client->pers.netname);
+      }
+    }
     trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname ) );
     G_AdminsPrintf("%s^7 has IP ^3%s ^7and GUID ^3*%s^7\n", client->pers.netname, client->pers.ip, guid_stub );
   }
