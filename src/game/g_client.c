@@ -1546,7 +1546,8 @@ char *ClientConnect( int clientNum, qboolean firstTime )
       }
     }
     trap_SendServerCommand( -1, va( "print \"%s" S_COLOR_WHITE " connected\n\"", client->pers.netname ) );
-    G_AdminsPrintf("%s^7 has IP ^3%s ^7and GUID ^3*%s^7\n", client->pers.netname, client->pers.ip, guid_stub );
+    if ( *ip )
+      G_AdminsPrintf("%s^7 has IP ^3%s ^7and GUID ^3*%s^7\n", client->pers.netname, client->pers.ip, guid_stub );
   }
 
   // count current clients and rank for scoreboard
